@@ -4,11 +4,12 @@ module Parser where
     parse input =  createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ drop 3 $ addDash $ lines input
 
     handleExpansions :: [String] -> [String]
-    handleExpansions (x:rest) = case x of
-        "MissileExpansion" -> "Missile" : handleExpansions rest
-        "MissileLauncher" -> "Missile" : handleExpansions rest
-        "PowerBombExpansion" -> "PowerBomb" : handleExpansions rest
-        _ -> x : handleExpansions rest
+    handleExpansions (a:b:c:d:rest) = case removeNum c of
+        "MissileExpansion" -> a:b:"Missile":d : handleExpansions rest
+        "MissileLauncher" -> a:b:"Missile":d : handleExpansions rest
+        "PowerBombExpansion" -> a:b:"PowerBomb":d : handleExpansions rest
+        "EnergyTank" -> a:b:"EnergyTank":d : handleExpansions rest
+        _ -> a:b:c:d : handleExpansions rest
     handleExpansions [] = []
 
     removePrefixes :: [String] -> [String]
@@ -45,7 +46,10 @@ module Parser where
     removeEmpty [] = []
 
     removePunc :: [String] -> [String]
-    removePunc = map (\ xs -> [x | x <- xs, x `notElem` " ()\"1234567890-|"])
+    removePunc = map (\ xs -> [x | x <- xs, x `notElem` " ()\"-.|"])
+
+    removeNum :: String -> String
+    removeNum xs = [x | x <- xs, x `notElem` "1234567890"]
 
     split :: [String] -> [String]
     split = concatMap (splitOn "- ")

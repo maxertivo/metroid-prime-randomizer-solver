@@ -11,14 +11,14 @@ stripPrefixTest2 = assertEqual "stripPrefixTest2" Nothing (stripPrefix "somePref
 
 splitTest1 = assertEqual "splitTest1" ["abc-edge","asdf","beet","asdf -bert"] (split ["abc-edge", "asdf- beet", "asdf -bert"])
 
-parseTest = assertEqual "parseTest1" [("MainPlazaHalfPipe","Missile","REastAtrium")] (parse testVal)
+parseTest = assertEqual "parseTest1" [("MainPlazaHalfPipe","Missile","RSaveStation1")] (parse testVal)
 
-testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 17 - - Warps to: Chozo Ruins | East Atrium"
+testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 17 - - Warps to: Chozo Ruins | Save Station 1"
 
 tests = [testCase "stripPrefixTest1" stripPrefixTest1
         , testCase "stripPrefixTest2" stripPrefixTest2
         , testCase "splitTest1" splitTest1
-        , testCase "parseTest" parseTest]
+        , testCase "parseTest1" parseTest]
 
 main :: IO ()
 main = defaultMainWithOpts tests mempty

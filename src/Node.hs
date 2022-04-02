@@ -15,18 +15,26 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | OTransportTunnelA | ORootCave | OArborChamber | OTransportTunnelB | OTransporttoMagmoorCavernsEast
                 | OOvergrownCavern | OFrigateAccessTunnel | OFrigateCrashSite | OTransportTunnelC | OTransporttoChozoRuinsEast | OTransporttoChozoRuinsWest
                 | OMainVentilationShaftSectionC | OMainVentilationShaftSectionB | OMainVentilationShaftSectionA | OReactorCore | OReactorAccess
-                | OSaveStation | OCargoFreightLifttoDeckGamma | ODeckBetaTransitHall | OBiohazardContainment | ODeckBetaSecurityHall | OBiotechResearchArea
+                | OSaveStation | OCargoFreightLifttoDeckGamma | ODeckBetaTransitHall | OBiohazardContainment | ODeckBetaSecurityHall | OBiotechResearchArea1
                 | ODeckBetaConduitHall | OConnectionElevatortoDeckBeta | OHydroAccessTunnel | OGreatTreeHall | OGreatTreeHallTop | OTransportTunnelD
                 | OTransporttoChozoRuinsSouth | OGreatTreeChamber | OLifeGroveTunnel | OLifeGrove | OTransportTunnelE | OTransporttoPhazonMinesEast
                 | OTempleHall | OTempleSecurityStation | OTempleLobby | OArtifactTemple
-                | RTransporttoTallonOverworldNorth | RTransporttoTallonOverworldEast | RTransporttoTallonOverworldSouth | RRuinsEntrance | RMainPlaza 
-                | RPlazaAccess | RRuinedFountainAccess | RRuinedShrineAccess | RNurseryAccess | RPistonTunnel | RVault | RMainPlazaLedge
+
+                | RTransporttoTallonOverworldNorth | RRuinsEntrance | RMainPlaza | RMainPlazaLedge | RNurseryAccess | REyonTunnel | RRuinedNursery | RSaveStation1 
+                | RNorthAtrium | RRuinedGallery | RMapStation | RTotemAccess | RHiveTotem | RTransportAccessNorth | RTransporttoMagmoorCavernsNorth 
+                | RVaultAccess | RVault | RPlazaAccess | RRuinedShrineAccess | RRuinedShrine | RTowerofLightAccess | RTowerofLight | RTowerChamber 
+                | RRuinedFountainAccess | RRuinedFountain | RMeditationFountain | RMagmaPool | RTrainingChamberAccess | RTrainingChamber | RPistonTunnel
+                | RArboretumAccess | RSunchamberLobby | RSunchamberAccess | RSunchamber | RSunTowerAccess | RSunTower
+
+                | RTransporttoTallonOverworldSouth | RTransporttoTallonOverworldEast
+
                 | CTransporttoTallonOverworldWest 
-                | MTransporttoTallonOverworldSouth
+                | MTransporttoTallonOverworldSouth | MTransporttoChozoRuinsNorth
                 deriving  (Read, Eq, Show, Enum)
 data ItemId = LandingSite | RootCave | ArborChamber | TransportTunnelB | FrigateCrashSite | OvergrownCavern | CargoFreightLifttoDeckGamma 
                 | BiohazardContainment | HydroAccessTunnel | GreatTreeChamber | LifeGroveTunnel | LifeGroveStart | LifeGroveUnderwaterSpinner
-                | ArtifactTemple | MainPlazaLockedDoor | MainPlazaTree | MainPlazaGrappleLedge | MainPlazaHalfPipe
+                | ArtifactTemple | MainPlazaLockedDoor | MainPlazaTree | MainPlazaGrappleLedge | MainPlazaHalfPipe | Vault | TransportAccessNorth
+                | HiveTotem | RuinedGalleryMissileWall | RuinedGalleryTunnel | RuinedNursery
                 deriving  (Read, Eq, Show, Enum)
 
 noReq :: [ItemName] -> Bool
@@ -186,11 +194,10 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge frigateRoom (R ODeckBetaSecurityHall)
                                     ,Edge supers (I BiohazardContainment)]
             ,Room ODeckBetaSecurityHall [Edge noReq (R OBiohazardContainment)
-                                    ,Edge noReq (R OBiotechResearchArea)]
-            -- Actually Biotech Research Area 1, but Biotech Research Area 2 isn't on Tallon so "1" can be omitted
-            ,Room OBiotechResearchArea [Edge noReq (R ODeckBetaSecurityHall)
+                                    ,Edge noReq (R OBiotechResearchArea1)]
+            ,Room OBiotechResearchArea1 [Edge noReq (R ODeckBetaSecurityHall)
                                     ,Edge frigateRoom (R ODeckBetaConduitHall)]
-            ,Room ODeckBetaConduitHall [Edge noReq (R OBiotechResearchArea)
+            ,Room ODeckBetaConduitHall [Edge noReq (R OBiotechResearchArea1)
                                     ,Edge noReq (R OConnectionElevatortoDeckBeta)]
             ,Room OConnectionElevatortoDeckBeta [Edge gravSpace (R ODeckBetaConduitHall)
                                     ,Edge noReq (R OHydroAccessTunnel)]
@@ -253,4 +260,39 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (I MainPlazaLockedDoor)] 
             ,Room RPlazaAccess [Edge noReq (R RVault)
                                     ,Edge noReq (R RMainPlazaLedge)]
+            ,Room RVault [Edge noReq (R RPlazaAccess)
+                                    ,Edge noReq (R RVaultAccess)
+                                    ,Edge bombs (I Vault)]
+            ,Room RVaultAccess [Edge morph (R RVault)
+                                    ,Edge noReq (R RTransporttoMagmoorCavernsNorth)]
+            ,Room RTransporttoMagmoorCavernsNorth [Edge noReq (R RVaultAccess)
+                                    ,Edge noReq (R MTransporttoChozoRuinsNorth)
+                                    ,Edge noReq (R RSunTower)
+                                    ,Edge noReq (R RTransportAccessNorth)]
+            -- Need to check warp here
+            ,Room RTransportAccessNorth [Edge morph (R RTransporttoMagmoorCavernsNorth)
+                                    ,Edge missile (R RHiveTotem)
+                                    ,Edge noReq (I TransportAccessNorth)]
+            ,Room RHiveTotem [Edge missile (R RTransportAccessNorth)
+                                    ,Edge noReq (R RTotemAccess)
+                                    ,Edge noReq (I HiveTotem)]
+            ,Room RTotemAccess [Edge noReq (R RHiveTotem)
+                                    ,Edge noReq (R RRuinedGallery)]
+            ,Room RRuinedGallery [Edge noReq (R RTotemAccess)
+                                    ,Edge missile (R RMapStation)
+                                    ,Edge noReq (R RNorthAtrium)
+                                    ,Edge missile (I RuinedGalleryMissileWall)
+                                    ,Edge bombs (I RuinedGalleryTunnel)]
+            ,Room RMapStation [Edge missile (R RRuinedGallery)]
+            ,Room RNorthAtrium [Edge noReq (R RRuinedGallery)
+                                    ,Edge noReq (R RRuinedNursery)]
+            ,Room RRuinedNursery [Edge noReq (R RNorthAtrium)
+                                    ,Edge noReq (R RSaveStation1)
+                                    ,Edge noReq (R REyonTunnel)
+                                    ,Edge bombs (I RuinedNursery)]
+            ,Room RSaveStation1 [Edge noReq (R RRuinedNursery)]
+            ,Room REyonTunnel [Edge noReq (R RRuinedNursery)
+                                    ,Edge noReq (R RNurseryAccess)]
+            ,Room RNurseryAccess [Edge noReq (R REyonTunnel)
+                                    ,Edge noReq (R RMainPlaza)]
                                     ]
