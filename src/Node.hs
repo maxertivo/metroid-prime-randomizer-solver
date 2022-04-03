@@ -126,11 +126,11 @@ rsHalf :: [ItemName] -> Bool
 rsHalf x = containsAll x [MorphBall, BoostBall]
 
 tolAccess :: [ItemName] -> Bool
-tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall]
+tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
 
 count :: Int -> ItemName -> [ItemName] -> Bool
 count 0 item items = True
-count num item items = if contains items item then count (num-1) item (remove item items) else False
+count num item items = contains items item && count (num-1) item (remove item items)
 
 remove :: ItemName -> [ItemName] -> [ItemName]
 remove item (x:rest) = if x == item then rest else x : remove item rest 
@@ -322,11 +322,11 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (I RuinedShrineLowerTunnel)
                                     ,Edge rsHalf (I RuinedShrineHalfPipe)
                                     ,Edge noReq (I RuinedShrineBeetleBattle)]
-            ,Room RTowerofLightAccess [Edge noReq (R RRuinedShrine)
-                                    ,Edge noReq (R RTowerofLight)]
-            ,Room RTowerofLight [Edge noReq (R RTowerofLightAccess)
+            ,Room RTowerofLightAccess [Edge wave (R RRuinedShrine)
+                                    ,Edge wave (R RTowerofLight)]
+            ,Room RTowerofLight [Edge wave (R RTowerofLightAccess)
                                     ,Edge towerChamber (R RTowerChamber)
                                     ,Edge (count 7 Missile) (I TowerofLight)]
-            ,Room RTowerChamber [Edge noReq (R RTowerofLight)
+            ,Room RTowerChamber [Edge wave (R RTowerofLight)
                                     ,Edge noReq (I TowerChamber)]
                                     ]
