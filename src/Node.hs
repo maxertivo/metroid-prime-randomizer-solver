@@ -1,6 +1,7 @@
 module Node where
 
 data Id = R RoomId | I ItemId
+        deriving  (Read, Eq, Show)
 
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
 
@@ -10,7 +11,7 @@ data ItemName = Missile | EnergyTank | MorphBall | SpaceJump | MorphBallBombs | 
                 | SpiderBall | SuperMissile | ChargeBeam
                 deriving  (Read, Eq, Show, Enum)
 
--- Two different types of IDs here to make it more difficult to confuse Room and Item IDs
+-- Room IDs are distinct from Item IDs to make it more difficult to confuse them
 data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove | OTallonCanyon | ORootTunnel 
                 | OTransportTunnelA | ORootCave | OArborChamber | OTransportTunnelB | OTransporttoMagmoorCavernsEast
                 | OOvergrownCavern | OFrigateAccessTunnel | OFrigateCrashSite | OTransportTunnelC | OTransporttoChozoRuinsEast | OTransporttoChozoRuinsWest
@@ -25,8 +26,10 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | RVaultAccess | RVault | RPlazaAccess | RRuinedShrineAccess | RRuinedShrine | RTowerofLightAccess | RTowerofLight | RTowerChamber 
                 | RRuinedFountainAccess | RRuinedFountain | RMeditationFountain | RMagmaPool | RTrainingChamberAccess | RTrainingChamber | RPistonTunnel
                 | RArboretumAccess | RSunchamberLobby | RSunchamberAccess | RSunchamber | RSunTowerAccess | RSunTower
-
-                | RTransporttoTallonOverworldSouth | RTransporttoTallonOverworldEast
+                | RArboretum | RGatheringHallAccess | RGatheringHall | RSaveStation2 | RWateryHallAccess | RWateryHall | RDynamoAccess | RDynamo | REastAtrium 
+                | REnergyCoreAccess | REnergyCore | RBurnDomeAccess | RBurnDome | RWestFurnaceAccess | RFurnace | REastFurnaceAccess | RCrosswayAccessWest 
+                | RCrossway | RCrosswayAccessSouth | RElderHallAccess | RHalloftheElders | RElderChamber | RReflectingPoolAccess | RReflectingPool | RAntechamber 
+                | RSaveStation3 | RTransporttoTallonOverworldEast | RTransportAccessSouth | RTransporttoTallonOverworldSouth
 
                 | CTransporttoTallonOverworldWest 
                 | MTransporttoTallonOverworldSouth | MTransporttoChozoRuinsNorth
@@ -34,7 +37,8 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
 data ItemId = LandingSite | RootCave | ArborChamber | TransportTunnelB | FrigateCrashSite | OvergrownCavern | CargoFreightLifttoDeckGamma 
                 | BiohazardContainment | HydroAccessTunnel | GreatTreeChamber | LifeGroveTunnel | LifeGroveStart | LifeGroveUnderwaterSpinner
                 | ArtifactTemple | MainPlazaLockedDoor | MainPlazaTree | MainPlazaGrappleLedge | MainPlazaHalfPipe | Vault | TransportAccessNorth
-                | HiveTotem | RuinedGalleryMissileWall | RuinedGalleryTunnel | RuinedNursery
+                | HiveTotem | RuinedGalleryMissileWall | RuinedGalleryTunnel | RuinedNursery | RuinedShrineLowerTunnel | RuinedShrineHalfPipe 
+                | RuinedShrineBeetleBattle | TowerofLight | TowerChamber
                 deriving  (Read, Eq, Show, Enum)
 
 noReq :: [ItemName] -> Bool
@@ -114,6 +118,22 @@ blocked _ = False
 
 lifeGroveT :: [ItemName] -> Bool
 lifeGroveT x = containsAll x [PowerBomb, MorphBall, BoostBall]
+
+towerChamber :: [ItemName] -> Bool
+towerChamber x = containsAll x [GravitySuit, SpaceJump, WaveBeam]
+
+rsHalf :: [ItemName] -> Bool
+rsHalf x = containsAll x [MorphBall, BoostBall]
+
+tolAccess :: [ItemName] -> Bool
+tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall]
+
+count :: Int -> ItemName -> [ItemName] -> Bool
+count 0 item items = True
+count num item items = if contains items item then count (num-1) item (remove item items) else False
+
+remove :: ItemName -> [ItemName] -> [ItemName]
+remove item (x:rest) = if x == item then rest else x : remove item rest 
 
 contains :: [ItemName] -> ItemName -> Bool
 contains items item = item `elem` items
@@ -295,4 +315,18 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R RNurseryAccess)]
             ,Room RNurseryAccess [Edge noReq (R REyonTunnel)
                                     ,Edge noReq (R RMainPlaza)]
+            ,Room RRuinedShrineAccess [Edge noReq (R RRuinedShrine)
+                                    ,Edge missile (R RMainPlaza)]
+            ,Room RRuinedShrine [Edge noReq (R RRuinedShrineAccess)
+                                    ,Edge tolAccess (R RTowerofLightAccess)
+                                    ,Edge bombs (I RuinedShrineLowerTunnel)
+                                    ,Edge rsHalf (I RuinedShrineHalfPipe)
+                                    ,Edge noReq (I RuinedShrineBeetleBattle)]
+            ,Room RTowerofLightAccess [Edge noReq (R RRuinedShrine)
+                                    ,Edge noReq (R RTowerofLight)]
+            ,Room RTowerofLight [Edge noReq (R RTowerofLightAccess)
+                                    ,Edge towerChamber (R RTowerChamber)
+                                    ,Edge (count 7 Missile) (I TowerofLight)]
+            ,Room RTowerChamber [Edge noReq (R RTowerofLight)
+                                    ,Edge noReq (I TowerChamber)]
                                     ]
