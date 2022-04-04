@@ -128,12 +128,17 @@ rsHalf x = containsAll x [MorphBall, BoostBall]
 tolAccess :: [ItemName] -> Bool
 tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
 
-count :: Int -> ItemName -> [ItemName] -> Bool
-count 0 item items = True
-count num item items = contains items item && count (num-1) item (remove item items)
+towerOfLight :: [ItemName] -> Bool
+towerOfLight x = containsCount 8 Missile x && sj x
 
-remove :: ItemName -> [ItemName] -> [ItemName]
-remove item (x:rest) = if x == item then rest else x : remove item rest 
+containsCount :: Eq a => Int -> a -> [a] -> Bool
+containsCount num elem list
+    | num < 0 = False
+    | num == 0 = True
+    | otherwise = num <= count elem list
+
+count :: Eq a => a -> [a] -> Int
+count x = length . filter (== x)
 
 contains :: [ItemName] -> ItemName -> Bool
 contains items item = item `elem` items
@@ -326,7 +331,7 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge wave (R RTowerofLight)]
             ,Room RTowerofLight [Edge wave (R RTowerofLightAccess)
                                     ,Edge towerChamber (R RTowerChamber)
-                                    ,Edge (count 7 Missile) (I TowerofLight)]
+                                    ,Edge towerOfLight (I TowerofLight)]
             ,Room RTowerChamber [Edge wave (R RTowerofLight)
                                     ,Edge noReq (I TowerChamber)]
                                     ]

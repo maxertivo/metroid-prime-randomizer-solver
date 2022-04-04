@@ -1,7 +1,7 @@
 module Parser where 
     
     parse :: String ->  [(String,String,String)]
-    parse input =  createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ drop 3 $ addDash $ lines input
+    parse input =  createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
 
     handleExpansions :: [String] -> [String]
     handleExpansions (a:b:c:d:rest) = case removeNum c of
@@ -66,7 +66,21 @@ module Parser where
     stripPrefix :: String -> String -> Maybe String
     stripPrefix [] [] = Just []
     stripPrefix [] str = Just str
-    stripPrefix delim [] = Nothing
-    stripPrefix (x:delim) (y:str) = if x == y then stripPrefix delim str else Nothing
+    stripPrefix prefix [] = Nothing
+    stripPrefix (x:prefix) (y:str) = if x == y then stripPrefix prefix str else Nothing
+
+    startsWith :: String -> String -> Bool
+    startsWith [] [] = True
+    startsWith [] str = True
+    startsWith prefix [] = False
+    startsWith (x:prefix) (y:str) = x == y && startsWith prefix str
+
+    dropLines :: [String] -> [String]
+    dropLines [] = []
+    dropLines (x:rest) = if startsWith "Chozo" x then dropElevators (x:rest) else dropLines rest
+
+    dropElevators :: [String] -> [String]
+    dropElevators [] = []
+    dropElevators (x:rest) = if startsWith "Elevators:" x then [] else x : dropElevators rest
 
     
