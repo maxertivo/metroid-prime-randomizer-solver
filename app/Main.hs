@@ -5,6 +5,7 @@ import System.IO
 import Control.Monad
 import Node
 import Graph
+import Data.Maybe
 
 main :: IO ()
 main = do

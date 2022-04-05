@@ -7,8 +7,8 @@ data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, i
 
 data Edge = Edge {canUse :: [ItemName] -> Bool, nodeId :: Id}
 
-data ItemName = Missile | EnergyTank | MorphBall | SpaceJump | MorphBallBombs | GrappleBeam | WaveBeam | IceBeam | PlasmaBeam | GravitySuit | BoostBall | PowerBomb
-                | SpiderBall | SuperMissile | ChargeBeam
+data ItemName = Missile | EnergyTank | MorphBall | SpaceJump | MorphBallBombs | GrappleBeam | WaveBeam | IceBeam | PlasmaBeam | VariaSuit | GravitySuit 
+                | PhazonSuit | BoostBall | PowerBomb | SpiderBall | SuperMissile | ChargeBeam
                 deriving  (Read, Eq, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -29,7 +29,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | RArboretum | RGatheringHallAccess | RGatheringHall | RSaveStation2 | RWateryHallAccess | RWateryHall | RDynamoAccess | RDynamo | REastAtrium 
                 | REnergyCoreAccess | REnergyCore | RBurnDomeAccess | RBurnDome | RWestFurnaceAccess | RFurnace | REastFurnaceAccess | RCrosswayAccessWest 
                 | RCrossway | RCrosswayAccessSouth | RElderHallAccess | RHalloftheElders | RElderChamber | RReflectingPoolAccess | RReflectingPool | RAntechamber 
-                | RSaveStation3 | RTransporttoTallonOverworldEast | RTransportAccessSouth | RTransporttoTallonOverworldSouth
+                | RSaveStation3 | RTransporttoTallonOverworldEast | RTransportAccessSouth | RTransporttoTallonOverworldSouth | RRuinedFountainNonWarp
 
                 | CTransporttoTallonOverworldWest 
                 | MTransporttoTallonOverworldSouth | MTransporttoChozoRuinsNorth
@@ -38,7 +38,9 @@ data ItemId = LandingSite | RootCave | ArborChamber | TransportTunnelB | Frigate
                 | BiohazardContainment | HydroAccessTunnel | GreatTreeChamber | LifeGroveTunnel | LifeGroveStart | LifeGroveUnderwaterSpinner
                 | ArtifactTemple | MainPlazaLockedDoor | MainPlazaTree | MainPlazaGrappleLedge | MainPlazaHalfPipe | Vault | TransportAccessNorth
                 | HiveTotem | RuinedGalleryMissileWall | RuinedGalleryTunnel | RuinedNursery | RuinedShrineLowerTunnel | RuinedShrineHalfPipe 
-                | RuinedShrineBeetleBattle | TowerofLight | TowerChamber
+                | RuinedShrineBeetleBattle | TowerofLight | TowerChamber | RuinedFountain | MagmaPool | TrainingChamberAccess
+
+                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines
                 deriving  (Read, Eq, Show, Enum)
 
 noReq :: [ItemName] -> Bool
@@ -131,6 +133,18 @@ tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
 towerOfLight :: [ItemName] -> Bool
 towerOfLight x = containsCount 8 Missile x && sj x
 
+spider :: [ItemName] -> Bool
+spider x = contains x SpiderBall
+
+heatResist :: [ItemName] -> Bool
+heatResist x  = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
+
+crossMagmaPool :: [ItemName] -> Bool
+crossMagmaPool x  = heatResist x && containsAll x [GrappleBeam,WaveBeam]
+
+magmaPoolItem :: [ItemName] -> Bool
+magmaPoolItem x  = heatResist x && containsAll x [GrappleBeam,PowerBomb]
+
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num elem list
     | num < 0 = False
@@ -148,6 +162,12 @@ containsAll [] [] = True
 containsAll items [] = True
 containsAll [] checks = False 
 containsAll items (x:rest) = contains items x && containsAll items rest
+
+containsAny :: [ItemName] -> [ItemName] -> Bool
+containsAny [] [] = True
+containsAny items [] = True
+containsAny [] checks = False 
+containsAny items (x:rest) = contains items x || containsAll items rest
 
 buildNodes :: [Node]
 buildNodes = [ -- Tallon Overworld Rooms
@@ -334,4 +354,21 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge towerOfLight (I TowerofLight)]
             ,Room RTowerChamber [Edge wave (R RTowerofLight)
                                     ,Edge noReq (I TowerChamber)]
+            -- Not sure about warp point
+            ,Room RRuinedFountainAccess [Edge morph (R RRuinedFountainNonWarp)
+                                    ,Edge noReq (R RMainPlaza)]
+            -- The Ruined Fountain Warp puts you on top of the item and forces you to collect it
+            ,Room RRuinedFountainNonWarp [Edge spider (R RRuinedFountain)
+                                    ,Edge noReq (R RRuinedFountainAccess)
+                                    ,Edge noReq (R RMeditationFountain)
+                                    ,Edge noReq (R RArboretumAccess)]
+            ,Room RRuinedFountain [Edge noReq (I RuinedFountain)]
+            ,Room RMeditationFountain [Edge noReq (R RRuinedFountainNonWarp)
+                                    ,Edge heatResist (R RMagmaPool)]
+            ,Room RMagmaPool [Edge noReq (R RMeditationFountain)
+                                    ,Edge crossMagmaPool (R RTrainingChamberAccess)
+                                    ,Edge magmaPoolItem (I MagmaPool)]
+            ,Room RTrainingChamberAccess [Edge wave (R RMagmaPool)
+                                    ,Edge wave (R RTrainingChamber)
+                                    ,Edge morph (I TrainingChamberAccess)]
                                     ]
