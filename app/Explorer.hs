@@ -8,7 +8,7 @@ import Graph
 import Data.Maybe
 import Control.Exception
 
-data GraphException = MissingWarp !Id | MissingNode
+data GraphException = MissingWarp !Id | MissingNode | InvalidArgument !String
                     deriving (Show)
 
 instance Exception GraphException
@@ -22,11 +22,12 @@ main = do
   
 
 explore :: [Node] -> [ItemName] -> Node -> IO ()
+explore _ _ (Item{}) = throw $ InvalidArgument "Item node cannot be an argument here. Pass in the warp room node instead."
 explore nodes items node = do
     let edgeList = edges node
-    let predicates = map canUse edgeList
-    let ids = map nodeId edgeList
-    let bools = eval predicates items
+        predicates = map canUse edgeList
+        bools = eval predicates items
+        ids = map nodeId edgeList
     
     putStrLn  "---------------------------------------"
     putStrLn  $ "Current Room: " ++ show (roomId node)
@@ -35,16 +36,16 @@ explore nodes items node = do
     command <- getLine
 
     let index = (read command :: Integer) - 1
-    let allowed = fromMaybe False (getIndex bools index)
-    let newNode = getIndex ids index >>= getNode nodes
+        allowed = fromMaybe False (getIndex bools index)
+        newNode = getIndex ids index >>= getNode nodes
 
     if allowed 
     then case newNode of
+        Nothing -> throw MissingNode
+        Just (Room id edges) -> explore nodes items (Room id edges)
         Just (Item id name warp) -> case getNode nodes (R warp) of 
                                     Just warpNode -> explore nodes (name : items) warpNode
                                     Nothing -> throw $ MissingWarp $ R warp
-        Just (Room id edges) -> explore nodes items (Room id edges)
-        Nothing -> throw MissingNode
     else explore nodes items node
 
 
