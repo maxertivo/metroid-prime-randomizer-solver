@@ -1,4 +1,5 @@
 module Parser where 
+    import Node
     
     parse :: String ->  [(String,String,String)]
     parse input =  createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
@@ -13,24 +14,20 @@ module Parser where
     handleExpansions [] = []
 
     removePrefixes :: [String] -> [String]
-    removePrefixes (a:rest) =  case stripPrefix "Warps to:" a of
-        Just b -> b : removePrefixes rest 
-        Nothing ->  a : removePrefixes rest
-    removePrefixes [] = []
+    removePrefixes = map (replacePrefix "Warps to:" "")
 
     shortenAreas :: [String] -> [String]
-    shortenAreas (a:rest) =  case stripPrefix "TallonOverworld" a of
-        Just b -> ("O" ++ b) : shortenAreas rest 
-        Nothing -> case stripPrefix "MagmoorCaverns" a of
-            Just b -> ("C" ++ b) : shortenAreas rest 
-            Nothing -> case stripPrefix "PhazonMines" a of
-                Just b -> ("M" ++ b) : shortenAreas rest 
-                Nothing -> case stripPrefix "ChozoRuins" a of
-                    Just b -> ("R" ++ b) : shortenAreas rest 
-                    Nothing -> case stripPrefix "PhendranaDrifts" a of
-                        Just b -> ("D" ++ b) : shortenAreas rest 
-                        Nothing -> a : shortenAreas rest
-    shortenAreas [] = []
+    shortenAreas = map
+      (replacePrefix "PhendranaDrifts" "D"
+         . replacePrefix "ChozoRuins" "R"
+             . replacePrefix "PhazonMines" "M"
+                 . replacePrefix "MagmoorCaverns" "C"
+                     . replacePrefix "TallonOverworld" "O")
+
+    replacePrefix :: String -> String -> String -> String
+    replacePrefix prefix replacement string = case stripPrefix prefix string of
+        Just b -> replacement ++ b
+        Nothing -> string
 
     addDash :: [String] -> [String]
     addDash (a:rest) = if length a < 77 then (a ++ " - Warps to:") : addDash rest else a : addDash rest
@@ -64,13 +61,11 @@ module Parser where
         Nothing -> splitOnHelper delim rest (accum ++ [x])
     
     stripPrefix :: String -> String -> Maybe String
-    stripPrefix [] [] = Just []
     stripPrefix [] str = Just str
     stripPrefix prefix [] = Nothing
     stripPrefix (x:prefix) (y:str) = if x == y then stripPrefix prefix str else Nothing
 
     startsWith :: String -> String -> Bool
-    startsWith [] [] = True
     startsWith [] str = True
     startsWith prefix [] = False
     startsWith (x:prefix) (y:str) = x == y && startsWith prefix str
@@ -83,4 +78,104 @@ module Parser where
     dropElevators [] = []
     dropElevators (x:rest) = if startsWith "Elevators:" x then [] else x : dropElevators rest
 
-    
+    defaultWarps :: [(RoomId,ItemId)]
+    defaultWarps = [(RMainPlaza,MainPlazaHalfPipe)
+                    ,(RMainPlaza,MainPlazaGrappleLedge)
+                    ,(RMainPlaza,MainPlazaTree)
+                    ,(RMainPlazaLedge,MainPlazaLockedDoor)
+                    ,(RRuinedFountainNonWarp,RuinedFountain)
+                    ,(RRuinedShrine,RuinedShrineBeetleBattle)
+                    ,(RRuinedShrine,RuinedShrineHalfPipe)
+                    ,(RRuinedShrine,RuinedShrineLowerTunnel)
+                    ,(RVault,Vault)
+                    ,(RTrainingChamber,TrainingChamber)
+                    ,(RRuinedNursery,RuinedNursery)
+                    ,(RTrainingChamberAccess,TrainingChamberAccess)
+                    ,(RMagmaPool,MagmaPool)
+                    ,(RTowerofLight,TowerofLight)
+                    ,(RTowerChamber,TowerChamber)
+                    ,(RRuinedGallery,RuinedGalleryMissileWall)
+                    ,(RRuinedGallery,RuinedGalleryTunnel)
+                    ,(RTransportAccessNorth,TransportAccessNorth)
+                    ,(RGatheringHall,GatheringHall)
+                    ,(RHiveTotem,HiveTotem)
+                    ,(RSunchamber,SunchamberFlaahgra)
+                    ,(RSunchamber,SunchamberGhosts)
+                    ,(RWateryHallAccess,WateryHallAccess)
+                    ,(RWateryHall,WateryHallScanPuzzle)
+                    ,(RWateryHall,WateryHallUnderwater)
+                    ,(RDynamo,DynamoLower)
+                    ,(RDynamo,DynamoSpiderTrack)
+                    ,(RBurnDome,BurnDomeMissile)
+                    ,(RBurnDome,BurnDomeIDrone)
+                    ,(RFurnace,FurnaceSpiderTracks)
+                    ,(RFurnace,FurnaceInsideFurnace)
+                    ,(RHalloftheElders,HalloftheElders)
+                    ,(RCrossway,Crossway)
+                    ,(RElderChamber,ElderChamber)
+                    ,(RAntechamber,Antechamber)
+                    ,(DPhendranaShorelines,PhendranaShorelinesBehindIce)
+                    ,(DPhendranaShorelines,PhendranaShorelinesSpiderTrack)
+                    ,(DChozoIceTemple,ChozoIceTemple)
+                    ,(DIceRuinsWest,IceRuinsWest)
+                    ,(DIceRuinsEast,IceRuinsEastBehindIce)
+                    ,(DIceRuinsEast,IceRuinsEastSpiderTrack)
+                    ,(DChapeloftheElders,ChapeloftheElders)
+                    ,(DRuinedCourtyard,RuinedCourtyard)
+                    ,(DPhendranaCanyon,PhendranaCanyon)
+                    ,(DQuarantineCave,QuarantineCave)
+                    ,(DResearchLabHydra,ResearchLabHydra)
+                    ,(DQuarantineMonitor,QuarantineMonitor)
+                    ,(DObservatory,Observatory)
+                    ,(DTransportAccess,TransportAccess)
+                    ,(DControlTower,ControlTower)
+                    ,(DResearchCore,ResearchCore)
+                    ,(DFrostCave,FrostCave)
+                    ,(DResearchLabAether,ResearchLabAetherTank)
+                    ,(DResearchLabAether,ResearchLabAetherMorphTrack)
+                    ,(DGravityChamber,GravityChamberUnderwater)
+                    ,(DGravityChamber,GravityChamberGrappleLedge)
+                    ,(DStorageCave,StorageCave)
+                    ,(DSecurityCave,SecurityCave)
+                    ,(OLandingSite,LandingSite)
+                    ,(OAlcove,Alcove)
+                    ,(OFrigateCrashSite,FrigateCrashSite)
+                    ,(OOvergrownCavern,OvergrownCavern)
+                    ,(ORootCave,RootCave)
+                    ,(OArtifactTemple,ArtifactTemple)
+                    ,(OTransportTunnelB,TransportTunnelB)
+                    ,(OArborChamber,ArborChamber)
+                    ,(OCargoFreightLifttoDeckGamma,CargoFreightLifttoDeckGamma)
+                    ,(OBiohazardContainment,BiohazardContainment)
+                    ,(OHydroAccessTunnel,HydroAccessTunnel)
+                    ,(OGreatTreeChamber,GreatTreeChamber)
+                    ,(OLifeGroveTunnel,LifeGroveTunnel)
+                    ,(OLifeGrove,LifeGroveStart)
+                    ,(OLifeGrove,LifeGroveUnderwaterSpinner)
+                    ,(MMainQuarry,MainQuarry)
+                    ,(MSecurityAccessA,SecurityAccessA)
+                    ,(MStorageDepotB,StorageDepotB)
+                    ,(MStorageDepotA,StorageDepotA)
+                    ,(MEliteResearch,EliteResearchPhazonElite)
+                    ,(MEliteResearch,EliteResearchLaser)
+                    ,(MEliteControlAccess,EliteControlAccess)
+                    ,(MVentilationShaft,VentilationShaft)
+                    ,(MPhazonProcessingCenter,PhazonProcessingCenter)
+                    ,(MProcessingCenterAccess,ProcessingCenterAccess)
+                    ,(MEliteQuarters,EliteQuarters)
+                    ,(MCentralDynamo,CentralDynamo)
+                    ,(MMetroidQuarantineB,MetroidQuarantineB)
+                    ,(MMetroidQuarantineA,MetroidQuarantineA)
+                    ,(MFungalHallB,FungalHallB)
+                    ,(MPhazonMiningTunnel,PhazonMiningTunnel)
+                    ,(MFungalHallAccess,FungalHallAccess)
+                    ,(CLavaLake,LavaLake)
+                    ,(CTriclopsPit,TriclopsPit)
+                    ,(CStorageCavern,StorageCavern)
+                    ,(CTransportTunnelA,TransportTunnelA)
+                    ,(CWarriorShrine,WarriorShrine)
+                    ,(CShoreTunnel,ShoreTunnel)
+                    ,(CFieryShores,FieryShoresMorphTrack)
+                    ,(CFieryShores,FieryShoresWarriorShrineTunnel)
+                    ,(CPlasmaProcessing,PlasmaProcessing)
+                    ,(CMagmoorWorkstation,MagmoorWorkstation)]

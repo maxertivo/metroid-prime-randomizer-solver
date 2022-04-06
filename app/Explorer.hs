@@ -22,15 +22,16 @@ main = do
   
 
 explore :: [Node] -> [ItemName] -> Node -> IO ()
-explore _ _ (Item{}) = throw $ InvalidArgument "Item node cannot be an argument here. Pass in the warp room node instead."
-explore nodes items node = do
-    let edgeList = edges node
-        predicates = map canUse edgeList
+explore nodes items (Item id name warp) =  case getNode nodes (R warp) of 
+                            Just warpNode -> explore nodes (name : items) warpNode
+                            Nothing -> throw $ MissingWarp $ R warp
+explore nodes items (Room roomId edges) = do
+    let predicates = map canUse edges
         bools = eval predicates items
-        ids = map nodeId edgeList
+        ids = map nodeId edges
     
     putStrLn  "---------------------------------------"
-    putStrLn  $ "Current Room: " ++ show (roomId node)
+    putStrLn  $ "Current Room: " ++ show roomId
     putStrLn  $ "Items: " ++ show items
     printEdges ids bools
     command <- getLine
@@ -42,11 +43,8 @@ explore nodes items node = do
     if allowed 
     then case newNode of
         Nothing -> throw MissingNode
-        Just (Room id edges) -> explore nodes items (Room id edges)
-        Just (Item id name warp) -> case getNode nodes (R warp) of 
-                                    Just warpNode -> explore nodes (name : items) warpNode
-                                    Nothing -> throw $ MissingWarp $ R warp
-    else explore nodes items node
+        Just a -> explore nodes items a
+    else explore nodes items (Room roomId edges)
 
 
 
