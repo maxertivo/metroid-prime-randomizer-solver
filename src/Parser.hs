@@ -1,8 +1,22 @@
 module Parser where 
     import Node
+    import Text.Read
     
-    parse :: String ->  [(String,String,String)]
-    parse input =  createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
+    parse :: String ->  [Node]
+    parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
+
+    createItemNodes :: [(String,String,String)] -> [Node]
+    createItemNodes ((a,b,c):rest) = Item (readS a::ItemId) (readS b::ItemName) (if c == "" then getDefaultWarp (readS a::ItemId) defaultWarps else readS c::RoomId) : createItemNodes rest
+    createItemNodes [] = []
+
+    getDefaultWarp :: ItemId -> [(RoomId,ItemId)] -> RoomId
+    getDefaultWarp itemId ((room,item):rest) = if itemId == item then room else getDefaultWarp itemId rest
+    getDefaultWarp itemId [] = error ("Couldn't find default warp for itemId:" ++ show itemId)
+
+    readS :: Read a => String -> a
+    readS str = case readMaybe str of
+        Just result -> result
+        Nothing -> error ("Cannot read string:" ++ str)
 
     handleExpansions :: [String] -> [String]
     handleExpansions (a:b:c:d:rest) = case removeNum c of
@@ -10,8 +24,10 @@ module Parser where
         "MissileLauncher" -> a:b:"Missile":d : handleExpansions rest
         "PowerBombExpansion" -> a:b:"PowerBomb":d : handleExpansions rest
         "EnergyTank" -> a:b:"EnergyTank":d : handleExpansions rest
+        'A':'r':'t':'i':'f':'a':'c':'t':rest2 -> a:b:"Artifact":d : handleExpansions rest
         _ -> a:b:c:d : handleExpansions rest
     handleExpansions [] = []
+    handleExpansions x = error "Expecting a list with a number of elements divisible by 4"
 
     removePrefixes :: [String] -> [String]
     removePrefixes = map (replacePrefix "Warps to:" "")

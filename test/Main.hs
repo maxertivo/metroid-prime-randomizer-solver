@@ -12,7 +12,9 @@ stripPrefixTest2 = assertEqual "stripPrefixTest2" Nothing (stripPrefix "somePref
 
 splitTest1 = assertEqual "splitTest1" ["abc-edge","asdf","beet","asdf -bert"] (split ["abc-edge", "asdf- beet", "asdf -bert"])
 
-parseTest = assertEqual "parseTest1" [("MainPlazaHalfPipe","Missile","RSaveStation1")] (parse testVal)
+parseTest1 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest1" MainPlazaHalfPipe a
+parseTest2 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest2" Missile b
+parseTest3 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest3" RSaveStation1 c
 
 countTrue = assertEqual "countTrue" True (containsCount 2 Missile [ChargeBeam, Missile, Missile, GrappleBeam, Missile])
 
@@ -27,7 +29,9 @@ testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo -
 tests = [testCase "stripPrefixTest1" stripPrefixTest1
         , testCase "stripPrefixTest2" stripPrefixTest2
         , testCase "splitTest1" splitTest1
-        , testCase "parseTest1" parseTest
+        , testCase "parseTest1" parseTest1
+        , testCase "parseTest2" parseTest2
+        , testCase "parseTest3" parseTest3
         , testCase "countTrue" countTrue
         , testCase "countTrue2" countTrue2
         , testCase "countFalse" countFalse

@@ -4,11 +4,15 @@ data Id = R RoomId | I ItemId
         deriving  (Read, Eq, Show)
 
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
-
+        deriving (Show)
 data Edge = Edge {canUse :: [ItemName] -> Bool, nodeId :: Id}
+        
+instance Show Edge where 
+    show (Edge canUse nodeId) = show nodeId
 
-data ItemName = Missile | EnergyTank | MorphBall | SpaceJump | MorphBallBombs | GrappleBeam | WaveBeam | IceBeam | PlasmaBeam | VariaSuit | GravitySuit 
-                | PhazonSuit | BoostBall | PowerBomb | SpiderBall | SuperMissile | ChargeBeam
+data ItemName = Missile | EnergyTank | MorphBall | SpaceJumpBoots | MorphBallBomb | GrappleBeam | WaveBeam | IceBeam | PlasmaBeam | VariaSuit | GravitySuit 
+                | PhazonSuit | BoostBall | PowerBomb | SpiderBall | SuperMissile | ChargeBeam | XRayVisor | ThermalVisor | Wavebuster | IceSpreader 
+                | Flamethrower | Artifact
                 deriving  (Read, Eq, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -78,25 +82,25 @@ morph :: [ItemName] -> Bool
 morph x = contains x MorphBall
 
 sj :: [ItemName] -> Bool
-sj x = contains x SpaceJump
+sj x = contains x SpaceJumpBoots
 
 missile :: [ItemName] -> Bool
 missile x = contains x Missile
 
 bombs :: [ItemName] -> Bool
-bombs x = contains x MorphBallBombs
+bombs x = contains x MorphBallBomb
 
 arbor :: [ItemName] -> Bool
-arbor x = containsAll x [SpaceJump, GrappleBeam, PlasmaBeam]
+arbor x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
 
 spaceGrapple :: [ItemName] -> Bool
-spaceGrapple x = containsAll x [SpaceJump, GrappleBeam]
+spaceGrapple x = containsAll x [SpaceJumpBoots, GrappleBeam]
 
 sjGrapple :: [ItemName] -> Bool
-sjGrapple x = containsAll x [SpaceJump, GrappleBeam]
+sjGrapple x = containsAll x [SpaceJumpBoots, GrappleBeam]
 
 mainPipe :: [ItemName] -> Bool
-mainPipe x = contains x SpaceJump || containsAll x [BoostBall, MorphBall]
+mainPipe x = contains x SpaceJumpBoots || containsAll x [BoostBall, MorphBall]
 
 morphMissile :: [ItemName] -> Bool
 morphMissile x = containsAll x [MorphBall, Missile]
@@ -111,7 +115,7 @@ fcsEntry :: [ItemName] -> Bool
 fcsEntry x = contains x IceBeam && (contains x GrappleBeam || (contains x MorphBall && fcsItem x ))
 
 fcsItem :: [ItemName] -> Bool
-fcsItem x = contains x SpaceJump || contains x GravitySuit
+fcsItem x = contains x SpaceJumpBoots || contains x GravitySuit
 
 wave :: [ItemName] -> Bool
 wave x = contains x WaveBeam
@@ -129,16 +133,16 @@ frigateRoom :: [ItemName] -> Bool
 frigateRoom x = containsAll x [WaveBeam, GravitySuit]
 
 gravSpace :: [ItemName] -> Bool
-gravSpace x = containsAll x [GravitySuit, SpaceJump]
+gravSpace x = containsAll x [GravitySuit, SpaceJumpBoots]
 
 boostSpace :: [ItemName] -> Bool
-boostSpace x = containsAll x [MorphBall, BoostBall, SpaceJump]
+boostSpace x = containsAll x [MorphBall, BoostBall, SpaceJumpBoots]
 
 hydroTunnel ::  [ItemName] -> Bool
-hydroTunnel x = containsAll x [GravitySuit, MorphBall, MorphBallBombs]
+hydroTunnel x = containsAll x [GravitySuit, MorphBall, MorphBallBomb]
 
 gthClimb :: [ItemName] -> Bool
-gthClimb x = containsAll x [SpaceJump, BoostBall, MorphBall]
+gthClimb x = containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
 
 bars :: [ItemName] -> Bool
 bars _ = False
@@ -150,7 +154,7 @@ lifeGroveT :: [ItemName] -> Bool
 lifeGroveT x = containsAll x [PowerBomb, MorphBall, BoostBall]
 
 towerChamber :: [ItemName] -> Bool
-towerChamber x = containsAll x [GravitySuit, SpaceJump, WaveBeam]
+towerChamber x = containsAll x [GravitySuit, SpaceJumpBoots, WaveBeam]
 
 rsHalf :: [ItemName] -> Bool
 rsHalf x = containsAll x [MorphBall, BoostBall]
