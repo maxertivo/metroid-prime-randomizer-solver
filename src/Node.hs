@@ -29,7 +29,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | RNorthAtrium | RRuinedGallery | RMapStation | RTotemAccess | RHiveTotem | RTransportAccessNorth | RTransporttoMagmoorCavernsNorth 
                 | RVaultAccess | RVault | RPlazaAccess | RRuinedShrineAccess | RRuinedShrine | RTowerofLightAccess | RTowerofLight | RTowerChamber 
                 | RRuinedFountainAccess | RRuinedFountain | RMeditationFountain | RMagmaPool | RTrainingChamberAccess | RTrainingChamber | RPistonTunnel
-                | RArboretumAccess | RSunchamberLobby | RSunchamberAccess | RSunchamber | RSunTowerAccess | RSunTower
+                | RArboretumAccess | RSunchamberLobby | RSunchamberAccess | RSunchamber | RSunTowerAccess | RSunTower | RFurnaceFront
                 | RArboretum | RGatheringHallAccess | RGatheringHall | RSaveStation2 | RWateryHallAccess | RWateryHall | RDynamoAccess | RDynamo | REastAtrium 
                 | REnergyCoreAccess | REnergyCore | RBurnDomeAccess | RBurnDome | RWestFurnaceAccess | RFurnace | REastFurnaceAccess | RCrosswayAccessWest 
                 | RCrossway | RCrosswayAccessSouth | RElderHallAccess | RHalloftheElders | RElderChamber | RReflectingPoolAccess | RReflectingPool | RAntechamber 
@@ -72,7 +72,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines
+                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines, Sunchamber
                 deriving  (Read, Eq, Show, Enum)
 
 noReq :: [ItemName] -> Bool
@@ -84,11 +84,20 @@ morph x = contains x MorphBall
 sj :: [ItemName] -> Bool
 sj x = contains x SpaceJumpBoots
 
+sjOrBombs :: [ItemName] -> Bool
+sjOrBombs x = contains x SpaceJumpBoots || bombs x
+
 missile :: [ItemName] -> Bool
 missile x = contains x Missile
 
 bombs :: [ItemName] -> Bool
-bombs x = contains x MorphBallBomb
+bombs x = containsAll x [MorphBall, MorphBallBomb]
+
+boost :: [ItemName] -> Bool
+boost x = containsAll x [MorphBall, BoostBall]
+
+boostBombs :: [ItemName] -> Bool
+boostBombs x = containsAll x [MorphBall, BoostBall, MorphBallBomb]
 
 arbor :: [ItemName] -> Bool
 arbor x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
@@ -176,6 +185,51 @@ crossMagmaPool x  = heatResist x && containsAll x [GrappleBeam,WaveBeam]
 
 magmaPoolItem :: [ItemName] -> Bool
 magmaPoolItem x  = heatResist x && containsAll x [GrappleBeam,PowerBomb]
+
+tcItem :: [ItemName] -> Bool
+tcItem x = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
+
+tcTunnel :: [ItemName] -> Bool
+tcTunnel = boostBombs
+
+climbSunTower :: [ItemName] -> Bool
+climbSunTower x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, SuperMissile, ChargeBeam]
+
+sunchamberghost :: [ItemName] -> Bool
+sunchamberghost = climbSunTower
+
+wateryHallTraverse :: [ItemName] -> Bool 
+wateryHallTraverse x = containsAll x [MorphBall, MorphBallBomb, Missile]
+
+wateryHallWater :: [ItemName] -> Bool 
+wateryHallWater x = contains x GravitySuit && (contains x SpaceJumpBoots || bombs x) 
+
+furnaceTraverse :: [ItemName] -> Bool 
+furnaceTraverse x = containsAll x [MorphBall, MorphBallBomb, SpiderBall]
+
+furnaceItem :: [ItemName] -> Bool 
+furnaceItem x = containsAll x [MorphBall, MorphBallBomb, SpiderBall, PowerBomb, BoostBall]
+
+crosswayTraverse :: [ItemName] -> Bool 
+crosswayTraverse x = containsAll x [MorphBall, BoostBall, Missile]
+
+crosswayItem :: [ItemName] -> Bool 
+crosswayItem x = containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
+
+hoteWave :: [ItemName] -> Bool 
+hoteWave x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, WaveBeam]
+
+hoteIce :: [ItemName] -> Bool 
+hoteIce x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
+
+hotePlasma :: [ItemName] -> Bool 
+hotePlasma x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam, IceBeam]
+
+reflectPoolTop :: [ItemName] -> Bool 
+reflectPoolTop x = containsAll x [MorphBall, MorphBallBomb, BoostBall, Missile]
+
+reflectPoolIce :: [ItemName] -> Bool 
+reflectPoolIce x = containsAll x [MorphBall, MorphBallBomb, BoostBall, IceBeam]
 
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num elem list
@@ -344,7 +398,7 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R RTransporttoMagmoorCavernsNorth)]
             ,Room RTransporttoMagmoorCavernsNorth [Edge noReq (R RVaultAccess)
                                     ,Edge noReq (R CTransporttoChozoRuinsNorth)
-                                    ,Edge noReq (R RSunTower)
+                                    ,Edge climbSunTower (R RSunTower)
                                     ,Edge noReq (R RTransportAccessNorth)]
             -- Need to check warp here
             ,Room RTransportAccessNorth [Edge morph (R RTransporttoMagmoorCavernsNorth)
@@ -403,4 +457,104 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room RTrainingChamberAccess [Edge wave (R RMagmaPool)
                                     ,Edge wave (R RTrainingChamber)
                                     ,Edge morph (I TrainingChamberAccess)]
+            ,Room RTrainingChamber [Edge wave (R RTowerofLightAccess)
+                                    ,Edge tcTunnel (R RPistonTunnel)
+                                    ,Edge tcItem (I TrainingChamber)]
+            ,Room RPistonTunnel [Edge morph (R RMainPlaza)
+                                    ,Edge morph (R RTrainingChamber)]
+            ,Room RArboretumAccess [Edge noReq (R RRuinedFountain)
+                                    ,Edge missile (R RArboretum)]
+            ,Room RArboretum [Edge missile (R RArboretumAccess)
+                                    ,Edge bombs (R RSunchamberLobby)
+                                    ,Edge missile (R RGatheringHallAccess)]
+            ,Room RSunchamberLobby [Edge missile (R RArboretum)
+                                    ,Edge noReq (R RSunchamberAccess)]
+            ,Room RSunchamberAccess [Edge noReq (R RSunchamberLobby)
+                                    ,Edge noReq (R RSunchamber)]
+            -- The door vines are not considered here. Instead the ghost item has more requirements
+            ,Room RSunchamber [Edge noReq (R RSunchamberAccess)
+                                    ,Edge noReq (R RSunTowerAccess)
+                                    ,Edge bombs (I SunchamberFlaahgra)
+                                    ,Edge sunchamberghost (I SunchamberGhosts)]
+            ,Room RSunTowerAccess [Edge noReq (R RSunchamber)
+                                    ,Edge noReq (R RSunTower)]
+            -- The spawn point is at the top of the room, so to approximate this, items are required to enter the room from the elevator
+            ,Room RSunTower [Edge noReq (R RSunTowerAccess)
+                                    ,Edge noReq (R RTransporttoMagmoorCavernsNorth)]
+            ,Room RGatheringHallAccess [Edge missile (R RArboretum)
+                                    ,Edge noReq (R RGatheringHall)]
+            ,Room RGatheringHall [Edge noReq (R RGatheringHallAccess)
+                                    ,Edge missile (R RSaveStation2)
+                                    ,Edge noReq (R RWateryHallAccess)
+                                    ,Edge morph (R REastAtrium)]
+            ,Room RWateryHallAccess [Edge noReq (R RGatheringHall)
+                                    ,Edge missile (R RWateryHall)
+                                    ,Edge missile (I WateryHallAccess)]
+            ,Room RWateryHall [Edge missile (R RWateryHallAccess)
+                                    ,Edge wateryHallTraverse (R RDynamoAccess)
+                                    ,Edge wateryHallWater (I WateryHallUnderwater)
+                                    ,Edge noReq (I WateryHallScanPuzzle)]
+            ,Room RDynamoAccess [Edge missile (R RWateryHall)
+                                    ,Edge missile (R RDynamo)]
+            ,Room RDynamo [Edge missile (R RDynamoAccess)
+                                    ,Edge missile (I DynamoLower)
+                                    ,Edge spider (I DynamoSpiderTrack)]
+            ,Room RSaveStation2 [Edge noReq (R RGatheringHall)]
+            ,Room REastAtrium [Edge noReq (R RGatheringHall)
+                                    ,Edge noReq (R REnergyCoreAccess)]
+            ,Room REnergyCoreAccess [Edge noReq (R REastAtrium)
+                                    ,Edge noReq (R REnergyCore)]
+            ,Room REnergyCore [Edge noReq (R REnergyCoreAccess)
+                                    ,Edge morph (R RBurnDomeAccess)
+                                    ,Edge bombs (R RWestFurnaceAccess)]
+            ,Room RBurnDomeAccess [Edge bombs (R REnergyCore)
+                                    ,Edge morph (R RBurnDome)]
+            ,Room RBurnDome [Edge noReq (R RBurnDomeAccess)
+                                    ,Edge bombs (I BurnDomeMissile)
+                                    ,Edge noReq (I BurnDomeIDrone)]
+            ,Room RWestFurnaceAccess [Edge noReq (R REnergyCore)
+                                    ,Edge noReq (R RFurnaceFront)]
+            ,Room RFurnaceFront [Edge noReq (R RWestFurnaceAccess)
+                                    ,Edge furnaceTraverse (R RFurnace)
+                                    ,Edge bombs (I FurnaceInsideFurnace)]
+            ,Room RFurnace [Edge bombs (R RFurnaceFront)
+                                    ,Edge morph (R RCrosswayAccessWest)
+                                    ,Edge ice (R REastFurnaceAccess)
+                                    ,Edge furnaceItem (I FurnaceSpiderTracks)]
+            ,Room REastFurnaceAccess [Edge ice (R RFurnace)
+                                    ,Edge ice (R RHalloftheElders)]
+            ,Room RCrosswayAccessWest [Edge morph (R RFurnace)
+                                    ,Edge wave (R RCrossway)]
+            ,Room RCrossway [Edge noReq (R RCrosswayAccessWest)
+                                    ,Edge crosswayTraverse (R RElderHallAccess)
+                                    ,Edge ice (R RCrosswayAccessSouth)
+                                    ,Edge crosswayItem (I Crossway)]
+            ,Room RElderHallAccess [Edge missile (R RCrossway)
+                                    ,Edge noReq (R RHalloftheElders)]
+            ,Room RCrosswayAccessSouth [Edge ice (R RCrossway)
+                                    ,Edge ice (R RHalloftheElders)]
+            ,Room RHalloftheElders [Edge ice (R RCrosswayAccessSouth)
+                                    ,Edge ice (R REastFurnaceAccess)
+                                    ,Edge sjOrBombs (R RElderHallAccess)
+                                    ,Edge hoteWave (R RReflectingPoolAccess)
+                                    ,Edge hotePlasma (R RElderChamber)
+                                    ,Edge hoteIce (I HalloftheElders)]
+            ,Room RElderChamber [Edge noReq (I ElderChamber)
+                                    ,Edge ice (R RHalloftheElders)] -- Need to check if statue is moved?
+            ,Room RReflectingPoolAccess [Edge noReq (R RHalloftheElders)
+                                    ,Edge noReq (R RReflectingPool)]
+            ,Room RReflectingPool [Edge noReq (R RReflectingPoolAccess)
+                                    ,Edge reflectPoolTop (R RSaveStation3)
+                                    ,Edge reflectPoolTop (R RAntechamber)
+                                    ,Edge reflectPoolIce (R RTransportAccessSouth)]
+            ,Room RAntechamber [Edge noReq (I Antechamber)
+                                    ,Edge ice (R RReflectingPool)]
+            ,Room RTransportAccessSouth [Edge ice (R RReflectingPool)
+                                    ,Edge noReq (R RTransporttoTallonOverworldSouth)]
+            ,Room RTransporttoTallonOverworldSouth [Edge noReq (R RTransportAccessSouth)
+                                    ,Edge noReq (R OTransporttoChozoRuinsSouth)]
+            ,Room RSaveStation3 [Edge missile (R RReflectingPool)
+                                    ,Edge bombs (R RTransporttoTallonOverworldEast)]
+            ,Room RTransporttoTallonOverworldEast [Edge bombs (R RSaveStation3)
+                                    ,Edge noReq (R OTransporttoChozoRuinsEast)]
                                     ]

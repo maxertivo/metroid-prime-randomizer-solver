@@ -6,17 +6,20 @@ module Parser where
     parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
 
     createItemNodes :: [(String,String,String)] -> [Node]
-    createItemNodes ((a,b,c):rest) = Item (readS a::ItemId) (readS b::ItemName) (if c == "" then getDefaultWarp (readS a::ItemId) defaultWarps else readS c::RoomId) : createItemNodes rest
+    createItemNodes ((a,b,c):rest) = Item (readStr a::ItemId) (readStr b::ItemName) (getWarp c a) : createItemNodes rest
     createItemNodes [] = []
+
+    getWarp :: String -> String -> RoomId
+    getWarp warp item = if warp == "" then getDefaultWarp (readStr item::ItemId) defaultWarps else readStr warp::RoomId
 
     getDefaultWarp :: ItemId -> [(RoomId,ItemId)] -> RoomId
     getDefaultWarp itemId ((room,item):rest) = if itemId == item then room else getDefaultWarp itemId rest
-    getDefaultWarp itemId [] = error ("Couldn't find default warp for itemId:" ++ show itemId)
+    getDefaultWarp itemId [] = error $ "Couldn't find default warp for itemId: " ++ show itemId
 
-    readS :: Read a => String -> a
-    readS str = case readMaybe str of
+    readStr :: Read a => String -> a
+    readStr str = case readMaybe str of
         Just result -> result
-        Nothing -> error ("Cannot read string:" ++ str)
+        Nothing -> error $ "Cannot read string: " ++ str
 
     handleExpansions :: [String] -> [String]
     handleExpansions (a:b:c:d:rest) = case removeNum c of
@@ -125,7 +128,7 @@ module Parser where
                     ,(RBurnDome,BurnDomeMissile)
                     ,(RBurnDome,BurnDomeIDrone)
                     ,(RFurnace,FurnaceSpiderTracks)
-                    ,(RFurnace,FurnaceInsideFurnace)
+                    ,(RFurnaceFront,FurnaceInsideFurnace)
                     ,(RHalloftheElders,HalloftheElders)
                     ,(RCrossway,Crossway)
                     ,(RElderChamber,ElderChamber)

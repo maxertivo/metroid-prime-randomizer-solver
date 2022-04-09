@@ -7,6 +7,7 @@ import Node
 import Graph
 import Data.Maybe
 import Control.Exception
+import System.Console.ANSI
 
 data GraphException = MissingWarp !Id | MissingNode | InvalidArgument !String
                     deriving (Show)
@@ -66,6 +67,8 @@ printEdges  = printEdgesHelper 1
 
 printEdgesHelper :: Integer -> [Id] -> [Bool] -> IO ()
 printEdgesHelper count (id:ids) (bool:bools) = do
+    if bool then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
     putStrLn $ show count ++ ". " ++ show id ++ " - " ++ show bool
+    setSGR [Reset]
     printEdgesHelper (count+1) ids bools
 printEdgesHelper _ _ _ = return ()
