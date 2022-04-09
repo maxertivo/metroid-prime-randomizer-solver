@@ -144,8 +144,8 @@ frigateRoom x = containsAll x [WaveBeam, GravitySuit]
 gravSpace :: [ItemName] -> Bool
 gravSpace x = containsAll x [GravitySuit, SpaceJumpBoots]
 
-boostSpace :: [ItemName] -> Bool
-boostSpace x = containsAll x [MorphBall, BoostBall, SpaceJumpBoots]
+lgUnderWater :: [ItemName] -> Bool
+lgUnderWater x = containsAll x [MorphBall, BoostBall, PowerBomb, SpaceJumpBoots]
 
 hydroTunnel ::  [ItemName] -> Bool
 hydroTunnel x = containsAll x [GravitySuit, MorphBall, MorphBallBomb]
@@ -303,11 +303,10 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge ice (R OTransportTunnelC)]
             ,Room OFrigateAccessTunnel [Edge ice (R OFrigateCrashSite)
                                     ,Edge noReq (R OMainVentilationShaftSectionC)]
-            --Not sure about warp point
-            ,Room OMainVentilationShaftSectionC [Edge sj (R OFrigateAccessTunnel)
+            ,Room OMainVentilationShaftSectionC [Edge noReq (R OFrigateAccessTunnel)
                                     ,Edge noReq (R OMainVentilationShaftSectionB)]
             ,Room OMainVentilationShaftSectionB [Edge wave (R OMainVentilationShaftSectionA)
-                                    ,Edge noReq (R OMainVentilationShaftSectionC)]
+                                    ,Edge sj (R OMainVentilationShaftSectionC)]
             ,Room OMainVentilationShaftSectionA [Edge frigatePowerDoor (R OMainVentilationShaftSectionB)
                                     ,Edge noReq (R OReactorCore)]
             ,Room OReactorCore [Edge fcsItem (R OMainVentilationShaftSectionA)
@@ -332,13 +331,11 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R OConnectionElevatortoDeckBeta)]
             ,Room OConnectionElevatortoDeckBeta [Edge gravSpace (R ODeckBetaConduitHall)
                                     ,Edge noReq (R OHydroAccessTunnel)]
-            --Not sure about warp point
-            ,Room OHydroAccessTunnel [Edge hydroTunnel (R OConnectionElevatortoDeckBeta)
+            ,Room OHydroAccessTunnel [Edge noReq (R OConnectionElevatortoDeckBeta)
                                     ,Edge hydroTunnel (R OGreatTreeHall)
                                     ,Edge morph (I HydroAccessTunnel)]
-            --Not sure about warp point
             --Great Tree Hall is split into two rooms, an upper and lower section
-            ,Room OGreatTreeHall [Edge noReq (R OHydroAccessTunnel)
+            ,Room OGreatTreeHall [Edge hydroTunnel (R OHydroAccessTunnel)
                                     ,Edge ice (R OTransportTunnelE)
                                     ,Edge gthClimb (R OGreatTreeHallTop)]
             ,Room OGreatTreeHallTop [Edge ice (R OTransportTunnelD)
@@ -354,10 +351,9 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room OLifeGroveTunnel [Edge noReq (R OGreatTreeHallTop)
                                     ,Edge lifeGroveT (R OLifeGrove)
                                     ,Edge lifeGroveT (I LifeGroveTunnel)]
-            -- Assuming you get warped to top, you can leave
             ,Room OLifeGrove [Edge morph (R OLifeGroveTunnel)
                                     ,Edge noReq (I LifeGroveStart)
-                                    ,Edge boostSpace (I LifeGroveUnderwaterSpinner)]
+                                    ,Edge lgUnderWater (I LifeGroveUnderwaterSpinner)]
             ,Room OTransportTunnelE [Edge ice (R OTransporttoPhazonMinesEast)
                                     ,Edge ice (R OGreatTreeHall)]
             ,Room OTransporttoPhazonMinesEast [Edge ice (R OTransportTunnelE)
@@ -378,7 +374,7 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R RMainPlaza)]
             ,Room RMainPlaza [Edge noReq (R RRuinsEntrance)
                                     ,Edge blocked (R RPlazaAccess)
-                                    ,Edge noReq (R RRuinedFountainAccess)
+                                    ,Edge morph (R RRuinedFountainAccess)
                                     ,Edge missile (R RRuinedShrineAccess)
                                     ,Edge noReq (R RNurseryAccess)
                                     ,Edge blocked (R RPistonTunnel)
@@ -441,8 +437,8 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room RTowerChamber [Edge wave (R RTowerofLight)
                                     ,Edge noReq (I TowerChamber)]
             -- Not sure about warp point
-            ,Room RRuinedFountainAccess [Edge morph (R RRuinedFountainNonWarp)
-                                    ,Edge noReq (R RMainPlaza)]
+            ,Room RRuinedFountainAccess [Edge noReq (R RRuinedFountainNonWarp)
+                                    ,Edge morph (R RMainPlaza)]
             -- The Ruined Fountain Warp puts you on top of the item and forces you to collect it
             ,Room RRuinedFountainNonWarp [Edge spider (R RRuinedFountain)
                                     ,Edge noReq (R RRuinedFountainAccess)
