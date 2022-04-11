@@ -140,7 +140,7 @@ module Parser where
                     ,(DIceRuinsEast,IceRuinsEastBehindIce)
                     ,(DIceRuinsEast,IceRuinsEastSpiderTrack)
                     ,(DChapeloftheElders,ChapeloftheElders)
-                    ,(DRuinedCourtyard,RuinedCourtyard)
+                    ,(DCourtyardEntryway,RuinedCourtyard) -- Since the warp point is at the top, you are basically in courtyard entryway
                     ,(DPhendranaCanyon,PhendranaCanyon)
                     ,(DQuarantineCave,QuarantineCave)
                     ,(DResearchLabHydra,ResearchLabHydra)
@@ -153,7 +153,7 @@ module Parser where
                     ,(DResearchLabAether,ResearchLabAetherTank)
                     ,(DResearchLabAether,ResearchLabAetherMorphTrack)
                     ,(DGravityChamber,GravityChamberUnderwater)
-                    ,(DGravityChamber,GravityChamberGrappleLedge)
+                    ,(DGravityChamberTop,GravityChamberGrappleLedge)
                     ,(DStorageCave,StorageCave)
                     ,(DSecurityCave,SecurityCave)
                     ,(OLandingSite,LandingSite)

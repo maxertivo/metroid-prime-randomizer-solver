@@ -48,7 +48,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | DResearchLabAether | DResearchCoreAccess | DResearchCore | DQuarantineAccess | DNorthQuarantineTunnel | DQuarantineCave | DQuarantineMonitor 
                 | DSouthQuarantineTunnel | DTransporttoMagmoorCavernsSouth | DTransportAccess | DFrozenPike | DPikeAccess | DFrostCaveAccess | DFrostCave 
                 | DSaveStationC | DUpperEdgeTunnel | DPhendranasEdge | DStorageCave | DSecurityCave | DLowerEdgeTunnel | DHunterCave | DLakeTunnel 
-                | DGravityChamber | DChamberAccess | DHunterCaveAccess
+                | DGravityChamber | DChamberAccess | DHunterCaveAccess | DQuarantineCaveBack | DGravityChamberTop | DHunterCaveFar
 
                 | MTransporttoTallonOverworldSouth | MQuarryAccess | MMainQuarry | MSaveStationMinesA | MSecurityAccessA | MMineSecurityStation | MSecurityAccessB 
                 | MStorageDepotA | MEliteResearch | MResearchAccess | MOreProcessing | MElevatorAccessA | MElevatorA | MStorageDepotB | MWasteDisposal 
@@ -72,7 +72,8 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines, Sunchamber
+                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
+                -- Research Lab Hydra barrier
                 deriving  (Read, Eq, Show, Enum)
 
 noReq :: [ItemName] -> Bool
@@ -96,14 +97,17 @@ bombs x = containsAll x [MorphBall, MorphBallBomb]
 boost :: [ItemName] -> Bool
 boost x = containsAll x [MorphBall, BoostBall]
 
+spider :: [ItemName] -> Bool
+spider x = containsAll x [MorphBall, SpiderBall]
+
+grapple :: [ItemName] -> Bool
+grapple x = contains x GrappleBeam
+
 boostBombs :: [ItemName] -> Bool
 boostBombs x = containsAll x [MorphBall, BoostBall, MorphBallBomb]
 
 arbor :: [ItemName] -> Bool
 arbor x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
-
-spaceGrapple :: [ItemName] -> Bool
-spaceGrapple x = containsAll x [SpaceJumpBoots, GrappleBeam]
 
 sjGrapple :: [ItemName] -> Bool
 sjGrapple x = containsAll x [SpaceJumpBoots, GrappleBeam]
@@ -132,8 +136,11 @@ wave x = contains x WaveBeam
 ice :: [ItemName] -> Bool
 ice x = contains x IceBeam
 
+plasma :: [ItemName] -> Bool
+plasma x = contains x PlasmaBeam
+
 spiderIce :: [ItemName] -> Bool
-spiderIce x = containsAll x [IceBeam, SpiderBall]
+spiderIce x = containsAll x [IceBeam, MorphBall, SpiderBall]
 
 supers :: [ItemName] -> Bool
 supers x = containsAll x [Missile, SuperMissile, ChargeBeam]
@@ -173,9 +180,6 @@ tolAccess x = containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
 
 towerOfLight :: [ItemName] -> Bool
 towerOfLight x = containsCount 8 Missile x && sj x
-
-spider :: [ItemName] -> Bool
-spider x = contains x SpiderBall
 
 heatResist :: [ItemName] -> Bool
 heatResist x  = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
@@ -231,6 +235,99 @@ reflectPoolTop x = containsAll x [MorphBall, MorphBallBomb, BoostBall, Missile]
 reflectPoolIce :: [ItemName] -> Bool 
 reflectPoolIce x = containsAll x [MorphBall, MorphBallBomb, BoostBall, IceBeam]
 
+iceBarrier :: [ItemName] -> Bool
+iceBarrier x = containsAny x [Missile, ChargeBeam]
+
+shorelinesTower :: [ItemName] -> Bool
+shorelinesTower x = containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile]
+
+iceTempleClimb :: [ItemName] -> Bool
+iceTempleClimb x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
+
+iceTempleItem :: [ItemName] -> Bool
+iceTempleItem x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
+
+irwDoor :: [ItemName] -> Bool
+irwDoor x = containsAll x [SpaceJumpBoots, WaveBeam]
+
+irwItem:: [ItemName] -> Bool
+irwItem x = containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
+
+ruinedCourtyardConduit :: [ItemName] -> Bool
+ruinedCourtyardConduit x = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
+
+ruinedCourtyardSave :: [ItemName] -> Bool
+ruinedCourtyardSave x = containsAll x [SpaceJumpBoots, Missile]
+
+ruinedCourtyardClimb :: [ItemName] -> Bool
+ruinedCourtyardClimb x = spider x || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+
+quarantineTunnel :: [ItemName] -> Bool
+quarantineTunnel x = containsAll x [MorphBall, WaveBeam]
+
+phenElevatorClimb :: [ItemName] -> Bool
+phenElevatorClimb x = containsAll x [MorphBall, SpiderBall, IceBeam]
+
+observatoryClimb :: [ItemName] -> Bool
+observatoryClimb x = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
+
+observatorySave :: [ItemName] -> Bool
+observatorySave x = observatoryClimb x && contains x Missile
+
+controlTowerItem :: [ItemName] -> Bool
+controlTowerItem x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam, Missile]
+
+rlaTrack :: [ItemName] -> Bool
+rlaTrack x = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
+
+toStorageCave :: [ItemName] -> Bool
+toStorageCave x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam, MorphBall, PowerBomb]
+
+fromStorageCave :: [ItemName] -> Bool
+fromStorageCave x = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
+
+toSecurityCave :: [ItemName] -> Bool
+toSecurityCave x = containsAll x [SpaceJumpBoots, GrappleBeam, MorphBall]
+
+phenEdgeLower :: [ItemName] -> Bool
+phenEdgeLower x = containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+
+frozenPikeBottom :: [ItemName] -> Bool
+frozenPikeBottom x = containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+
+frozenPikeClimb :: [ItemName] -> Bool
+frozenPikeClimb x = containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
+
+gravLedge :: [ItemName] -> Bool
+gravLedge x = containsAll x [PlasmaBeam, GrappleBeam]
+
+climbGravityChamber :: [ItemName] -> Bool
+climbGravityChamber x = contains x GravitySuit && (contains x SpaceJumpBoots || bombs x)
+
+gravityChamberToLakeTunnel :: [ItemName] -> Bool
+gravityChamberToLakeTunnel x = climbGravityChamber x && contains x WaveBeam
+
+hunterCaveClimb :: [ItemName] -> Bool
+hunterCaveClimb x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+
+hunterCaveUpper :: [ItemName] -> Bool
+hunterCaveUpper x = containsAll x [Missile, GrappleBeam]
+
+hunterCaveLower :: [ItemName] -> Bool
+hunterCaveLower x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+
+frostCaveAccess :: [ItemName] -> Bool
+frostCaveAccess x = containsAll x [MorphBall, WaveBeam]
+
+frostCaveDoor :: [ItemName] -> Bool
+frostCaveDoor x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+
+frostCaveItem :: [ItemName] -> Bool
+frostCaveItem x = containsAll x [GrappleBeam, Missile]
+
+frostCaveToTunnel :: [ItemName] -> Bool
+frostCaveToTunnel x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
+
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num elem list
     | num < 0 = False
@@ -276,7 +373,7 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room ORootCave [Edge missile (R ORootTunnel)
                                     ,Edge noReq (R OTransportTunnelB)
                                     ,Edge arbor (R OArborChamber)
-                                    ,Edge spaceGrapple (I RootCave)]
+                                    ,Edge sjGrapple (I RootCave)]
             ,Room OTransportTunnelB [Edge noReq (R ORootCave)
                                     ,Edge noReq (R OTransporttoMagmoorCavernsEast)
                                     ,Edge noReq (I TransportTunnelB)]
@@ -367,7 +464,7 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room OArtifactTemple [Edge noReq (R OTempleLobby)
                                     ,Edge noReq (I ArtifactTemple)]
 
-            -- Chozo Ruins
+            -- Chozo Ruins Rooms
             ,Room RTransporttoTallonOverworldNorth [Edge noReq (R OTransporttoChozoRuinsWest)
                                     ,Edge noReq (R RRuinsEntrance)]
             ,Room RRuinsEntrance [Edge noReq (R RTransporttoTallonOverworldNorth)
@@ -436,7 +533,6 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge towerOfLight (I TowerofLight)]
             ,Room RTowerChamber [Edge wave (R RTowerofLight)
                                     ,Edge noReq (I TowerChamber)]
-            -- Not sure about warp point
             ,Room RRuinedFountainAccess [Edge noReq (R RRuinedFountainNonWarp)
                                     ,Edge morph (R RMainPlaza)]
             -- The Ruined Fountain Warp puts you on top of the item and forces you to collect it
@@ -553,4 +649,158 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (R RTransporttoTallonOverworldEast)]
             ,Room RTransporttoTallonOverworldEast [Edge bombs (R RSaveStation3)
                                     ,Edge noReq (R OTransporttoChozoRuinsEast)]
+            
+            -- Phendrana Drifts Rooms
+            ,Room DTransporttoMagmoorCavernsWest [Edge noReq (R CTransporttoPhendranaDriftsNorth)
+                                    ,Edge noReq (R DShorelineEntrance)]
+            ,Room DShorelineEntrance [Edge noReq (R DTransporttoMagmoorCavernsWest)
+                                    ,Edge iceBarrier (R DPhendranaShorelines)]
+            ,Room DPhendranaShorelines [Edge iceBarrier (R DShorelineEntrance)
+                                    ,Edge noReq (R DSaveStationB)
+                                    ,Edge noReq (R DIceRuinsAccess)
+                                    ,Edge sj (R DPlazaWalkway)
+                                    ,Edge sj (R DRuinsEntryway)
+                                    ,Edge sj (R DTempleEntryway)
+                                    ,Edge plasma (I PhendranaShorelinesBehindIce)
+                                    ,Edge shorelinesTower (I PhendranaShorelinesSpiderTrack)]
+            ,Room DSaveStationB [Edge noReq (R DPhendranaShorelines)]
+            ,Room DTempleEntryway [Edge noReq (R DPhendranaShorelines)
+                                    ,Edge iceBarrier (R DChozoIceTemple)]
+            ,Room DChozoIceTemple [Edge iceBarrier (R DTempleEntryway)
+                                    ,Edge iceTempleClimb (R DChapelTunnel)
+                                    ,Edge iceTempleItem (I ChozoIceTemple)]
+            ,Room DChapelTunnel [Edge blocked (R DChozoIceTemple)  -- Fix this later
+                                    ,Edge noReq (R DChapeloftheElders)] -- Warp point is near Chapel of the Elders
+            ,Room DChapeloftheElders [Edge wave (R DChapelTunnel)
+                                    ,Edge missile (I ChapeloftheElders)]
+            ,Room DIceRuinsAccess [Edge noReq (R DPhendranaShorelines)
+                                    ,Edge iceBarrier (R DIceRuinsEast)]
+            ,Room DIceRuinsEast [Edge iceBarrier (R DIceRuinsAccess)
+                                    ,Edge noReq (R DPlazaWalkway)
+                                    ,Edge spider (I IceRuinsEastSpiderTrack)
+                                    ,Edge plasma (I IceRuinsEastBehindIce)]
+            ,Room DPlazaWalkway [Edge noReq (R DIceRuinsEast)
+                                    ,Edge noReq (R DPhendranaShorelines)]
+            ,Room DRuinsEntryway [Edge noReq (R DPhendranaShorelines)
+                                    ,Edge noReq (R DIceRuinsWest)]
+            ,Room DIceRuinsWest [Edge noReq (R DRuinsEntryway)
+                                    ,Edge missile (R DCanyonEntryway)
+                                    ,Edge irwDoor (R DCourtyardEntryway)
+                                    ,Edge irwItem (I IceRuinsWest)]
+            ,Room DCanyonEntryway [Edge noReq (R DIceRuinsWest)
+                                    ,Edge noReq (R DPhendranaCanyon)]
+            ,Room DPhendranaCanyon [Edge noReq (R DCanyonEntryway)
+                                    ,Edge noReq (I PhendranaCanyon)]
+            ,Room DCourtyardEntryway [Edge noReq (R DIceRuinsWest)
+                                    ,Edge ruinedCourtyardClimb (R DRuinedCourtyard)] -- Ruined courtyard spawn is at the top of the room
+            ,Room DRuinedCourtyard [Edge noReq (R DCourtyardEntryway)
+                                    ,Edge ruinedCourtyardSave (R DSaveStationA)
+                                    ,Edge wave (R DSpecimenStorage)
+                                    ,Edge ruinedCourtyardConduit (R DQuarantineAccess) 
+                                    ,Edge morph (I RuinedCourtyard)]
+            ,Room DSaveStationA [Edge missile (R DCourtyardEntryway) -- If you fall
+                                    ,Edge ruinedCourtyardSave (R DRuinedCourtyard) -- If can make it to the spawn point
+                                    ,Edge morph (I RuinedCourtyard)] -- You can grab the item by falling here, without reaching the warp
+            ,Room DQuarantineAccess [Edge noReq (R DRuinedCourtyard)
+                                    ,Edge noReq (R DNorthQuarantineTunnel)]
+            ,Room DNorthQuarantineTunnel [Edge wave (R DQuarantineAccess)
+                                    ,Edge quarantineTunnel (R DQuarantineCave)]
+            ,Room DQuarantineCave [Edge quarantineTunnel (R DNorthQuarantineTunnel)
+                                    ,Edge spider (R DQuarantineCaveBack)
+                                    ,Edge noReq (I QuarantineCave)]
+            -- Added a new "room" representing the other door in quarantine cave
+            ,Room DQuarantineCaveBack [Edge grapple (R DQuarantineMonitor)
+                                    ,Edge quarantineTunnel (R DSouthQuarantineTunnel)]
+            ,Room DQuarantineMonitor [Edge grapple (R DQuarantineCaveBack)
+                                    ,Edge spider (R DQuarantineCave)
+                                    ,Edge noReq (I QuarantineCave) -- Can drop into thardus fight
+                                    ,Edge noReq (I QuarantineMonitor)]
+            ,Room DSouthQuarantineTunnel [Edge quarantineTunnel (R DQuarantineCaveBack)
+                                    ,Edge wave (R DTransporttoMagmoorCavernsSouth)]
+            ,Room DTransporttoMagmoorCavernsSouth [Edge wave (R DSouthQuarantineTunnel)
+                                    ,Edge noReq (R CTransporttoPhendranaDriftsSouth)
+                                    ,Edge phenElevatorClimb (R DTransportAccess)]
+            ,Room DTransportAccess [Edge ice (R DTransporttoMagmoorCavernsSouth)
+                                    ,Edge wave (R DFrozenPike)
+                                    ,Edge plasma (I TransportAccess)]
+            ,Room DSpecimenStorage [Edge wave (R DRuinedCourtyard)
+                                    ,Edge wave (R DResearchEntrance)]
+            ,Room DResearchEntrance [Edge wave (R DSpecimenStorage)
+                                    ,Edge noReq (R DMapStation)
+                                    ,Edge wave (R DHydraLabEntryway)]
+            ,Room DHydraLabEntryway [Edge wave (R DResearchEntrance)
+                                    ,Edge wave (R DResearchLabHydra)]
+            ,Room DResearchLabHydra [Edge wave (R DHydraLabEntryway)
+                                    ,Edge wave (R DObservatoryAccess)
+                                    ,Edge supers (I ResearchLabHydra)]
+            ,Room DObservatoryAccess [Edge wave (R DResearchLabHydra)
+                                    ,Edge wave (R DObservatory)]
+            ,Room DObservatory [Edge wave (R DObservatoryAccess)
+                                    ,Edge observatoryClimb (R DWestTowerEntrance)
+                                    ,Edge observatorySave (R DSaveStationD)
+                                    ,Edge observatoryClimb (I Observatory)]
+            ,Room DSaveStationD [Edge missile (R DObservatory)] -- May want to make item accessible from here
+            ,Room DWestTowerEntrance [Edge wave (R DObservatory)
+                                    ,Edge missile (R DWestTower)]
+            ,Room DWestTower [Edge missile (R DWestTowerEntrance)
+                                    ,Edge wave (R DControlTower)]
+            ,Room DControlTower [Edge wave (R DWestTower)
+                                    ,Edge wave (R DEastTower)
+                                    ,Edge controlTowerItem (I ControlTower)]
+            ,Room DEastTower [Edge wave (R DControlTower)
+                                    ,Edge wave (R DAetherLabEntryway)]
+            ,Room DAetherLabEntryway [Edge wave (R DEastTower)
+                                    ,Edge wave (R DResearchLabAether)]
+            ,Room DResearchLabAether [Edge wave (R DAetherLabEntryway)
+                                    ,Edge wave (R DResearchCoreAccess)
+                                    ,Edge missile (I ResearchLabAetherTank)
+                                    ,Edge rlaTrack (I ResearchLabAetherMorphTrack)]
+            ,Room DResearchCoreAccess [Edge wave (R DResearchLabAether)
+                                    ,Edge wave (R DResearchCore)]
+            ,Room DResearchCore [Edge wave (R DResearchCoreAccess)
+                                    ,Edge ice (R DPikeAccess)
+                                    ,Edge noReq (I ResearchCore)]
+            ,Room DPikeAccess [Edge ice (R DResearchCore)
+                                    ,Edge wave (R DFrozenPike)]
+            ,Room DFrozenPike [Edge frozenPikeClimb (R DTransportAccess)
+                                    ,Edge wave (R DPikeAccess)
+                                    ,Edge wave (R DFrostCaveAccess)
+                                    ,Edge frozenPikeBottom (R DHunterCaveAccess)]
+            ,Room DFrostCaveAccess [Edge wave (R DFrozenPike)
+                                    ,Edge frostCaveAccess (R DFrostCave)]
+            ,Room DFrostCave [Edge frostCaveAccess (R DFrostCaveAccess)
+                                    ,Edge frostCaveDoor (R DSaveStationC)
+                                    ,Edge frostCaveToTunnel (R DUpperEdgeTunnel)
+                                    ,Edge frostCaveItem (I FrostCave)]
+            ,Room DSaveStationC [Edge frostCaveDoor (R DFrostCave)]
+            ,Room DUpperEdgeTunnel [Edge frostCaveAccess (R DFrostCave)
+                                    ,Edge wave (R DPhendranasEdge)]
+            ,Room DPhendranasEdge [Edge wave (R DUpperEdgeTunnel)
+                                    ,Edge toStorageCave (R DStorageCave)
+                                    ,Edge toSecurityCave (R DSecurityCave)
+                                    ,Edge noReq (R DLowerEdgeTunnel)]
+            ,Room DStorageCave [Edge fromStorageCave (R DPhendranasEdge)
+                                    ,Edge noReq (I StorageCave)]
+            ,Room DSecurityCave [Edge morph (R DPhendranasEdge)
+                                    ,Edge noReq (I SecurityCave)]
+            ,Room DLowerEdgeTunnel [Edge phenEdgeLower (R DPhendranasEdge)
+                                    ,Edge wave (R DHunterCave)]
+            ,Room DHunterCave [Edge wave (R DLowerEdgeTunnel)
+                                    ,Edge hunterCaveLower (R DLakeTunnel)
+                                    ,Edge hunterCaveUpper (R DHunterCaveFar)]
+            ,Room DHunterCaveFar [Edge sj (R DHunterCave)
+                                    ,Edge wave (R DChamberAccess)
+                                    ,Edge wave (R DHunterCaveAccess)]
+            ,Room DLakeTunnel [Edge hunterCaveClimb (R DHunterCave)
+                                    ,Edge wave (R DGravityChamber)]
+            ,Room DGravityChamber [Edge gravityChamberToLakeTunnel (R DLakeTunnel)
+                                    ,Edge climbGravityChamber (R DGravityChamberTop)
+                                    ,Edge noReq (I GravityChamberUnderwater)]
+            ,Room DGravityChamberTop [Edge noReq (R DGravityChamber)
+                                    ,Edge wave (R DChamberAccess)
+                                    ,Edge gravLedge (I GravityChamberGrappleLedge)]
+            ,Room DChamberAccess [Edge wave (R DGravityChamberTop)
+                                    ,Edge wave (R DHunterCaveFar)]
+            ,Room DHunterCaveAccess [Edge wave (R DHunterCaveFar)
+                                    ,Edge frozenPikeBottom (R DFrozenPike)]
                                     ]
