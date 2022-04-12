@@ -7,7 +7,7 @@ import Node
 import Graph
 import Data.Maybe
 import Control.Exception
---import System.Console.ANSI
+import System.Console.ANSI
 
 data GraphException = MissingWarp !Id | MissingNode | InvalidArgument !String
                     deriving (Show)
@@ -50,7 +50,6 @@ explore nodes items (Room roomId edges) = do
     else explore nodes items (Room roomId edges)
 
 
-
 getNode :: [Node] -> Id ->  Maybe Node
 getNode ((Item item name warp):rest) (I id) = if id == item then return (Item item name warp) else getNode rest (I id)
 getNode ((Room room edges):rest) (R id) = if id == room then return (Room room edges) else getNode rest (R id)
@@ -70,8 +69,8 @@ printEdges  = printEdgesHelper 1
 
 printEdgesHelper :: Integer -> [Id] -> [Bool] -> IO ()
 printEdgesHelper count (id:ids) (bool:bools) = do
-    --if bool then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
+    if bool then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
     putStrLn $ show count ++ ". " ++ show id ++ " - " ++ show bool
-    --setSGR [Reset]
+    setSGR [Reset]
     printEdgesHelper (count+1) ids bools
 printEdgesHelper _ _ _ = return ()

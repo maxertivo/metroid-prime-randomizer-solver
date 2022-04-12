@@ -56,6 +56,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MCentralDynamo | MSaveStationMinesB | MQuarantineAccessA | MMetroidQuarantineA | MElevatorAccessB | MElevatorB | MFungalHallAccess | MFungalHallA 
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
+                | MetroidQuarantineBBack
                 deriving  (Read, Eq, Show, Enum)
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -1117,18 +1118,18 @@ buildNodes = [ -- Tallon Overworld Rooms
                                         ,Edge quarantineAccessBTraversal (R MMetroidQuarantineB)]
             -- These rooms are treated as though the barrier is one-way (Warp is on the mushroom side)
             ,Room MMetroidQuarantineB [Edge quarantineAccessBTraversal (R MQuarantineAccessB)
-                                        ,Edge mqbTraversal (R MSaveStationMinesC)
-                                        ,Edge mqbTraversal (R MEliteQuartersAccess)
-                                        ,Edge mqbTraversalItem (I MetroidQuarantineB)]
-            ,Room MSaveStationMinesC [Edge mqbBackClimb (R MEliteQuartersAccess)
-                                        ,Edge mqbItem (I MetroidQuarantineB)]
-            ,Room MEliteQuartersAccess [Edge plasma (R MSaveStationMinesC)
-                                        ,Edge plasma (R MEliteQuarters)
-                                        ,Edge mqbItem (I MetroidQuarantineB)]
+                                        ,Edge mqbTraversal (R MMetroidQuarantineBBack)]
+            ,Room MMetroidQuarantineBBack [Edge blocked (R MMetroidQuarantineB)
+                                        ,Edge plasma (R MSaveStationMinesC)
+                                        ,Edge mqbBackClimb (R MEliteQuartersAccess)
+                                        ,Edge supers (I MetroidQuarantineB)]
+            ,Room MSaveStationMinesC [Edge plasma (R MMetroidQuarantineBBack)]
+            ,Room MEliteQuartersAccess [Edge plasma (R MMetroidQuarantineBBack)
+                                        ,Edge plasma (R MEliteQuarters)]
             ,Room MEliteQuarters [Edge eliteQuartersPlasma (R MEliteQuartersAccess)
                                         ,Edge eliteQuartersPlasma (R MProcessingCenterAccess)
                                         ,Edge eliteQuarters (I EliteQuarters)]
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
                                         ,Edge ppcBottomClimb (R MPhazonProcessingCenter)
                                         ,Edge noReq (I ProcessingCenterAccess)]
-                                    ]
+            ]
