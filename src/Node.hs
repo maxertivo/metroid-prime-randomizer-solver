@@ -1,7 +1,7 @@
 module Node where
 
 data Id = R RoomId | I ItemId
-        deriving  (Read, Eq, Show)
+        deriving  (Read, Eq, Ord, Show)
 
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
         deriving (Show)
@@ -56,8 +56,8 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MCentralDynamo | MSaveStationMinesB | MQuarantineAccessA | MMetroidQuarantineA | MElevatorAccessB | MElevatorB | MFungalHallAccess | MFungalHallA 
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
-                | MetroidQuarantineBBack
-                deriving  (Read, Eq, Show, Enum)
+                | MMetroidQuarantineBBack
+                deriving  (Read, Eq, Ord, Show, Enum)
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
                 | RuinedGalleryMissileWall | RuinedGalleryTunnel | TransportAccessNorth | GatheringHall | HiveTotem | SunchamberFlaahgra | SunchamberGhosts 
@@ -75,7 +75,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
 
                 --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines (can also be barrier), opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
                 -- Research Lab Hydra barrier, Mine Security Station?
-                deriving  (Read, Eq, Show, Enum)
+                deriving  (Read, Eq, Ord, Show, Enum)
 
 -- Basic Predicates
 noReq :: [ItemName] -> Bool

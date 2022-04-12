@@ -8,6 +8,8 @@ import Graph
 import Data.Maybe
 import Control.Exception
 import System.Console.ANSI
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 data GraphException = MissingWarp !Id | MissingNode | InvalidArgument !String
                     deriving (Show)
@@ -18,14 +20,15 @@ main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
     let nodes = buildNodes ++ parse fileContents
-    case getNode nodes (R RHiveTotem) of
-        Just node -> explore nodes [] node
+        nodeMap = buildMap nodes
+    case Map.lookup (R RHiveTotem) nodeMap of
+        Just node -> explore nodeMap [] node
         Nothing -> return ()
     
   
 
-explore :: [Node] -> [ItemName] -> Node -> IO ()
-explore nodes items (Item id name warp) =  case getNode nodes (R warp) of 
+explore :: Map Id Node -> [ItemName] -> Node -> IO ()
+explore nodes items (Item id name warp) =  case Map.lookup (R warp) nodes of 
                             Just warpNode -> explore nodes (name : items) warpNode
                             Nothing -> throw $ MissingWarp $ R warp
 explore nodes items (Room roomId edges) = do
@@ -41,7 +44,7 @@ explore nodes items (Room roomId edges) = do
 
     let index = (read command :: Integer) - 1
         allowed = fromMaybe False (getIndex bools index)
-        newNode = getIndex ids index >>= getNode nodes
+        newNode = getIndex ids index >>= (`Map.lookup` nodes)
 
     if allowed 
     then case newNode of
@@ -49,12 +52,13 @@ explore nodes items (Room roomId edges) = do
         Just a -> explore nodes items a
     else explore nodes items (Room roomId edges)
 
+buildMap :: [Node] -> Map Id Node
+buildMap nodes = Map.fromList (map convertNode nodes)
 
-getNode :: [Node] -> Id ->  Maybe Node
-getNode ((Item item name warp):rest) (I id) = if id == item then return (Item item name warp) else getNode rest (I id)
-getNode ((Room room edges):rest) (R id) = if id == room then return (Room room edges) else getNode rest (R id)
-getNode [] _ = Nothing
-getNode (elem:rest) x = getNode rest x
+convertNode :: Node -> (Id,Node)
+convertNode node = case node of
+                Item item name warp -> (I item, node)
+                Room room edges -> (R room, node)
 
 getIndex :: [a] -> Integer -> Maybe a
 getIndex [] i = Nothing
