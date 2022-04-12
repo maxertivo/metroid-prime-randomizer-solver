@@ -7,7 +7,7 @@ import Node
 import Graph
 import Data.Maybe
 import Control.Exception
-import System.Console.ANSI
+--import System.Console.ANSI
 
 data GraphException = MissingWarp !Id | MissingNode | InvalidArgument !String
                     deriving (Show)
@@ -16,8 +16,10 @@ instance Exception GraphException
 
 main :: IO ()
 main = do
-    case getNode buildNodes (R RHiveTotem) of
-        Just node -> explore buildNodes [] node
+    fileContents <- readFile "resources/sample.txt"
+    let nodes = buildNodes ++ parse fileContents
+    case getNode nodes (R RHiveTotem) of
+        Just node -> explore nodes [] node
         Nothing -> return ()
     
   
@@ -52,7 +54,8 @@ explore nodes items (Room roomId edges) = do
 getNode :: [Node] -> Id ->  Maybe Node
 getNode ((Item item name warp):rest) (I id) = if id == item then return (Item item name warp) else getNode rest (I id)
 getNode ((Room room edges):rest) (R id) = if id == room then return (Room room edges) else getNode rest (R id)
-getNode _ _ = Nothing
+getNode [] _ = Nothing
+getNode (elem:rest) x = getNode rest x
 
 getIndex :: [a] -> Integer -> Maybe a
 getIndex [] i = Nothing
@@ -67,8 +70,8 @@ printEdges  = printEdgesHelper 1
 
 printEdgesHelper :: Integer -> [Id] -> [Bool] -> IO ()
 printEdgesHelper count (id:ids) (bool:bools) = do
-    if bool then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
+    --if bool then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
     putStrLn $ show count ++ ". " ++ show id ++ " - " ++ show bool
-    setSGR [Reset]
+    --setSGR [Reset]
     printEdgesHelper (count+1) ids bools
 printEdgesHelper _ _ _ = return ()

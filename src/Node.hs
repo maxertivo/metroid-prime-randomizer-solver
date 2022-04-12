@@ -55,7 +55,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MEliteControlAccess | MEliteControl | MMaintenanceTunnel | MVentilationShaft | MControlRoom | MOmegaResearch | MMapStationMines | MDynamoAccess 
                 | MCentralDynamo | MSaveStationMinesB | MQuarantineAccessA | MMetroidQuarantineA | MElevatorAccessB | MElevatorB | MFungalHallAccess | MFungalHallA 
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
-                | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth
+                | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
                 deriving  (Read, Eq, Show, Enum)
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -72,12 +72,16 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines, opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
-                -- Research Lab Hydra barrier
+                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines (can also be barrier), opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
+                -- Research Lab Hydra barrier, Mine Security Station?
                 deriving  (Read, Eq, Show, Enum)
 
+-- Basic Predicates
 noReq :: [ItemName] -> Bool
 noReq _ = True 
+
+blocked :: [ItemName] -> Bool
+blocked _ = False
 
 morph :: [ItemName] -> Bool
 morph x = contains x MorphBall
@@ -94,11 +98,17 @@ missile x = contains x Missile
 bombs :: [ItemName] -> Bool
 bombs x = containsAll x [MorphBall, MorphBallBomb]
 
+pb :: [ItemName] -> Bool
+pb x = containsAll x [PowerBomb, MorphBall]
+
 boost :: [ItemName] -> Bool
 boost x = containsAll x [MorphBall, BoostBall]
 
 spider :: [ItemName] -> Bool
 spider x = containsAll x [MorphBall, SpiderBall]
+
+waveIce :: [ItemName] -> Bool
+waveIce x = containsAll x [WaveBeam, PlasmaBeam]
 
 grapple :: [ItemName] -> Bool
 grapple x = contains x GrappleBeam
@@ -106,29 +116,14 @@ grapple x = contains x GrappleBeam
 boostBombs :: [ItemName] -> Bool
 boostBombs x = containsAll x [MorphBall, BoostBall, MorphBallBomb]
 
-arbor :: [ItemName] -> Bool
-arbor x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
-
 sjGrapple :: [ItemName] -> Bool
 sjGrapple x = containsAll x [SpaceJumpBoots, GrappleBeam]
-
-mainPipe :: [ItemName] -> Bool
-mainPipe x = contains x SpaceJumpBoots || containsAll x [BoostBall, MorphBall]
 
 morphMissile :: [ItemName] -> Bool
 morphMissile x = containsAll x [MorphBall, Missile]
 
-fcsClimb :: [ItemName] -> Bool
-fcsClimb _ = False
-
-frigatePowerDoor :: [ItemName] -> Bool
-frigatePowerDoor _ = False
-
-fcsEntry :: [ItemName] -> Bool
-fcsEntry x = contains x IceBeam && (contains x GrappleBeam || (contains x MorphBall && fcsItem x ))
-
-fcsItem :: [ItemName] -> Bool
-fcsItem x = contains x SpaceJumpBoots || contains x GravitySuit
+bombsPbs :: [ItemName] -> Bool
+bombsPbs x = containsAll x [MorphBall, MorphBallBomb, PowerBomb]
 
 wave :: [ItemName] -> Bool
 wave x = contains x WaveBeam
@@ -144,6 +139,22 @@ spiderIce x = containsAll x [IceBeam, MorphBall, SpiderBall]
 
 supers :: [ItemName] -> Bool
 supers x = containsAll x [Missile, SuperMissile, ChargeBeam]
+
+-- Tallon Predicates
+arbor :: [ItemName] -> Bool
+arbor x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
+
+fcsClimb :: [ItemName] -> Bool
+fcsClimb _ = False
+
+frigatePowerDoor :: [ItemName] -> Bool
+frigatePowerDoor _ = False
+
+fcsEntry :: [ItemName] -> Bool
+fcsEntry x = contains x IceBeam && (contains x GrappleBeam || (contains x MorphBall && fcsItem x ))
+
+fcsItem :: [ItemName] -> Bool
+fcsItem x = contains x SpaceJumpBoots || contains x GravitySuit
 
 frigateRoom :: [ItemName] -> Bool
 frigateRoom x = containsAll x [WaveBeam, GravitySuit]
@@ -163,11 +174,12 @@ gthClimb x = containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
 bars :: [ItemName] -> Bool
 bars _ = False
 
-blocked :: [ItemName] -> Bool
-blocked _ = False
-
 lifeGroveT :: [ItemName] -> Bool
 lifeGroveT x = containsAll x [PowerBomb, MorphBall, BoostBall]
+
+-- Chozo Predicates
+mainPipe :: [ItemName] -> Bool
+mainPipe x = contains x SpaceJumpBoots || containsAll x [BoostBall, MorphBall]
 
 towerChamber :: [ItemName] -> Bool
 towerChamber x = containsAll x [GravitySuit, SpaceJumpBoots, WaveBeam]
@@ -188,7 +200,7 @@ crossMagmaPool :: [ItemName] -> Bool
 crossMagmaPool x  = heatResist x && containsAll x [GrappleBeam,WaveBeam]
 
 magmaPoolItem :: [ItemName] -> Bool
-magmaPoolItem x  = heatResist x && containsAll x [GrappleBeam,PowerBomb]
+magmaPoolItem x  = heatResist x && containsAll x [GrappleBeam,MorphBall,PowerBomb]
 
 tcItem :: [ItemName] -> Bool
 tcItem x = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
@@ -197,7 +209,7 @@ tcTunnel :: [ItemName] -> Bool
 tcTunnel = boostBombs
 
 climbSunTower :: [ItemName] -> Bool
-climbSunTower x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, SuperMissile, ChargeBeam]
+climbSunTower x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
 
 sunchamberghost :: [ItemName] -> Bool
 sunchamberghost = climbSunTower
@@ -235,6 +247,44 @@ reflectPoolTop x = containsAll x [MorphBall, MorphBallBomb, BoostBall, Missile]
 reflectPoolIce :: [ItemName] -> Bool 
 reflectPoolIce x = containsAll x [MorphBall, MorphBallBomb, BoostBall, IceBeam]
 
+-- Magmoor Predicates
+lavaLakeTraversal :: [ItemName] -> Bool 
+lavaLakeTraversal x = heatResist x && bombs x
+
+lavaLakeItem :: [ItemName] -> Bool 
+lavaLakeItem x = containsAll x [Missile, SpaceJumpBoots]
+
+pitTunnel :: [ItemName] -> Bool 
+pitTunnel x = heatResist x && contains x MorphBall
+
+triclopsPitItem :: [ItemName] -> Bool 
+triclopsPitItem x = containsAll x [SpaceJumpBoots, Missile]
+
+toTransportTunnelA :: [ItemName] -> Bool 
+toTransportTunnelA x = bombs x && heatResist x
+
+monitorStationClimb :: [ItemName] -> Bool 
+monitorStationClimb x = heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+
+crossTwinFires :: [ItemName] -> Bool
+crossTwinFires x = sjOrBombs x && contains x WaveBeam
+
+crossNorthCoreTunnel :: [ItemName] -> Bool
+crossNorthCoreTunnel x = containsAll x [Missile, SpaceJumpBoots, WaveBeam]
+
+workstationTunnel :: [ItemName] -> Bool
+workstationTunnel x = containsAll x [IceBeam, PowerBomb, MorphBall]
+
+workstationItem :: [ItemName] -> Bool
+workstationItem x = containsAll x [MorphBall, WaveBeam]
+
+workstationWaveDoor :: [ItemName] -> Bool
+workstationWaveDoor x = sjOrBombs x && contains x WaveBeam
+
+geoCore :: [ItemName] -> Bool
+geoCore x = containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+
+-- Phendrana Predicates
 iceBarrier :: [ItemName] -> Bool
 iceBarrier x = containsAny x [Missile, ChargeBeam]
 
@@ -327,6 +377,94 @@ frostCaveItem x = containsAll x [GrappleBeam, Missile]
 
 frostCaveToTunnel :: [ItemName] -> Bool
 frostCaveToTunnel x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
+
+-- Mines Predicates
+quarrySave :: [ItemName] -> Bool
+quarrySave x = containsAll x [SpiderBall, WaveBeam]
+
+quarryItem :: [ItemName] -> Bool
+quarryItem x = containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
+
+oreProcessingClimb :: [ItemName] -> Bool
+oreProcessingClimb x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
+
+oreProcessingTop :: [ItemName] -> Bool
+oreProcessingTop x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
+
+wasteDisposalTraversal :: [ItemName] -> Bool
+wasteDisposalTraversal x = containsAll x [MorphBall, MorphBallBomb, IceBeam]
+
+shaftClimb :: [ItemName] -> Bool
+shaftClimb x = containsAll x [MorphBall, SpiderBall, IceBeam]
+
+maintTunnel :: [ItemName] -> Bool
+maintTunnel x = containsAll x [MorphBall, IceBeam, PowerBomb]
+
+ppcClimb :: [ItemName] -> Bool
+ppcClimb x = containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
+
+toMinesElevator :: [ItemName] -> Bool
+toMinesElevator x = containsAll x [GrappleBeam, IceBeam]
+
+centralDynamoClimb :: [ItemName] -> Bool
+centralDynamoClimb x = contains x IceBeam && sjOrBombs x
+
+mqaItem :: [ItemName] -> Bool
+mqaItem x = containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, SpiderBall]
+
+mqaTraversal :: [ItemName] -> Bool
+mqaTraversal x = containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, PowerBomb, IceBeam]
+
+ecaItem :: [ItemName] -> Bool
+ecaItem x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
+
+eliteResearchTopItem :: [ItemName] -> Bool
+eliteResearchTopItem x = containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+
+eliteResearchDoor :: [ItemName] -> Bool
+eliteResearchDoor x = containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+
+toStarageDepotA :: [ItemName] -> Bool
+toStarageDepotA x = containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
+
+climbFungalHallAccess :: [ItemName] -> Bool
+climbFungalHallAccess x = containsAll x [SpaceJumpBoots, PlasmaBeam]
+
+fungalHallATraversal :: [ItemName] -> Bool
+fungalHallATraversal x = containsAll x [SpaceJumpBoots, GrappleBeam, IceBeam]
+
+miningTunnelTraversal :: [ItemName] -> Bool
+miningTunnelTraversal x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+
+miningTunnelItem :: [ItemName] -> Bool
+miningTunnelItem x = containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || containsCount 11 EnergyTank x)
+
+quarantineAccessBTraversal :: [ItemName] -> Bool
+quarantineAccessBTraversal x = containsAll x [SpaceJumpBoots, IceBeam]
+
+fungalHallBTraversal :: [ItemName] -> Bool
+fungalHallBTraversal x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
+
+mqbTraversal :: [ItemName] -> Bool
+mqbTraversal x = containsAll x [SpiderBall, MorphBall, GrappleBeam]
+
+mqbTraversalItem :: [ItemName] -> Bool
+mqbTraversalItem x = supers x && mqaTraversal x
+
+mqbItem :: [ItemName] -> Bool
+mqbItem x = containsAll x [SuperMissile,Missile,ChargeBeam,PlasmaBeam]
+
+ppcBottomClimb :: [ItemName] -> Bool
+ppcBottomClimb x = containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
+
+eliteQuarters :: [ItemName] -> Bool
+eliteQuarters x = contains x XRayVisor
+
+eliteQuartersPlasma :: [ItemName] -> Bool
+eliteQuartersPlasma x = contains x PlasmaBeam && eliteQuarters x
+
+mqbBackClimb :: [ItemName] -> Bool
+mqbBackClimb x = containsAll x [SpaceJumpBoots, PlasmaBeam]
 
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num elem list
@@ -554,7 +692,7 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge tcItem (I TrainingChamber)]
             ,Room RPistonTunnel [Edge morph (R RMainPlaza)
                                     ,Edge morph (R RTrainingChamber)]
-            ,Room RArboretumAccess [Edge noReq (R RRuinedFountain)
+            ,Room RArboretumAccess [Edge noReq (R RRuinedFountainNonWarp)
                                     ,Edge missile (R RArboretum)]
             ,Room RArboretum [Edge missile (R RArboretumAccess)
                                     ,Edge bombs (R RSunchamberLobby)
@@ -650,6 +788,80 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room RTransporttoTallonOverworldEast [Edge bombs (R RSaveStation3)
                                     ,Edge noReq (R OTransporttoChozoRuinsEast)]
             
+            --Magmoor Caverns Rooms
+            ,Room CTransporttoChozoRuinsNorth [Edge noReq (R RTransporttoMagmoorCavernsNorth)
+                                    ,Edge noReq (R CBurningTrail)]
+            ,Room CBurningTrail [Edge noReq (R CTransporttoChozoRuinsNorth)
+                                    ,Edge missile (R CSaveStationMagmoorA)
+                                    ,Edge noReq (R CLakeTunnel)]
+            ,Room CSaveStationMagmoorA [Edge missile (R CBurningTrail)]
+            ,Room CLakeTunnel [Edge noReq (R CBurningTrail)
+                                    ,Edge heatResist (R CLavaLake)]
+            ,Room CLavaLake [Edge noReq (R CLakeTunnel)
+                                    ,Edge lavaLakeTraversal (R CPitTunnel)
+                                    ,Edge lavaLakeItem (I LavaLake)]
+            ,Room CPitTunnel [Edge lavaLakeTraversal (R CLavaLake)
+                                    ,Edge pitTunnel (R CTriclopsPit)]
+            ,Room CTriclopsPit [Edge pitTunnel (R CPitTunnel)
+                                    ,Edge pitTunnel (R CStorageCavern)
+                                    ,Edge heatResist (R CMonitorTunnel)
+                                    ,Edge triclopsPitItem (I TriclopsPit)]
+            ,Room CStorageCavern [Edge triclopsPitItem (R CTriclopsPit)
+                                    ,Edge noReq (I StorageCavern)]
+            ,Room CMonitorTunnel [Edge heatResist (R CTriclopsPit)
+                                    ,Edge heatResist (R CMonitorStation)]
+            ,Room CMonitorStation [Edge heatResist (R CMonitorTunnel)
+                                    ,Edge heatResist (R CShoreTunnel)
+                                    ,Edge toTransportTunnelA (R CTransportTunnelA)
+                                    ,Edge monitorStationClimb (R CWarriorShrine)]
+            ,Room CTransportTunnelA [Edge bombs (R CMonitorStation)
+                                    ,Edge noReq (R CTransporttoPhendranaDriftsNorth)
+                                    ,Edge bombs (I TransportTunnelA)]
+            ,Room CTransporttoPhendranaDriftsNorth [Edge noReq (R CTransportTunnelA)
+                                    ,Edge noReq (R DTransporttoMagmoorCavernsWest)]
+            ,Room CWarriorShrine [Edge heatResist (R CMonitorStation)
+                                    ,Edge bombsPbs (R CFieryShores)
+                                    ,Edge noReq (I WarriorShrine)
+                                    ,Edge pb (I FieryShoresWarriorShrineTunnel)]
+            ,Room CShoreTunnel [Edge heatResist (R CMonitorStation)
+                                    ,Edge heatResist (R CFieryShores)
+                                    ,Edge pb (I ShoreTunnel)]
+            ,Room CFieryShores [Edge heatResist (R CShoreTunnel)
+                                    ,Edge heatResist (R CTransportTunnelB)
+                                    ,Edge bombs (I FieryShoresMorphTrack)]
+            ,Room CTransportTunnelB [Edge heatResist (R CFieryShores)
+                                    ,Edge noReq (R CTransporttoTallonOverworldWest)]
+            ,Room CTransporttoTallonOverworldWest [Edge noReq (R CTransportTunnelB)
+                                    ,Edge noReq (R OTransporttoMagmoorCavernsEast)
+                                    ,Edge spider (R CTwinFiresTunnel)]
+            ,Room CTwinFiresTunnel [Edge spider (R CTransporttoTallonOverworldWest)
+                                    ,Edge noReq (R CTwinFires)]
+            ,Room CTwinFires [Edge noReq (R CTwinFiresTunnel)
+                                    ,Edge crossTwinFires (R CNorthCoreTunnel)]
+            ,Room CNorthCoreTunnel [Edge crossTwinFires (R CTwinFires)
+                                    ,Edge crossNorthCoreTunnel (R CGeothermalCore)]
+            ,Room CGeothermalCore [Edge crossNorthCoreTunnel (R CNorthCoreTunnel)
+                                    ,Edge noReq (R CSouthCoreTunnel)
+                                    ,Edge geoCore (R CPlasmaProcessing)]
+            ,Room CPlasmaProcessing [Edge plasma (R CGeothermalCore)
+                                    ,Edge noReq (I PlasmaProcessing)]
+            ,Room CSouthCoreTunnel [Edge wave (R CGeothermalCore)
+                                    ,Edge wave (R CMagmoorWorkstation)]
+            ,Room CMagmoorWorkstation [Edge noReq (R CSouthCoreTunnel)
+                                    ,Edge sjOrBombs (R CWorkstationTunnel)
+                                    ,Edge workstationWaveDoor (R CTransportTunnelC)
+                                    ,Edge workstationItem (I MagmoorWorkstation)]
+            ,Room CTransportTunnelC [Edge wave (R CMagmoorWorkstation)
+                                    ,Edge wave (R CTransporttoPhendranaDriftsSouth)]
+            ,Room CTransporttoPhendranaDriftsSouth [Edge wave (R CTransportTunnelC)
+                                    ,Edge missile (R CSaveStationMagmoorB)
+                                    ,Edge noReq (R DTransporttoMagmoorCavernsSouth)]
+            ,Room CSaveStationMagmoorB [Edge missile (R CTransporttoPhendranaDriftsSouth)]
+            ,Room CWorkstationTunnel [Edge noReq (R CMagmoorWorkstation)
+                                    ,Edge workstationTunnel (R CTransporttoPhazonMinesWest)]
+            ,Room CTransporttoPhazonMinesWest [Edge workstationTunnel (R CWorkstationTunnel)
+                                    ,Edge noReq (R MTransporttoMagmoorCavernsSouth)]
+
             -- Phendrana Drifts Rooms
             ,Room DTransporttoMagmoorCavernsWest [Edge noReq (R CTransporttoPhendranaDriftsNorth)
                                     ,Edge noReq (R DShorelineEntrance)]
@@ -803,4 +1015,120 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge wave (R DHunterCaveFar)]
             ,Room DHunterCaveAccess [Edge wave (R DHunterCaveFar)
                                     ,Edge frozenPikeBottom (R DFrozenPike)]
+
+            -- Phazon Mines Rooms
+            ,Room MTransporttoTallonOverworldSouth [Edge noReq (R OTransporttoPhazonMinesEast)
+                                    ,Edge wave (R MQuarryAccess)]
+            ,Room MQuarryAccess [Edge wave (R MTransporttoTallonOverworldSouth)
+                                    ,Edge wave (R MMainQuarry)]
+            ,Room MMainQuarry [Edge wave (R MQuarryAccess)
+                                    ,Edge quarrySave (R MSaveStationMinesA)
+                                    ,Edge blocked (R MWasteDisposal) -- Address this later
+                                    ,Edge ice (R MSecurityAccessA)
+                                    ,Edge quarryItem (I MainQuarry)]
+            ,Room MSaveStationMinesA [Edge noReq (R MMainQuarry)]
+            ,Room MSecurityAccessA [Edge ice (R MMainQuarry)
+                                    ,Edge ice (R MMineSecurityStation)
+                                    ,Edge pb (I SecurityAccessA)]
+            ,Room MMineSecurityStation [Edge waveIce (R MSecurityAccessA)
+                                    ,Edge toStarageDepotA (R MStorageDepotA)
+                                    ,Edge wave (R MSecurityAccessB)]
+            ,Room MStorageDepotA [Edge blocked (R MMineSecurityStation) -- For simplicity, it's blocked for now
+                                    ,Edge noReq (I StorageDepotA)]
+            ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
+                                    ,Edge ice (R MEliteResearch)]
+            ,Room MEliteResearch [Edge ice (R MEliteResearch)
+                                    ,Edge eliteResearchDoor (R MResearchAccess)
+                                    ,Edge eliteResearchTopItem (I EliteResearchLaser)
+                                    ,Edge pb (I EliteResearchPhazonElite)]
+            -- Not dealing with boosting through the wall for now
+            ,Room MResearchAccess [Edge blocked (R MEliteResearch)
+                                    ,Edge oreProcessingClimb (R MOreProcessing)]
+            ,Room MOreProcessing [Edge ice (R MResearchAccess)
+                                    ,Edge ice (R MElevatorAccessA)
+                                    ,Edge oreProcessingTop (R MWasteDisposal)
+                                    ,Edge oreProcessingTop (R MStorageDepotB)]
+            ,Room MWasteDisposal [Edge ice (R MOreProcessing)
+                                    ,Edge wasteDisposalTraversal (R MMainQuarry)]
+            ,Room MStorageDepotB [Edge ice (R MOreProcessing)
+                                    ,Edge noReq (I StorageDepotB)]
+            ,Room MElevatorAccessA [Edge ice (R MOreProcessing)
+                                    ,Edge ice (R MElevatorA)]
+            ,Room MElevatorA [Edge shaftClimb (R MElevatorAccessA)
+                                    ,Edge ice (R MEliteControlAccess)]
+            ,Room MEliteControlAccess [Edge ice (R MElevatorA)
+                                    ,Edge wave (R MEliteControl)
+                                    ,Edge ecaItem (I EliteControlAccess)]
+            ,Room MEliteControl [Edge wave (R MEliteControlAccess)
+                                    ,Edge ice (R MMaintenanceTunnel)
+                                    ,Edge ice (R MVentilationShaft)]
+            ,Room MMaintenanceTunnel [Edge ice (R MEliteControl)
+                                    ,Edge maintTunnel (R MPhazonProcessingCenter)]
+            ,Room MPhazonProcessingCenter [Edge maintTunnel (R MMaintenanceTunnel)
+                                    ,Edge blocked (R MProcessingCenterAccess) -- Not going to deal with this door
+                                    ,Edge ppcClimb (R MTransportAccess)
+                                    ,Edge pb (I PhazonProcessingCenter)]
+            ,Room MTransportAccess [Edge ice (R MPhazonProcessingCenter)
+                                    ,Edge toMinesElevator (R MTransporttoMagmoorCavernsSouth)]
+            ,Room MTransporttoMagmoorCavernsSouth [Edge toMinesElevator (R MTransportAccess)
+                                    ,Edge noReq (R CTransporttoPhazonMinesWest)]
+            -- Warp is at the top
+            ,Room MVentilationShaft [Edge blocked (R MEliteControl) -- Again not dealing with the barrier
+                                    ,Edge ice (R MOmegaResearch)
+                                    ,Edge pb (I VentilationShaft)]
+            ,Room MOmegaResearch [Edge ice (R MVentilationShaft)
+                                    ,Edge maintTunnel (R MMapStationMines)
+                                    ,Edge ice (R MDynamoAccess)]
+            ,Room MMapStationMines [Edge maintTunnel (R MOmegaResearch)]
+            ,Room MDynamoAccess [Edge ice (R MOmegaResearch)
+                                    ,Edge ice (R MCentralDynamo)]
+            -- Warp is the top, but treating as the bottom. It's slightly inaccurate
+            ,Room MCentralDynamo [Edge centralDynamoClimb (R MDynamoAccess)
+                                    ,Edge ice (R MSaveStationMinesB)
+                                    ,Edge maintTunnel (R MQuarantineAccessA)
+                                    ,Edge morph (I CentralDynamo)]
+            ,Room MSaveStationMinesB [Edge ice (R MCentralDynamo)]
+            ,Room MQuarantineAccessA [Edge maintTunnel (R MCentralDynamo)
+                                    ,Edge wave (R MMetroidQuarantineA)]
+            -- Again, considering the barrier to be one-way
+            ,Room MMetroidQuarantineA [Edge wave (R MQuarantineAccessA)
+                                    ,Edge noReq (R MMetroidQuarantineABack)]
+            ,Room MMetroidQuarantineABack [Edge blocked (R MMetroidQuarantineA)
+                                        ,Edge mqaTraversal (R MElevatorAccessB)
+                                        ,Edge mqaItem (I MetroidQuarantineA)]
+            ,Room MElevatorAccessB [Edge ice (R MMetroidQuarantineABack)
+                                        ,Edge plasma (R MElevatorB)]
+            ,Room MElevatorB [Edge plasma (R MFungalHallAccess)
+                                        ,Edge plasma (R MElevatorAccessB)]
+            ,Room MFungalHallAccess [Edge plasma (R MElevatorB)
+                                        ,Edge plasma (R MFungalHallA)
+                                        ,Edge morph (I FungalHallAccess)]
+            ,Room MFungalHallA [Edge climbFungalHallAccess (R MFungalHallAccess)
+                                        ,Edge fungalHallATraversal (R MPhazonMiningTunnel)]
+            ,Room MPhazonMiningTunnel [Edge plasma (R MFungalHallA)
+                                        ,Edge miningTunnelTraversal (R MFungalHallB)
+                                        ,Edge miningTunnelItem (I PhazonMiningTunnel)]
+            ,Room MFungalHallB [Edge miningTunnelTraversal (R MPhazonMiningTunnel)
+                                        ,Edge fungalHallBTraversal (R MMissileStationMines)
+                                        ,Edge fungalHallBTraversal (R MQuarantineAccessB)
+                                        ,Edge bombs (I FungalHallB)]
+            ,Room MMissileStationMines [Edge morph (R MFungalHallB)] -- You get warped out of bounds and need morph
+            ,Room MQuarantineAccessB [Edge plasma (R MFungalHallB)
+                                        ,Edge quarantineAccessBTraversal (R MMetroidQuarantineB)]
+            -- These rooms are treated as though the barrier is one-way (Warp is on the mushroom side)
+            ,Room MMetroidQuarantineB [Edge quarantineAccessBTraversal (R MQuarantineAccessB)
+                                        ,Edge mqbTraversal (R MSaveStationMinesC)
+                                        ,Edge mqbTraversal (R MEliteQuartersAccess)
+                                        ,Edge mqbTraversalItem (I MetroidQuarantineB)]
+            ,Room MSaveStationMinesC [Edge mqbBackClimb (R MEliteQuartersAccess)
+                                        ,Edge mqbItem (I MetroidQuarantineB)]
+            ,Room MEliteQuartersAccess [Edge plasma (R MSaveStationMinesC)
+                                        ,Edge plasma (R MEliteQuarters)
+                                        ,Edge mqbItem (I MetroidQuarantineB)]
+            ,Room MEliteQuarters [Edge eliteQuartersPlasma (R MEliteQuartersAccess)
+                                        ,Edge eliteQuartersPlasma (R MProcessingCenterAccess)
+                                        ,Edge eliteQuarters (I EliteQuarters)]
+            ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
+                                        ,Edge ppcBottomClimb (R MPhazonProcessingCenter)
+                                        ,Edge noReq (I ProcessingCenterAccess)]
                                     ]
