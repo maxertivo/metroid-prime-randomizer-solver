@@ -67,7 +67,7 @@ module State where
             {-- The below code is the original implementation
                 It leads to massive amounts of checking when using "easy" difficulty item requirements
                 This is because one-way paths to Landing Site are frequent
-                In higher difficulties
+                In higher difficulties this might not be an issue
 
                 if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
                     then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
