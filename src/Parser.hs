@@ -3,14 +3,17 @@ module Parser where
     import Text.Read
     
     parse :: String ->  [Node]
-    parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ lines input
+    parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
 
     createItemNodes :: [(String,String,String)] -> [Node]
     createItemNodes ((a,b,c):rest) = Item (readStr a::ItemId) (readStr b::ItemName) (getWarp c a) : createItemNodes rest
     createItemNodes [] = []
 
     getWarp :: String -> String -> RoomId
-    getWarp warp item = if warp == "" then getDefaultWarp (readStr item::ItemId) defaultWarps else readStr warp::RoomId
+    getWarp warp item
+            | warp == "" = getDefaultWarp (readStr item :: ItemId) defaultWarps
+            | warp == "OSavestation" = OSaveStation -- There is a typo in early versions of the randomizer
+            | otherwise = readStr warp :: RoomId
 
     getDefaultWarp :: ItemId -> [(RoomId,ItemId)] -> RoomId
     getDefaultWarp itemId ((room,item):rest) = if itemId == item then room else getDefaultWarp itemId rest
@@ -27,10 +30,10 @@ module Parser where
         "MissileLauncher" -> a:b:"Missile":d : handleExpansions rest
         "PowerBombExpansion" -> a:b:"PowerBomb":d : handleExpansions rest
         "EnergyTank" -> a:b:"EnergyTank":d : handleExpansions rest
-        'A':'r':'t':'i':'f':'a':'c':'t':rest2 -> a:b:"Artifact":d : handleExpansions rest
+        'A':'r':'t':'i':'f':'a':'c':'t':_ -> a:b:"Artifact":d : handleExpansions rest
         _ -> a:b:c:d : handleExpansions rest
     handleExpansions [] = []
-    handleExpansions x = error "Expecting a list with a number of elements divisible by 4"
+    handleExpansions x = error $ show x
 
     removePrefixes :: [String] -> [String]
     removePrefixes = map (replacePrefix "Warps to:" "")
@@ -53,8 +56,8 @@ module Parser where
     addDash [] = []
 
     createTuples :: [String] -> [(String,String,String)]
-    createTuples (a:b:c:d:rest) = (b,c,d): createTuples rest
-    createTuples x = [] 
+    createTuples (_:b:c:d:rest) = (b,c,d): createTuples rest
+    createTuples _ = [] 
 
     removeEmpty :: [String] -> [String]
     removeEmpty ("":rest) = removeEmpty rest
@@ -62,7 +65,7 @@ module Parser where
     removeEmpty [] = []
 
     removePunc :: [String] -> [String]
-    removePunc = map (\ xs -> [x | x <- xs, x `notElem` " ()\"-.|"])
+    removePunc = map (\ xs -> [x | x <- xs, x `notElem` " '()\"-.|"])
 
     removeNum :: String -> String
     removeNum xs = [x | x <- xs, x `notElem` "1234567890"]
@@ -74,19 +77,19 @@ module Parser where
     splitOn delim str = splitOnHelper delim str []
 
     splitOnHelper :: [Char] -> [Char] -> [Char] -> [[Char]]
-    splitOnHelper delim [] accum = [accum]
+    splitOnHelper _ [] accum = [accum]
     splitOnHelper delim (x:rest) accum = case stripPrefix delim (x:rest) of
         Just a ->  accum : splitOnHelper delim a []
         Nothing -> splitOnHelper delim rest (accum ++ [x])
     
     stripPrefix :: String -> String -> Maybe String
     stripPrefix [] str = Just str
-    stripPrefix prefix [] = Nothing
+    stripPrefix _ [] = Nothing
     stripPrefix (x:prefix) (y:str) = if x == y then stripPrefix prefix str else Nothing
 
     startsWith :: String -> String -> Bool
-    startsWith [] str = True
-    startsWith prefix [] = False
+    startsWith [] _ = True
+    startsWith _ [] = False
     startsWith (x:prefix) (y:str) = x == y && startsWith prefix str
 
     dropLines :: [String] -> [String]

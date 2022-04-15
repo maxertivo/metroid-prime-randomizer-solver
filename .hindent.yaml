@@ -1,5 +1,5 @@
 indent-size: 2
-line-length: 80
+line-length: 150
 force-trailing-newline: true
 line-breaks: [":>"]
 extensions:

@@ -1,6 +1,7 @@
 module Main where
 
 import Parser
+import Util
 import System.IO  
 import Control.Monad
 import Node
@@ -19,8 +20,7 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let nodes = buildNodes ++ parse fileContents
-        nodeMap = buildMap nodes
+    let nodeMap = buildMap $ buildNodes ++ parse fileContents
     case Map.lookup (R RHiveTotem) nodeMap of
         Just node -> explore nodeMap [] node
         Nothing -> return ()
@@ -51,22 +51,6 @@ explore nodes items (Room roomId edges) = do
         Nothing -> throw MissingNode
         Just a -> explore nodes items a
     else explore nodes items (Room roomId edges)
-
-buildMap :: [Node] -> Map Id Node
-buildMap nodes = Map.fromList (map convertNode nodes)
-
-convertNode :: Node -> (Id,Node)
-convertNode node = case node of
-                Item item name warp -> (I item, node)
-                Room room edges -> (R room, node)
-
-getIndex :: [a] -> Integer -> Maybe a
-getIndex [] i = Nothing
-getIndex (x:rest) 0 = Just x
-getIndex (x:rest) i = getIndex rest (i-1) 
-
-eval :: [[ItemName] -> Bool] -> [ItemName] -> [Bool]
-eval predicates items = map (\ x -> x items) predicates
 
 printEdges :: [Id] -> [Bool] -> IO ()
 printEdges  = printEdgesHelper 1

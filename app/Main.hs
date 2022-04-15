@@ -1,13 +1,25 @@
 module Main where
 
 import Parser
-import System.IO  
-import Control.Monad
+import State
 import Node
 import Graph
-import Data.Maybe
+import System.Directory
 
 main :: IO ()
-main = do
-  fileContents <- readFile "resources/sample.txt"
-  print (parse fileContents)
+main = do 
+    putStrLn "Enter Directory to check: "
+    directory <- getLine
+    filePaths <- getDirectoryContents directory
+    main' directory filePaths
+
+main' :: String -> [String] -> IO ()
+main' _ [] = return ()
+main' directory ("..":rest) = main' directory rest
+main' directory (".":rest) = main' directory rest
+main' directory (fileName:rest) = do
+    fileContents <- readFile (directory ++ "/" ++ fileName)
+    print fileName
+    let graph = buildMap $ buildNodes ++ parse fileContents
+    print $ fileName ++ ": " ++ show (isCompletable graph)
+    main' directory rest

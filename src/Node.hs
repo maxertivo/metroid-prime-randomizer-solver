@@ -5,10 +5,11 @@ data Id = R RoomId | I ItemId
 
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
         deriving (Show)
+
 data Edge = Edge {canUse :: [ItemName] -> Bool, nodeId :: Id}
-        
+
 instance Show Edge where 
-    show (Edge canUse nodeId) = show nodeId
+    show (Edge _ nodeId) = show nodeId
 
 data ItemName = Missile | EnergyTank | MorphBall | SpaceJumpBoots | MorphBallBomb | GrappleBeam | WaveBeam | IceBeam | PlasmaBeam | VariaSuit | GravitySuit 
                 | PhazonSuit | BoostBall | PowerBomb | SpiderBall | SuperMissile | ChargeBeam | XRayVisor | ThermalVisor | Wavebuster | IceSpreader 
@@ -83,6 +84,9 @@ noReq _ = True
 
 blocked :: [ItemName] -> Bool
 blocked _ = False
+
+complete :: [ItemName] -> Bool
+complete = containsCount 12 Artifact
 
 morph :: [ItemName] -> Bool
 morph x = contains x MorphBall
@@ -468,27 +472,27 @@ mqbBackClimb :: [ItemName] -> Bool
 mqbBackClimb x = containsAll x [SpaceJumpBoots, PlasmaBeam]
 
 containsCount :: Eq a => Int -> a -> [a] -> Bool
-containsCount num elem list
+containsCount num element list
     | num < 0 = False
     | num == 0 = True
-    | otherwise = num <= count elem list
+    | otherwise = num <= count element list
 
 count :: Eq a => a -> [a] -> Int
 count x = length . filter (== x)
 
 contains :: [ItemName] -> ItemName -> Bool
-contains items item = item `elem` items
+contains items item = item `Prelude.elem` items
 
 containsAll :: [ItemName] -> [ItemName] -> Bool
 containsAll [] [] = True
-containsAll items [] = True
-containsAll [] checks = False 
+containsAll _ [] = True
+containsAll [] _ = False 
 containsAll items (x:rest) = contains items x && containsAll items rest
 
 containsAny :: [ItemName] -> [ItemName] -> Bool
 containsAny [] [] = True
-containsAny items [] = True
-containsAny [] checks = False 
+containsAny _ [] = True
+containsAny [] _ = False 
 containsAny items (x:rest) = contains items x || containsAll items rest
 
 buildNodes :: [Node]
@@ -499,6 +503,8 @@ buildNodes = [ -- Tallon Overworld Rooms
                                     ,Edge sj (R OAlcove)
                                     ,Edge noReq (R OTempleHall)
                                     ,Edge morph (I LandingSite)]
+            ,Room OAlcove [Edge noReq (R OLandingSite)
+                                    ,Edge noReq (I Alcove)]
             ,Room OCanyonCavern [Edge noReq (R OLandingSite)
                                     ,Edge noReq (R OTallonCanyon)]
             ,Room OTallonCanyon [Edge noReq (R OCanyonCavern)
@@ -941,6 +947,7 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room DResearchEntrance [Edge wave (R DSpecimenStorage)
                                     ,Edge noReq (R DMapStation)
                                     ,Edge wave (R DHydraLabEntryway)]
+            ,Room DMapStation [Edge noReq (R DResearchEntrance)]
             ,Room DHydraLabEntryway [Edge wave (R DResearchEntrance)
                                     ,Edge wave (R DResearchLabHydra)]
             ,Room DResearchLabHydra [Edge wave (R DHydraLabEntryway)
@@ -1034,7 +1041,7 @@ buildNodes = [ -- Tallon Overworld Rooms
             ,Room MMineSecurityStation [Edge waveIce (R MSecurityAccessA)
                                     ,Edge toStarageDepotA (R MStorageDepotA)
                                     ,Edge wave (R MSecurityAccessB)]
-            ,Room MStorageDepotA [Edge blocked (R MMineSecurityStation) -- For simplicity, it's blocked for now
+            ,Room MStorageDepotA [Edge blocked (R MMineSecurityStation) -- For simplicity, it's blocked for now.
                                     ,Edge noReq (I StorageDepotA)]
             ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
                                     ,Edge ice (R MEliteResearch)]

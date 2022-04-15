@@ -25,7 +25,7 @@ module Graph where
 
     Regarding Warps:
     Upon traversing to an Item, we need to restart the graph traversal from the room that the item warps to (if it warps), 
-    but this time we have the new item in inventory and the item node removed from the graph. 
+    but this time we have the new item in inventory and the item node can no longer be used. 
 
     Note that in the case of extra missile expansions or power bomb expantions, we don't gain access to more nodes, 
     so in this case we don't start the traversal fresh, but instead continue the current traversal from the new room.
@@ -33,6 +33,13 @@ module Graph where
     If the item does not warp, it is treated as if it warps to the room containing the item.
 
      --}
-    type Graph = Map Id Node
+
+    buildMap :: [Node] -> Map Id Node
+    buildMap nodes = Map.fromList (map convertNode nodes)
+
+    convertNode :: Node -> (Id,Node)
+    convertNode node = case node of
+                    Item item _ _ -> (I item, node)
+                    Room room _ -> (R room, node)
 
     
