@@ -218,7 +218,7 @@ fcsItem diff x = case diff of
     Extreme -> True
     
 climbFrigateMvs :: Difficulty -> [ItemName] -> Bool
-climbFrigateMvs = case diff of
+climbFrigateMvs diff x = case diff of
     Easy -> sj x
     Medium -> sj x
     Hard -> sjOrBombs x
@@ -226,12 +226,12 @@ climbFrigateMvs = case diff of
     Extreme -> sjOrBombs x
 
 climbReactorCore :: Difficulty -> [ItemName] -> Bool
-climbReactorCore = case diff of
+climbReactorCore diff x = case diff of
     Easy -> sj x
     Medium -> sj x
-    Hard -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
-    VeryHard -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
-    Extreme -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
+    Hard -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
+    VeryHard -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
+    Extreme -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
 
 cargoFreightLift :: Difficulty -> [ItemName] -> Bool
 cargoFreightLift diff x = case diff of 
@@ -801,7 +801,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room OMainVentilationShaftSectionC [Edge noReq (R OFrigateAccessTunnel)
                                     ,Edge noReq (R OMainVentilationShaftSectionB)]
             ,Room OMainVentilationShaftSectionB [Edge wave (R OMainVentilationShaftSectionA)
-                                    ,Edge climbFrigateMvs (R OMainVentilationShaftSectionC)]
+                                    ,Edge (climbFrigateMvs diff) (R OMainVentilationShaftSectionC)]
             ,Room OMainVentilationShaftSectionA [Edge (frigatePowerDoor diff) (R OMainVentilationShaftSectionB)
                                     ,Edge noReq (R OReactorCore)]
             ,Room OReactorCore [Edge (climbReactorCore diff) (R OMainVentilationShaftSectionA)

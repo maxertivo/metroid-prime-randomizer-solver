@@ -37,7 +37,10 @@ module State where
                                                 isComplete graph newState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
 
     isComplete :: Map Id Node -> State -> Bool
-    isComplete graph (State inventory (Room roomId edges) collectedItems) = complete inventory && isAccessible graph roomId OArtifactTemple inventory
+    isComplete graph (State inventory (Room roomId edges) collectedItems) = 
+        let Just artifactTempleItem = Map.lookup (I ArtifactTemple) graph 
+        in complete inventory && isAccessible graph roomId OArtifactTemple inventory 
+        && (ArtifactTemple `elem` collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
 
     getBestCandidate :: [CandidateState] -> State
     getBestCandidate list = let (candidate:rest) = sort list
