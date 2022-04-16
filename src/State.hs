@@ -18,7 +18,7 @@ module State where
             | countOf c upgrades > countOf f upgrades = LT
             | b < e = LT
             | b > e = GT
-            | otherwise = EQ
+            | otherwise = compareElem c f
     
     instance Eq CandidateState where 
         p@(CandidateState a b c) == q@(CandidateState d e f) = compare p q == EQ 
@@ -34,7 +34,7 @@ module State where
     isCompletableHelper graph currState = let newState = collectFreeItems graph currState;
                                                 candidates = getCandidateStates graph newState;
                                             in 
-                                                isComplete graph currState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
+                                                isComplete graph newState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
 
     isComplete :: Map Id Node -> State -> Bool
     isComplete graph (State inventory (Room roomId edges) collectedItems) = complete inventory && isAccessible graph roomId OArtifactTemple inventory
@@ -67,19 +67,21 @@ module State where
             {-- The below code is the original implementation
                 It leads to massive amounts of checking when using "easy" difficulty item requirements
                 This is because one-way paths to Landing Site are frequent
-                In higher difficulties this might not be an issue
+                In higher difficulties this might not be an issue 
 
                 if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
-                    then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
+                    then (if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList)
                 else if isAccessible graph warp OLandingSite (itemName:inventory) && containsUpgrade (itemName:newItems) (itemName:inventory)
-                    then candidate : (recurseItemList ++ recurseDeeper)
+                    then (if depth <= 5 then candidate : (recurseItemList ++ recurseDeeper) else candidate : recurseItemList)
                 else
-                    recurseItemList ++ recurseDeeper --}
+                    (if depth <= 5 then recurseItemList ++ recurseDeeper else recurseItemList) --}
 
+    -- TODO may want to add Artifacts as progressing items
     containsUpgrade :: [ItemName] -> [ItemName] -> Bool
     containsUpgrade newItems inventory = let previousInventory = inventory \\ newItems 
                                         in containsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
-                                                                ,SpiderBall,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit] -- These are always an improvement
+                                                                ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit] -- These are always an improvement
+                                        || (contains newItems SpiderBall && contains previousInventory MorphBall)
                                         || (contains newItems MorphBallBomb && contains previousInventory MorphBall)
                                         || (contains newItems BoostBall && contains previousInventory MorphBall)
                                         || (not (supers previousInventory) && supers inventory)
@@ -101,7 +103,8 @@ module State where
             newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
             newState = State (itemName:inventory) (Room roomId edges) (itemId:collectedItems) 
         in 
-            if isMutuallyAccessible graph warp roomId (itemName:inventory) -- If we can reach landing site, then the warp is not useful, so collecting the item has no cost
+            -- If we can reach landing site, then the warp is not useful, so collecting the item has no cost
+            if isMutuallyAccessible graph warp roomId (itemName:inventory)
                 then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
             else 
                 collectFreeItemsHelper graph rest currState

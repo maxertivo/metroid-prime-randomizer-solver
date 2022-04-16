@@ -9,11 +9,24 @@ module Util where
     eval :: [a -> b] -> a -> [b]
     eval funcList arg = map (\ x -> x arg) funcList
 
+    -- Apply all functions in a list to the same two args
+    eval2 :: [a -> b -> c] -> a -> b -> [c]
+    eval2 funcList arg1 arg2 = map (\ x -> x arg1 arg2) funcList
+
     getVal :: Maybe a -> String -> a
     getVal maybe msg = case maybe of
         Nothing -> error msg
         Just a -> a
-    
+
+    compareElem :: (Ord a) => [a] -> [a] -> Ordering
+    compareElem [] [] = EQ
+    compareElem (a : rest1) (b : rest2)
+                | a < b = LT
+                | a > b = GT
+                | otherwise = compareElem rest1 rest2
+    compareElem (a:rest1) [] = GT
+    compareElem [] (b:rest2) = LT
+
     nonEmpty :: [a] -> Bool
     nonEmpty [] = False
     nonEmpty _ = True

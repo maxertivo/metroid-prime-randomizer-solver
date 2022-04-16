@@ -20,9 +20,9 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let nodeMap = buildMap $ buildNodes ++ parse fileContents
-    case Map.lookup (R RHiveTotem) nodeMap of
-        Just node -> explore nodeMap [] node
+    let graph = buildMap $ buildNodes Extreme ++ parse fileContents
+    case Map.lookup (R RHiveTotem) graph of
+        Just node -> explore graph [] node
         Nothing -> return ()
     
   

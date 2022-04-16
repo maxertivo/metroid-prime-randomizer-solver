@@ -3,7 +3,7 @@ module Parser where
     import Text.Read
     
     parse :: String ->  [Node]
-    parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePunc $ removePrefixes $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
+    parse input =  createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePrefixes $ removePunc $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
 
     createItemNodes :: [(String,String,String)] -> [Node]
     createItemNodes ((a,b,c):rest) = Item (readStr a::ItemId) (readStr b::ItemName) (getWarp c a) : createItemNodes rest
@@ -36,7 +36,7 @@ module Parser where
     handleExpansions x = error $ show x
 
     removePrefixes :: [String] -> [String]
-    removePrefixes = map (replacePrefix "Warps to:" "")
+    removePrefixes = map (replacePrefix "Warpsto:" "")
 
     shortenAreas :: [String] -> [String]
     shortenAreas = map
