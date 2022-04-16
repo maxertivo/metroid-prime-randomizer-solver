@@ -75,7 +75,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
                 --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines (can also be barrier), opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
-                -- Research Lab Hydra barrier, Mine Security Station?
+                -- Research Lab Hydra barrier, Frigate Power Door, Mine Security Station?
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Extreme
@@ -217,6 +217,21 @@ fcsItem diff x = case diff of
     VeryHard -> True
     Extreme -> True
     
+climbFrigateMvs :: Difficulty -> [ItemName] -> Bool
+climbFrigateMvs = case diff of
+    Easy -> sj x
+    Medium -> sj x
+    Hard -> sjOrBombs x
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
+
+climbReactorCore :: Difficulty -> [ItemName] -> Bool
+climbReactorCore = case diff of
+    Easy -> sj x
+    Medium -> sj x
+    Hard -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
+    VeryHard -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
+    Extreme -> sj x || containsAll [GravitySuit, MorphBall, MorphBallBomb]
 
 cargoFreightLift :: Difficulty -> [ItemName] -> Bool
 cargoFreightLift diff x = case diff of 
@@ -786,10 +801,10 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room OMainVentilationShaftSectionC [Edge noReq (R OFrigateAccessTunnel)
                                     ,Edge noReq (R OMainVentilationShaftSectionB)]
             ,Room OMainVentilationShaftSectionB [Edge wave (R OMainVentilationShaftSectionA)
-                                    ,Edge sj (R OMainVentilationShaftSectionC)]
+                                    ,Edge climbFrigateMvs (R OMainVentilationShaftSectionC)]
             ,Room OMainVentilationShaftSectionA [Edge (frigatePowerDoor diff) (R OMainVentilationShaftSectionB)
                                     ,Edge noReq (R OReactorCore)]
-            ,Room OReactorCore [Edge (fcsItem diff) (R OMainVentilationShaftSectionA)
+            ,Room OReactorCore [Edge (climbReactorCore diff) (R OMainVentilationShaftSectionA)
                                     ,Edge wave (R OReactorAccess)]
             ,Room OReactorAccess [Edge wave (R OCargoFreightLifttoDeckGamma)
                                     ,Edge noReq (R OReactorCore)
@@ -1284,7 +1299,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (I StorageDepotA)]
             ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
                                     ,Edge ice (R MEliteResearch)]
-            ,Room MEliteResearch [Edge ice (R MEliteResearch)
+            ,Room MEliteResearch [Edge ice (R MSecurityAccessB)
                                     ,Edge (eliteResearchDoor diff) (R MResearchAccess)
                                     ,Edge (eliteResearchTopItem diff) (I EliteResearchLaser)
                                     ,Edge pb (I EliteResearchPhazonElite)]
