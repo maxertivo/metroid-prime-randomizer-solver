@@ -40,6 +40,7 @@ module State where
     isComplete graph (State inventory (Room roomId edges) collectedItems) = 
         let Just artifactTempleItem = Map.lookup (I ArtifactTemple) graph 
         in complete inventory && isAccessible graph roomId OArtifactTemple inventory 
+        -- Either you collected Artifact Temple or you can collect it and return
         && (ArtifactTemple `elem` collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
 
     getBestCandidate :: [CandidateState] -> State

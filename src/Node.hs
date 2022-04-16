@@ -14,6 +14,8 @@ instance Show Edge where
 data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | SpaceJumpBoots | PhazonSuit | GravitySuit 
                 | VariaSuit | SpiderBall | BoostBall | PowerBomb | ChargeBeam | SuperMissile | XRayVisor | GrappleBeam
                 | ThermalVisor | Missile | EnergyTank | Wavebuster | IceSpreader | Flamethrower | Artifact
+
+                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -74,7 +76,9 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened save room in mines (can also be barrier), opened OP backdoor in mines, Sunchamber, Chozo Ice Temple, HOTE statue
+                | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger
+
+                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
                 -- Research Lab Hydra barrier, Frigate Power Door, Mine Security Station?
                 deriving  (Read, Eq, Ord, Show, Enum)
 
@@ -160,6 +164,15 @@ floaty x = not $ contains x GravitySuit
 tallonFloaty :: [ItemName] -> Bool
 tallonFloaty x = boost x && floaty x
 
+mainQuarryBarrierIce :: [ItemName] -> Bool
+mainQuarryBarrierIce x = containsAll x [MainQuarryBarriers, IceBeam]
+
+mainQuarryBarrierWave :: [ItemName] -> Bool
+mainQuarryBarrierWave x = containsAll x [MainQuarryBarriers, WaveBeam]
+
+chozoIceTempleBarrier :: [ItemName] -> Bool
+chozoIceTempleBarrier x = contains x ChozoIceTempleBarrier
+
 -- Tallon Predicates
 sjf :: Difficulty -> [ItemName] -> Bool
 sjf diff x = case diff of 
@@ -195,11 +208,11 @@ fcsClimb diff x = case diff of
 
 frigatePowerDoor :: Difficulty -> [ItemName] -> Bool
 frigatePowerDoor diff x = case diff of 
-    Easy -> False
-    Medium -> False
-    Hard -> False
-    VeryHard -> bombs x
-    Extreme -> bombs x
+    Easy -> contains x FrigatePowerDoor
+    Medium -> contains x FrigatePowerDoor
+    Hard -> contains x FrigatePowerDoor
+    VeryHard -> bombs x || contains x FrigatePowerDoor
+    Extreme -> bombs x || contains x FrigatePowerDoor
 
 fcsEntry :: Difficulty -> [ItemName] -> Bool
 fcsEntry diff x = case diff of 
@@ -430,9 +443,9 @@ wateryHallWater :: Difficulty -> [ItemName] -> Bool
 wateryHallWater diff x = case diff of 
     Easy -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x) 
     Medium -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x) 
-    Hard -> (contains x GravitySuit && bombs x) || sj x
-    VeryHard ->  bombs x || sj x -- Via out of bounds
-    Extreme ->  bombs x || sj x
+    Hard -> True
+    VeryHard ->  True
+    Extreme ->  True
 
 furnaceTraverse :: Difficulty -> [ItemName] -> Bool 
 furnaceTraverse diff x = case diff of 
@@ -643,6 +656,14 @@ quarrySave diff x = containsAll x [SpiderBall, WaveBeam]
 quarryItem :: Difficulty -> [ItemName] -> Bool
 quarryItem diff x = containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
 
+reachWasteDisposal :: Difficulty -> [ItemName] -> Bool
+reachWasteDisposal diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots,WaveBeam,IceBeam,GrappleBeam]
+    Medium -> containsAll x [WaveBeam,IceBeam,GrappleBeam] && sjOrBombs x
+    Hard -> ice x && sjOrBombs x
+    VeryHard ->  ice x && sjOrBombs x
+    Extreme -> ice x && sjOrBombs x
+
 oreProcessingClimb :: Difficulty -> [ItemName] -> Bool
 oreProcessingClimb diff x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
 
@@ -801,7 +822,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room OMainVentilationShaftSectionC [Edge noReq (R OFrigateAccessTunnel)
                                     ,Edge noReq (R OMainVentilationShaftSectionB)]
             ,Room OMainVentilationShaftSectionB [Edge wave (R OMainVentilationShaftSectionA)
-                                    ,Edge (climbFrigateMvs diff) (R OMainVentilationShaftSectionC)]
+                                    ,Edge (climbFrigateMvs diff) (R OMainVentilationShaftSectionC)
+                                    ,Edge wave (I FrigatePowerDoorTrigger)]
             ,Room OMainVentilationShaftSectionA [Edge (frigatePowerDoor diff) (R OMainVentilationShaftSectionB)
                                     ,Edge noReq (R OReactorCore)]
             ,Room OReactorCore [Edge (climbReactorCore diff) (R OMainVentilationShaftSectionA)
@@ -1141,8 +1163,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (iceBarrier diff) (R DChozoIceTemple)]
             ,Room DChozoIceTemple [Edge (iceBarrier diff) (R DTempleEntryway)
                                     ,Edge (iceTempleClimb diff) (R DChapelTunnel)
+                                    ,Edge (iceTempleClimb diff) (I ChozoIceTempleTrigger)
                                     ,Edge (iceTempleItem diff) (I ChozoIceTemple)]
-            ,Room DChapelTunnel [Edge blocked (R DChozoIceTemple)  -- Fix this later
+            ,Room DChapelTunnel [Edge chozoIceTempleBarrier (R DChozoIceTemple)  -- Fix this later
                                     ,Edge noReq (R DChapeloftheElders)] -- Warp point is near Chapel of the Elders
             ,Room DChapeloftheElders [Edge wave (R DChapelTunnel)
                                     ,Edge missile (I ChapeloftheElders)]
@@ -1285,11 +1308,12 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge wave (R MMainQuarry)]
             ,Room MMainQuarry [Edge wave (R MQuarryAccess)
                                     ,Edge (quarrySave diff) (R MSaveStationMinesA)
-                                    ,Edge blocked (R MWasteDisposal) -- Address this later
+                                    ,Edge (reachWasteDisposal diff) (R MWasteDisposal) -- Address this later
                                     ,Edge ice (R MSecurityAccessA)
+                                    ,Edge (quarrySave diff) (I MainQuarryBarrierTriggers)
                                     ,Edge (quarryItem diff) (I MainQuarry)]
-            ,Room MSaveStationMinesA [Edge noReq (R MMainQuarry)]
-            ,Room MSecurityAccessA [Edge ice (R MMainQuarry)
+            ,Room MSaveStationMinesA [Edge mainQuarryBarrierWave (R MMainQuarry)]
+            ,Room MSecurityAccessA [Edge mainQuarryBarrierIce (R MMainQuarry)
                                     ,Edge ice (R MMineSecurityStation)
                                     ,Edge pb (I SecurityAccessA)]
             ,Room MMineSecurityStation [Edge waveIce (R MSecurityAccessA)
@@ -1393,4 +1417,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
                                         ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
                                         ,Edge noReq (I ProcessingCenterAccess)]
+
+            -- Pseudo-items
+            ,Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
+            ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
+            ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
             ]
