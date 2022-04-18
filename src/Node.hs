@@ -79,7 +79,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger
 
                 --Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
-                -- Research Lab Hydra barrier, Frigate Power Door, Mine Security Station?
+                -- Research Lab Hydra barrier, Mine Security Station?
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Extreme
@@ -519,29 +519,118 @@ reflectPoolAntechamber diff x = case diff of
     Extreme -> bombs x || sj x
 
 -- Magmoor Predicates
+vmr1Tank :: Difficulty -> [ItemName] -> Bool 
+vmr1Tank diff x = case diff of 
+    Easy -> heatResist x
+    Medium -> heatResist x
+    Hard -> heatResist x || containsCount 2 EnergyTank x && sj x
+    VeryHard -> heatResist x || (containsCount 1 EnergyTank x && sj x) || containsCount 2 EnergyTank x
+    Extreme -> heatResist x || (containsCount 1 EnergyTank x && sj x) || containsCount 2 EnergyTank x
+
+vmr2Tank :: Difficulty -> [ItemName] -> Bool 
+vmr2Tank diff x = case diff of 
+    Easy -> heatResist x
+    Medium -> heatResist x
+    Hard -> heatResist x || containsCount 3 EnergyTank x && sj x
+    VeryHard -> heatResist x || (containsCount 2 EnergyTank x && sj x) || containsCount 3 EnergyTank x
+    Extreme -> heatResist x || (containsCount 2 EnergyTank x && sj x) || containsCount 3 EnergyTank x
+
+vmr3Tank :: Difficulty -> [ItemName] -> Bool 
+vmr3Tank diff x = case diff of 
+    Easy -> heatResist x
+    Medium -> heatResist x
+    Hard -> heatResist x || containsCount 4 EnergyTank x && sj x
+    VeryHard -> heatResist x || (containsCount 3 EnergyTank x && sj x) || containsCount 4 EnergyTank x
+    Extreme -> heatResist x || (containsCount 3 EnergyTank x && sj x) || containsCount 4 EnergyTank x
+
+vmr4Tank :: Difficulty -> [ItemName] -> Bool 
+vmr4Tank diff x = case diff of 
+    Easy -> heatResist x
+    Medium -> heatResist x
+    Hard -> heatResist x || containsCount 5 EnergyTank x && sj x
+    VeryHard -> heatResist x || (containsCount 4 EnergyTank x && sj x) || containsCount 5 EnergyTank x
+    Extreme -> heatResist x || (containsCount 4 EnergyTank x && sj x) || containsCount 5 EnergyTank x
+
+heatResistOr8Etanks :: Difficulty -> [ItemName] -> Bool 
+heatResistOr8Etanks diff x = case diff of 
+    Easy -> heatResist x
+    Medium -> heatResist x
+    Hard -> heatResist x || containsCount 8 EnergyTank x
+    VeryHard -> heatResist x || containsCount 8 EnergyTank x
+    Extreme -> heatResist x || containsCount 8 EnergyTank x
+
 lavaLakeTraversal :: Difficulty -> [ItemName] -> Bool 
-lavaLakeTraversal diff x = heatResist x && bombs x
+lavaLakeTraversal diff x = vmr4Tank diff x && bombs x
+
+lavaLakeReverseTraversal :: Difficulty -> [ItemName] -> Bool 
+lavaLakeReverseTraversal diff x = vmr2Tank diff x && bombs x
 
 lavaLakeItem :: Difficulty -> [ItemName] -> Bool 
-lavaLakeItem diff x = containsAll x [Missile, SpaceJumpBoots]
+lavaLakeItem diff x = case diff of 
+    Easy -> missile x && sj x && heatResist x
+    Medium -> missile x && sj x && heatResist x
+    Hard -> missile x && (heatResist x || (sj x && containsCount 2 EnergyTank x))
+    VeryHard -> missile x && (heatResist x || (sj x && contains x EnergyTank) || containsCount 2 EnergyTank x)
+    Extreme -> missile x && (heatResist x || (sj x && contains x EnergyTank) || containsCount 2 EnergyTank x)
 
 pitTunnel :: Difficulty -> [ItemName] -> Bool 
-pitTunnel diff x = heatResist x && contains x MorphBall
+pitTunnel diff x = vmr2Tank diff x && contains x MorphBall
+
+pitTunnelReverse :: Difficulty -> [ItemName] -> Bool 
+pitTunnelReverse diff x = vmr3Tank diff x && contains x MorphBall
 
 triclopsPitItem :: Difficulty -> [ItemName] -> Bool 
-triclopsPitItem diff x = containsAll x [SpaceJumpBoots, Missile]
+triclopsPitItem diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, Missile] && heatResist x
+    Medium -> containsAll x [SpaceJumpBoots, Missile] && heatResist x
+    Hard -> missile x && vmr1Tank diff x
+    VeryHard -> missile x && vmr1Tank diff x
+    Extreme -> missile x && vmr1Tank diff x
+
+storageCavern :: Difficulty -> [ItemName] -> Bool 
+storageCavern diff x = morph x && vmr1Tank diff x
 
 toTransportTunnelA :: Difficulty -> [ItemName] -> Bool 
-toTransportTunnelA diff x = bombs x && heatResist x
+toTransportTunnelA diff x = bombs x && vmr1Tank diff x
 
 monitorStationClimb :: Difficulty -> [ItemName] -> Bool 
-monitorStationClimb diff x = heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+monitorStationClimb diff x = case diff of 
+    Easy ->heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+    Medium -> heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+    Hard -> vmr3Tank diff x && (sj x || bombs x)
+    VeryHard -> vmr3Tank diff x && (sj x || bombs x)
+    Extreme -> vmr3Tank diff x && (sj x || bombs x)
+
+warriorShrineTunnel :: Difficulty -> [ItemName] -> Bool
+warriorShrineTunnel diff x = vmr4Tank diff x && pb x && bombs x
+
+-- TODO can you use spider without heat resistance?
+crossTft :: Difficulty -> [ItemName] -> Bool
+crossTft diff x = case diff of 
+    Easy -> spider x
+    Medium -> spider x
+    Hard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
+    VeryHard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
+    Extreme -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
+
+crossTftReverse :: Difficulty -> [ItemName] -> Bool
+crossTftReverse diff x = case diff of 
+    Easy -> spider x
+    Medium -> spider x
+    Hard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
+    VeryHard -> spider x || sj x || heatResist x
+    Extreme -> spider x || sj x || heatResist x
 
 crossTwinFires :: Difficulty -> [ItemName] -> Bool
 crossTwinFires diff x = sjOrBombs x && contains x WaveBeam
 
 crossNorthCoreTunnel :: Difficulty -> [ItemName] -> Bool
-crossNorthCoreTunnel diff x = containsAll x [Missile, SpaceJumpBoots, WaveBeam]
+crossNorthCoreTunnel diff x = case diff of 
+    Easy -> containsAll x [Missile, SpaceJumpBoots, WaveBeam]
+    Medium -> containsAll x [Missile, SpaceJumpBoots, WaveBeam]
+    Hard -> containsAll x [SpaceJumpBoots, WaveBeam]
+    VeryHard -> contains x WaveBeam && (missile x || sj x)
+    Extreme -> contains x WaveBeam && (missile x || sj x)
 
 workstationTunnel :: Difficulty -> [ItemName] -> Bool
 workstationTunnel diff x = containsAll x [IceBeam, PowerBomb, MorphBall]
@@ -553,7 +642,12 @@ workstationWaveDoor :: Difficulty -> [ItemName] -> Bool
 workstationWaveDoor diff x = sjOrBombs x && contains x WaveBeam
 
 geoCore :: Difficulty -> [ItemName] -> Bool
-geoCore diff x = containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+geoCore diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+    Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+    Hard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+    VeryHard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+    Extreme -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
 
 -- Phendrana Predicates
 iceBarrier :: Difficulty -> [ItemName] -> Bool
@@ -1079,22 +1173,22 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R CLakeTunnel)]
             ,Room CSaveStationMagmoorA [Edge missile (R CBurningTrail)]
             ,Room CLakeTunnel [Edge noReq (R CBurningTrail)
-                                    ,Edge heatResist (R CLavaLake)]
+                                    ,Edge noReq (R CLavaLake)]
             ,Room CLavaLake [Edge noReq (R CLakeTunnel)
                                     ,Edge (lavaLakeTraversal diff) (R CPitTunnel)
                                     ,Edge (lavaLakeItem diff) (I LavaLake)]
-            ,Room CPitTunnel [Edge (lavaLakeTraversal diff) (R CLavaLake)
+            ,Room CPitTunnel [Edge (lavaLakeReverseTraversal diff) (R CLavaLake)
                                     ,Edge (pitTunnel diff) (R CTriclopsPit)]
-            ,Room CTriclopsPit [Edge (pitTunnel diff) (R CPitTunnel)
-                                    ,Edge (pitTunnel diff) (R CStorageCavern)
-                                    ,Edge heatResist (R CMonitorTunnel)
+            ,Room CTriclopsPit [Edge (pitTunnelReverse diff) (R CPitTunnel)
+                                    ,Edge (storageCavern diff) (R CStorageCavern)
+                                    ,Edge (heatResistOr8Etanks diff) (R CMonitorTunnel) -- This has a high requirement to deter this path to get to phendrana
                                     ,Edge (triclopsPitItem diff) (I TriclopsPit)]
-            ,Room CStorageCavern [Edge (triclopsPitItem diff) (R CTriclopsPit)
+            ,Room CStorageCavern [Edge (vmr2Tank diff) (R CTriclopsPit)
                                     ,Edge noReq (I StorageCavern)]
-            ,Room CMonitorTunnel [Edge heatResist (R CTriclopsPit)
-                                    ,Edge heatResist (R CMonitorStation)]
-            ,Room CMonitorStation [Edge heatResist (R CMonitorTunnel)
-                                    ,Edge heatResist (R CShoreTunnel)
+            ,Room CMonitorTunnel [Edge (vmr2Tank diff) (R CTriclopsPit)
+                                    ,Edge (vmr2Tank diff) (R CMonitorStation)]
+            ,Room CMonitorStation [Edge (vmr4Tank diff) (R CMonitorTunnel) -- This requirement is excessive if warped to MonitorStation, going to storage cavern
+                                    ,Edge (vmr3Tank diff) (R CShoreTunnel)
                                     ,Edge (toTransportTunnelA diff) (R CTransportTunnelA)
                                     ,Edge (monitorStationClimb diff) (R CWarriorShrine)]
             ,Room CTransportTunnelA [Edge bombs (R CMonitorStation)
@@ -1102,22 +1196,22 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (I TransportTunnelA)]
             ,Room CTransporttoPhendranaDriftsNorth [Edge noReq (R CTransportTunnelA)
                                     ,Edge noReq (R DTransporttoMagmoorCavernsWest)]
-            ,Room CWarriorShrine [Edge heatResist (R CMonitorStation)
-                                    ,Edge bombsPbs (R CFieryShores)
+            ,Room CWarriorShrine [Edge (vmr2Tank diff) (R CMonitorStation)
+                                    ,Edge (warriorShrineTunnel diff) (R CFieryShores)
                                     ,Edge noReq (I WarriorShrine)
-                                    ,Edge pb (I FieryShoresWarriorShrineTunnel)]
-            ,Room CShoreTunnel [Edge heatResist (R CMonitorStation)
-                                    ,Edge heatResist (R CFieryShores)
+                                    ,Edge (warriorShrineTunnel diff) (I FieryShoresWarriorShrineTunnel)]
+            ,Room CShoreTunnel [Edge (vmr2Tank diff) (R CMonitorStation)
+                                    ,Edge (vmr2Tank diff) (R CFieryShores)
                                     ,Edge pb (I ShoreTunnel)]
-            ,Room CFieryShores [Edge heatResist (R CShoreTunnel)
-                                    ,Edge heatResist (R CTransportTunnelB)
+            ,Room CFieryShores [Edge (vmr3Tank diff) (R CShoreTunnel)
+                                    ,Edge (vmr1Tank diff) (R CTransportTunnelB)
                                     ,Edge bombs (I FieryShoresMorphTrack)]
-            ,Room CTransportTunnelB [Edge heatResist (R CFieryShores)
+            ,Room CTransportTunnelB [Edge (vmr4Tank diff) (R CFieryShores)
                                     ,Edge noReq (R CTransporttoTallonOverworldWest)]
-            ,Room CTransporttoTallonOverworldWest [Edge noReq (R CTransportTunnelB)
+            ,Room CTransporttoTallonOverworldWest [Edge (vmr4Tank diff) (R CTransportTunnelB)
                                     ,Edge noReq (R OTransporttoMagmoorCavernsEast)
-                                    ,Edge spider (R CTwinFiresTunnel)]
-            ,Room CTwinFiresTunnel [Edge spider (R CTransporttoTallonOverworldWest)
+                                    ,Edge (crossTft diff) (R CTwinFiresTunnel)]
+            ,Room CTwinFiresTunnel [Edge (crossTftReverse diff) (R CTransporttoTallonOverworldWest)
                                     ,Edge noReq (R CTwinFires)]
             ,Room CTwinFires [Edge noReq (R CTwinFiresTunnel)
                                     ,Edge (crossTwinFires diff) (R CNorthCoreTunnel)]
