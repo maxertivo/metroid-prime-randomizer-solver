@@ -81,6 +81,7 @@ module State where
                     (if depth <= 5 then recurseItemList ++ recurseDeeper else recurseItemList) --}
 
     -- TODO may want to add Artifacts as progressing items
+    -- Also may want to add < 5 e tanks and < 8 missiles
     containsUpgrade :: [ItemName] -> [ItemName] -> Bool
     containsUpgrade newItems inventory = let previousInventory = inventory \\ newItems 
                                         in containsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam

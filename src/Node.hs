@@ -51,7 +51,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | DResearchLabAether | DResearchCoreAccess | DResearchCore | DQuarantineAccess | DNorthQuarantineTunnel | DQuarantineCave | DQuarantineMonitor 
                 | DSouthQuarantineTunnel | DTransporttoMagmoorCavernsSouth | DTransportAccess | DFrozenPike | DPikeAccess | DFrostCaveAccess | DFrostCave 
                 | DSaveStationC | DUpperEdgeTunnel | DPhendranasEdge | DStorageCave | DSecurityCave | DLowerEdgeTunnel | DHunterCave | DLakeTunnel 
-                | DGravityChamber | DChamberAccess | DHunterCaveAccess | DQuarantineCaveBack | DGravityChamberTop | DHunterCaveFar
+                | DGravityChamber | DChamberAccess | DHunterCaveAccess | DQuarantineCaveBack | DGravityChamberTop | DHunterCaveFar | DObservatoryTop
 
                 | MTransporttoTallonOverworldSouth | MQuarryAccess | MMainQuarry | MSaveStationMinesA | MSecurityAccessA | MMineSecurityStation | MSecurityAccessB 
                 | MStorageDepotA | MEliteResearch | MResearchAccess | MOreProcessing | MElevatorAccessA | MElevatorA | MStorageDepotB | MWasteDisposal 
@@ -651,101 +651,256 @@ geoCore diff x = case diff of
 
 -- Phendrana Predicates
 iceBarrier :: Difficulty -> [ItemName] -> Bool
-iceBarrier diff x = containsAny x [Missile, ChargeBeam]
+iceBarrier _ x = containsAny x [Missile, ChargeBeam]
 
 shorelinesTower :: Difficulty -> [ItemName] -> Bool
-shorelinesTower diff x = containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile]
+shorelinesTower diff x = case diff of 
+    Easy -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
+    Medium -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
+    Hard -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
+    VeryHard -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
+    Extreme -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
+
 
 iceTempleClimb :: Difficulty -> [ItemName] -> Bool
-iceTempleClimb diff x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
+iceTempleClimb diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
+    Hard -> containsAll x [MorphBall, MorphBallBomb, Missile]
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb, Missile]
+    Extreme -> containsAll x [MorphBall, MorphBallBomb, Missile]
 
 iceTempleItem :: Difficulty -> [ItemName] -> Bool
-iceTempleItem diff x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
+iceTempleItem diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
+    Medium ->containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
+    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+    Extreme -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+
+climbShorelines :: Difficulty -> [ItemName] -> Bool 
+climbShorelines diff x = case diff of 
+    Easy -> sj x
+    Medium -> sj x
+    Hard -> sj x
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
+
+ireSpiderTrack :: Difficulty -> [ItemName] -> Bool 
+ireSpiderTrack diff x = case diff of 
+    Easy -> spider x
+    Medium -> spider x
+    Hard -> spider x
+    VeryHard -> spider x || bombs x
+    Extreme -> spider x || bombs x
 
 irwDoor :: Difficulty -> [ItemName] -> Bool
-irwDoor diff x = containsAll x [SpaceJumpBoots, WaveBeam]
+irwDoor diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, WaveBeam]
+    Medium -> containsAll x [SpaceJumpBoots, WaveBeam]
+    Hard -> containsAll x [SpaceJumpBoots, WaveBeam]
+    VeryHard -> sjOrBombs x && wave x
+    Extreme -> sjOrBombs x && wave x
 
 irwItem:: Difficulty -> [ItemName] -> Bool
-irwItem diff x = containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
+irwItem diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
+    Medium -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
+    Hard -> containsAll x [Missile, PlasmaBeam]
+    VeryHard -> containsAll x [Missile, PlasmaBeam]
+    Extreme -> containsAll x [Missile, PlasmaBeam]
 
 ruinedCourtyardConduit :: Difficulty -> [ItemName] -> Bool
-ruinedCourtyardConduit diff x = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
+ruinedCourtyardConduit _ x = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
 
 ruinedCourtyardSave :: Difficulty -> [ItemName] -> Bool
 ruinedCourtyardSave diff x = containsAll x [SpaceJumpBoots, Missile]
 
+--Might not need bombs if using spider track, but bombs are almost always unrandomized anyway
 ruinedCourtyardClimb :: Difficulty -> [ItemName] -> Bool
-ruinedCourtyardClimb diff x = spider x || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+ruinedCourtyardClimb diff x = case diff of 
+    Easy -> (spider x && sjOrBombs x) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+    Medium -> (spider x && sjOrBombs x) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+    Hard -> (spider x && sjOrBombs x) || sj x
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
 
 quarantineTunnel :: Difficulty -> [ItemName] -> Bool
-quarantineTunnel diff x = containsAll x [MorphBall, WaveBeam]
+quarantineTunnel _ x = containsAll x [MorphBall, WaveBeam]
+
+climbQuarantineCaveEntrance :: Difficulty -> [ItemName] -> Bool
+climbQuarantineCaveEntrance diff x = case diff of 
+    Easy -> spider x
+    Medium -> spider x
+    Hard -> spider x || sj x 
+    VeryHard -> spider x || sj x
+    Extreme -> spider x || sj x
+
+climbQuarantineCaveBack :: Difficulty -> [ItemName] -> Bool
+climbQuarantineCaveBack diff x = case diff of 
+    Easy -> spider x 
+    Medium -> spider x || (sj x && grapple x)
+    Hard -> spider x || sj x || grapple x
+    VeryHard -> spider x || sj x || grapple x
+    Extreme -> spider x || sj x || grapple x
+
+quarantineMonitor :: Difficulty -> [ItemName] -> Bool
+quarantineMonitor diff x = case diff of 
+    Easy -> grapple x 
+    Medium -> grapple x 
+    Hard -> grapple x || sj x
+    VeryHard -> grapple x || sj x
+    Extreme -> grapple x || sj x
 
 phenElevatorClimb :: Difficulty -> [ItemName] -> Bool
-phenElevatorClimb diff x = containsAll x [MorphBall, SpiderBall, IceBeam]
+phenElevatorClimb diff x = case diff of 
+    Easy -> containsAll x [MorphBall, SpiderBall, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, IceBeam]
+    Hard -> (spider x || sj x) && ice x
+    VeryHard -> (spider x || sj x || bombs x) && ice x
+    Extreme -> (spider x || sj x || bombs x) && ice x
 
 observatoryClimb :: Difficulty -> [ItemName] -> Bool
-observatoryClimb diff x = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
+observatoryClimb diff x = case diff of 
+    Easy -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
+    Medium -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
+    Hard -> sj x
+    VeryHard -> sj x
+    Extreme -> sj x
 
 observatorySave :: Difficulty -> [ItemName] -> Bool
-observatorySave diff x = observatoryClimb diff x && contains x Missile
+observatorySave diff x = case diff of 
+    Easy -> sj x && contains x Missile
+    Medium -> sj x && contains x Missile
+    Hard -> sj x && contains x Missile
+    VeryHard -> contains x Missile
+    Extreme -> contains x Missile
+
+observatoryItem :: Difficulty -> [ItemName] -> Bool
+observatoryItem diff x = case diff of 
+    Easy -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
+    Medium -> sj x
+    Hard -> sj x
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
 
 controlTowerItem :: Difficulty -> [ItemName] -> Bool
-controlTowerItem diff x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam, Missile]
+controlTowerItem diff x = case diff of 
+    Easy -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x
+    Medium -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x
+    Hard -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
+    VeryHard -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
+    Extreme -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
 
 rlaTrack :: Difficulty -> [ItemName] -> Bool
-rlaTrack diff x = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
+rlaTrack _ x = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
 
 toStorageCave :: Difficulty -> [ItemName] -> Bool
-toStorageCave diff x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam, MorphBall, PowerBomb]
+toStorageCave diff x =  case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam, MorphBall, PowerBomb]
+    Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam, MorphBall, PowerBomb]
+    Hard ->containsAll x [SpaceJumpBoots, PlasmaBeam, MorphBall, PowerBomb]
+    VeryHard -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x
+    Extreme -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x
 
 fromStorageCave :: Difficulty -> [ItemName] -> Bool
-fromStorageCave diff x = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
+fromStorageCave _ x = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
 
 toSecurityCave :: Difficulty -> [ItemName] -> Bool
-toSecurityCave diff x = containsAll x [SpaceJumpBoots, GrappleBeam, MorphBall]
+toSecurityCave diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, MorphBall]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall]
+    Hard -> containsAll x [SpaceJumpBoots, MorphBall]
+    VeryHard -> morph x && (sjOrBombs x || grapple x)
+    Extreme -> morph x && (sjOrBombs x || grapple x)
 
 phenEdgeLower :: Difficulty -> [ItemName] -> Bool
-phenEdgeLower diff x = containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+phenEdgeLower diff x = case diff of 
+    Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+    Medium -> containsAll x [WaveBeam, SpaceJumpBoots]
+    Hard -> containsAll x [WaveBeam, SpaceJumpBoots]
+    VeryHard -> wave x && sjOrBombs x
+    Extreme -> wave x && sjOrBombs x
 
 frozenPikeBottom :: Difficulty -> [ItemName] -> Bool
-frozenPikeBottom diff x = containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+frozenPikeBottom diff x = case diff of 
+    Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
+    Medium -> wave x && sjOrBombs x
+    Hard ->  wave x && sjOrBombs x
+    VeryHard ->  wave x && sjOrBombs x
+    Extreme ->  wave x && sjOrBombs x
 
 frozenPikeClimb :: Difficulty -> [ItemName] -> Bool
-frozenPikeClimb diff x = containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
+frozenPikeClimb diff x = case diff of 
+    Easy -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
+    Medium -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
+    Hard -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
 
 gravLedge :: Difficulty -> [ItemName] -> Bool
-gravLedge diff x = containsAll x [PlasmaBeam, GrappleBeam]
+gravLedge diff x = case diff of 
+    Easy -> containsAll x [PlasmaBeam, GrappleBeam]
+    Medium -> containsAll x [PlasmaBeam, GrappleBeam]
+    Hard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
+    VeryHard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
+    Extreme -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
 
 climbGravityChamber :: Difficulty -> [ItemName] -> Bool
-climbGravityChamber diff x = contains x GravitySuit && (contains x SpaceJumpBoots || bombs x)
+climbGravityChamber diff x = case diff of 
+    Easy -> contains x GravitySuit && sjOrBombs x
+    Medium -> contains x GravitySuit && sjOrBombs x
+    Hard -> contains x GravitySuit && sjOrBombs x
+    VeryHard -> (contains x GravitySuit && sjOrBombs x) || sj x
+    Extreme -> (contains x GravitySuit && sjOrBombs x) || sj x
 
 gravityChamberToLakeTunnel :: Difficulty -> [ItemName] -> Bool
 gravityChamberToLakeTunnel diff x = climbGravityChamber diff x && contains x WaveBeam
 
 hunterCaveClimb :: Difficulty -> [ItemName] -> Bool
-hunterCaveClimb diff x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+hunterCaveClimb diff x = case diff of 
+    Easy -> contains x Missile && (contains x SpaceJumpBoots || bombs x)
+    Medium -> sjOrBombs x
+    Hard -> sjOrBombs x
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
 
 hunterCaveUpper :: Difficulty -> [ItemName] -> Bool
-hunterCaveUpper diff x = containsAll x [Missile, GrappleBeam]
+hunterCaveUpper diff x = case diff of 
+    Easy -> containsAll x [Missile, GrappleBeam]
+    Medium -> containsAll x [Missile, GrappleBeam]
+    Hard -> sj x || containsAll x [Missile, GrappleBeam]
+    VeryHard -> sj x || containsAll x [Missile, GrappleBeam]
+    Extreme -> sj x || containsAll x [Missile, GrappleBeam]
 
 hunterCaveLower :: Difficulty -> [ItemName] -> Bool
-hunterCaveLower diff x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+hunterCaveLower _ x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
 
 frostCaveAccess :: Difficulty -> [ItemName] -> Bool
-frostCaveAccess diff x = containsAll x [MorphBall, WaveBeam]
+frostCaveAccess _ x = containsAll x [MorphBall, WaveBeam]
 
 frostCaveDoor :: Difficulty -> [ItemName] -> Bool
-frostCaveDoor diff x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+frostCaveDoor _ x = containsAll x [Missile,WaveBeam] && (contains x SpaceJumpBoots || bombs x)
 
 frostCaveItem :: Difficulty -> [ItemName] -> Bool
-frostCaveItem diff x = containsAll x [GrappleBeam, Missile]
+frostCaveItem diff x = case diff of 
+    Easy -> containsAll x [GrappleBeam, Missile]
+    Medium -> containsAll x [GrappleBeam, Missile]
+    Hard -> missile x && (sj x || grapple x)
+    VeryHard -> missile x && (sj x || bombs x || grapple x)
+    Extreme -> missile x && (sj x || bombs x || grapple x)
 
 frostCaveToTunnel :: Difficulty -> [ItemName] -> Bool
-frostCaveToTunnel diff x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
+frostCaveToTunnel _ x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
 
 -- Mines Predicates
 quarrySave :: Difficulty -> [ItemName] -> Bool
-quarrySave diff x = containsAll x [SpiderBall, WaveBeam]
+quarrySave diff x = case diff of 
+    Easy -> containsAll x [SpiderBall, MorphBall, WaveBeam]
+    Medium -> wave x && (spider x || sj x)
+    Hard -> wave x && (spider x || sj x)
+    VeryHard -> wave x && (spider x || sj x || bombs x)
+    Extreme -> wave x && (spider x || sj x || bombs x)
 
 quarryItem :: Difficulty -> [ItemName] -> Bool
 quarryItem diff x = containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
@@ -839,6 +994,7 @@ eliteQuartersPlasma diff x = contains x PlasmaBeam && eliteQuarters diff x
 mqbBackClimb :: Difficulty -> [ItemName] -> Bool
 mqbBackClimb diff x = containsAll x [SpaceJumpBoots, PlasmaBeam]
 
+-- Helper functions
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num element list
     | num < 0 = False
@@ -1247,9 +1403,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DPhendranaShorelines [Edge (iceBarrier diff) (R DShorelineEntrance)
                                     ,Edge noReq (R DSaveStationB)
                                     ,Edge noReq (R DIceRuinsAccess)
-                                    ,Edge sj (R DPlazaWalkway)
-                                    ,Edge sj (R DRuinsEntryway)
-                                    ,Edge sj (R DTempleEntryway)
+                                    ,Edge (climbShorelines diff)  (R DPlazaWalkway)
+                                    ,Edge (climbShorelines diff) (R DRuinsEntryway)
+                                    ,Edge (climbShorelines diff) (R DTempleEntryway)
                                     ,Edge plasma (I PhendranaShorelinesBehindIce)
                                     ,Edge (shorelinesTower diff) (I PhendranaShorelinesSpiderTrack)]
             ,Room DSaveStationB [Edge noReq (R DPhendranaShorelines)]
@@ -1259,7 +1415,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (iceTempleClimb diff) (R DChapelTunnel)
                                     ,Edge (iceTempleClimb diff) (I ChozoIceTempleTrigger)
                                     ,Edge (iceTempleItem diff) (I ChozoIceTemple)]
-            ,Room DChapelTunnel [Edge chozoIceTempleBarrier (R DChozoIceTemple)  -- Fix this later
+            ,Room DChapelTunnel [Edge chozoIceTempleBarrier (R DChozoIceTemple)
                                     ,Edge noReq (R DChapeloftheElders)] -- Warp point is near Chapel of the Elders
             ,Room DChapeloftheElders [Edge wave (R DChapelTunnel)
                                     ,Edge missile (I ChapeloftheElders)]
@@ -1267,7 +1423,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (iceBarrier diff) (R DIceRuinsEast)]
             ,Room DIceRuinsEast [Edge (iceBarrier diff) (R DIceRuinsAccess)
                                     ,Edge noReq (R DPlazaWalkway)
-                                    ,Edge spider (I IceRuinsEastSpiderTrack)
+                                    ,Edge (ireSpiderTrack diff) (I IceRuinsEastSpiderTrack)
                                     ,Edge plasma (I IceRuinsEastBehindIce)]
             ,Room DPlazaWalkway [Edge noReq (R DIceRuinsEast)
                                     ,Edge noReq (R DPhendranaShorelines)]
@@ -1296,13 +1452,15 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DNorthQuarantineTunnel [Edge wave (R DQuarantineAccess)
                                     ,Edge (quarantineTunnel diff) (R DQuarantineCave)]
             ,Room DQuarantineCave [Edge (quarantineTunnel diff) (R DNorthQuarantineTunnel)
-                                    ,Edge spider (R DQuarantineCaveBack)
+                                    ,Edge (climbQuarantineCaveBack diff) (R DQuarantineCaveBack)
                                     ,Edge noReq (I QuarantineCave)]
             -- Added a new "room" representing the other door in quarantine cave
-            ,Room DQuarantineCaveBack [Edge grapple (R DQuarantineMonitor)
-                                    ,Edge (quarantineTunnel diff) (R DSouthQuarantineTunnel)]
-            ,Room DQuarantineMonitor [Edge grapple (R DQuarantineCaveBack)
-                                    ,Edge spider (R DQuarantineCave)
+            ,Room DQuarantineCaveBack [Edge (quarantineMonitor diff) (R DQuarantineMonitor)
+                                    ,Edge (quarantineTunnel diff) (R DSouthQuarantineTunnel)
+                                    ,Edge noReq (I QuarantineCave) -- Can drop into thardus fight
+                                    ,Edge (climbQuarantineCaveEntrance diff) (R DQuarantineCave)]
+            ,Room DQuarantineMonitor [Edge (climbQuarantineCaveBack diff) (R DQuarantineCaveBack)
+                                    ,Edge (climbQuarantineCaveEntrance diff) (R DQuarantineCave)
                                     ,Edge noReq (I QuarantineCave) -- Can drop into thardus fight
                                     ,Edge noReq (I QuarantineMonitor)]
             ,Room DSouthQuarantineTunnel [Edge (quarantineTunnel diff) (R DQuarantineCaveBack)
@@ -1327,11 +1485,13 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DObservatoryAccess [Edge wave (R DResearchLabHydra)
                                     ,Edge wave (R DObservatory)]
             ,Room DObservatory [Edge wave (R DObservatoryAccess)
-                                    ,Edge (observatoryClimb diff) (R DWestTowerEntrance)
-                                    ,Edge (observatorySave diff) (R DSaveStationD)
-                                    ,Edge (observatoryClimb diff) (I Observatory)]
-            ,Room DSaveStationD [Edge missile (R DObservatory)] -- May want to make item accessible from here
-            ,Room DWestTowerEntrance [Edge wave (R DObservatory)
+                                    ,Edge (observatoryClimb diff) (R DObservatoryTop)]
+            ,Room DObservatoryTop [Edge (observatorySave diff) (R DSaveStationD)
+                                    ,Edge wave (R DWestTowerEntrance)
+                                    ,Edge noReq (R DObservatory)
+                                    ,Edge (observatoryItem diff) (I Observatory)]
+            ,Room DSaveStationD [Edge (observatorySave diff) (R DObservatoryTop)]
+            ,Room DWestTowerEntrance [Edge wave (R DObservatoryTop)
                                     ,Edge missile (R DWestTower)]
             ,Room DWestTower [Edge missile (R DWestTowerEntrance)
                                     ,Edge wave (R DControlTower)]
@@ -1379,7 +1539,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DHunterCave [Edge wave (R DLowerEdgeTunnel)
                                     ,Edge (hunterCaveLower diff) (R DLakeTunnel)
                                     ,Edge (hunterCaveUpper diff) (R DHunterCaveFar)]
-            ,Room DHunterCaveFar [Edge sj (R DHunterCave)
+            ,Room DHunterCaveFar [Edge sjOrBombs (R DHunterCave)
                                     ,Edge wave (R DChamberAccess)
                                     ,Edge wave (R DHunterCaveAccess)]
             ,Room DLakeTunnel [Edge (hunterCaveClimb diff) (R DHunterCave)
@@ -1402,7 +1562,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge wave (R MMainQuarry)]
             ,Room MMainQuarry [Edge wave (R MQuarryAccess)
                                     ,Edge (quarrySave diff) (R MSaveStationMinesA)
-                                    ,Edge (reachWasteDisposal diff) (R MWasteDisposal) -- Address this later
+                                    ,Edge (reachWasteDisposal diff) (R MWasteDisposal)
                                     ,Edge ice (R MSecurityAccessA)
                                     ,Edge (quarrySave diff) (I MainQuarryBarrierTriggers)
                                     ,Edge (quarryItem diff) (I MainQuarry)]
