@@ -50,33 +50,6 @@ module State where
                                 CandidateState currState _ _ = candidate
                             in currState
 
-    {-- Slower and doesn't work
-    createState :: Map Id Node -> State -> Node -> (ItemName,State)
-    createState graph oldState item = let Item itemId itemName warp = item; 
-                                            State inv room col = oldState
-                in (itemName, State (itemName:inv) (getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)) (itemId:col))
-
-    getCandidateStates2 :: Map Id Node -> State -> [CandidateState]
-    getCandidateStates2 graph state = let   accessibleItems = getAccessibleItems graph state;
-                                            newItemStates = map (createState graph state) accessibleItems;
-                                            newCandidates = map (\(i,x) -> CandidateState x 1 [i]) newItemStates
-        in help graph newCandidates
-        where
-            help graph [] = []
-            help graph (candidate:rest) = 
-                let CandidateState startState currDepth currNewItems = candidate
-                    Room startRoom _ = currentNode startState 
-                    startInventory = inventory startState
-                    accessibleItems = getAccessibleItems graph startState;
-                    newItemStates = map (createState graph startState) accessibleItems
-                    newCandidates = map (\(i,x) -> CandidateState x (currDepth+1) (i:currNewItems)) newItemStates
-                in if isMutuallyAccessible graph startRoom OLandingSite startInventory
-                        then (if containsUpgrade currNewItems startInventory then candidate:help graph rest else help graph rest)
-                    else if isAccessible graph startRoom OLandingSite startInventory && containsUpgrade currNewItems startInventory
-                        then (if currDepth <= 5 then candidate:help graph (newCandidates ++ rest) else candidate:help graph rest)
-                    else (if currDepth <= 5 then help graph (newCandidates ++ rest) else help graph rest)
-                    --}
-
     -- Try some warp chains and return some possible states that we could reach (that have a chance of being an improvement)
     getCandidateStates :: Map Id Node -> State -> [CandidateState]
     getCandidateStates graph state = getCandidateStatesHelper graph (getAccessibleItems graph state) state 1 []
