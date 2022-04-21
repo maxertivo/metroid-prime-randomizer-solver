@@ -903,7 +903,12 @@ quarrySave diff x = case diff of
     Extreme -> wave x && (spider x || sj x || bombs x)
 
 quarryItem :: Difficulty -> [ItemName] -> Bool
-quarryItem diff x = containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
+quarryItem diff x = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
+    Medium -> containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
+    Hard -> wave x && (spider x || sj x)
+    VeryHard -> wave x && (spider x || sj x)
+    Extreme -> wave x && (spider x || sj x)
 
 reachWasteDisposal :: Difficulty -> [ItemName] -> Bool
 reachWasteDisposal diff x = case diff of
@@ -914,85 +919,188 @@ reachWasteDisposal diff x = case diff of
     Extreme -> ice x && sjOrBombs x
 
 oreProcessingClimb :: Difficulty -> [ItemName] -> Bool
-oreProcessingClimb diff x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
+oreProcessingClimb diff x = case diff of
+    Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
+    Hard -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
+    VeryHard ->  ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
+    Extreme -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
 
 oreProcessingTop :: Difficulty -> [ItemName] -> Bool
-oreProcessingTop diff x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
+oreProcessingTop diff x = case diff of
+    Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
+    Hard -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
+    VeryHard ->  ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
+    Extreme -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
 
 wasteDisposalTraversal :: Difficulty -> [ItemName] -> Bool
-wasteDisposalTraversal diff x = containsAll x [MorphBall, MorphBallBomb, IceBeam]
+wasteDisposalTraversal _ x = containsAll x [MorphBall, MorphBallBomb, IceBeam]
 
-shaftClimb :: Difficulty -> [ItemName] -> Bool
-shaftClimb diff x = containsAll x [MorphBall, SpiderBall, IceBeam]
+shaftClimb1 :: Difficulty -> [ItemName] -> Bool
+shaftClimb1 diff x = case diff of
+    Easy -> containsAll x [MorphBall, SpiderBall, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, IceBeam]
+    Hard -> ice x && (spider x || (bombs x && sj x))
+    VeryHard ->  ice x && (spider x || (bombs x && sj x))
+    Extreme -> ice x && (spider x || (bombs x && sj x))
+
+shaftClimb2 :: Difficulty -> [ItemName] -> Bool
+shaftClimb2 diff x = case diff of
+    Easy -> containsAll x [MorphBall, SpiderBall, BoostBall, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, BoostBall, IceBeam]
+    Hard -> ice x && boost x && (spider x || sj x)
+    VeryHard ->  ice x && boost x && (spider x || sj x)
+    Extreme -> ice x && boost x && (spider x || sj x)
 
 maintTunnel :: Difficulty -> [ItemName] -> Bool
-maintTunnel diff x = containsAll x [MorphBall, IceBeam, PowerBomb]
+maintTunnel _ x = containsAll x [MorphBall, IceBeam, PowerBomb]
 
 ppcClimb :: Difficulty -> [ItemName] -> Bool
-ppcClimb diff x = containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
+ppcClimb diff x = case diff of
+    Easy -> containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
+    Medium -> containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
+    Hard -> ice x && sj x
+    VeryHard -> ice x && sjOrBombs x
+    Extreme -> ice x && sjOrBombs x
 
 toMinesElevator :: Difficulty -> [ItemName] -> Bool
-toMinesElevator diff x = containsAll x [GrappleBeam, IceBeam]
+toMinesElevator diff x = case diff of
+    Easy -> containsAll x [GrappleBeam, IceBeam]
+    Medium -> ice x && (grapple x || sj x)
+    Hard -> ice x 
+    VeryHard -> ice x 
+    Extreme -> ice x 
 
 centralDynamoClimb :: Difficulty -> [ItemName] -> Bool
-centralDynamoClimb diff x = contains x IceBeam && sjOrBombs x
+centralDynamoClimb diff x = case diff of
+    Easy -> contains x IceBeam && sj x
+    Medium -> contains x IceBeam && sj x
+    Hard -> contains x IceBeam && sj x
+    VeryHard -> contains x IceBeam && sjOrBombs x
+    Extreme -> contains x IceBeam && sjOrBombs x
 
 mqaItem :: Difficulty -> [ItemName] -> Bool
-mqaItem diff x = containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, SpiderBall]
+mqaItem diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, PowerBomb]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, PowerBomb]
+    Hard -> sj x
+    VeryHard -> sj x || (bombs x && pb x)
+    Extreme -> sj x || (bombs x && pb x)
 
 mqaTraversal :: Difficulty -> [ItemName] -> Bool
-mqaTraversal diff x = containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, PowerBomb, IceBeam]
+mqaTraversal diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, SpiderBall, IceBeam]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, SpiderBall, IceBeam]
+    Hard -> ice x && sj x && (pb x || spider x)
+    VeryHard -> ice x && sjOrBombs x && (pb x || spider x)
+    Extreme -> ice x && sjOrBombs x && (pb x || spider x)
 
 ecaItem :: Difficulty -> [ItemName] -> Bool
-ecaItem diff x = containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
+ecaItem diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
+    Hard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
+    VeryHard -> (morph x && sj x) || bombs x
+    Extreme -> (morph x && sj x) || bombs x
 
 eliteResearchTopItem :: Difficulty -> [ItemName] -> Bool
-eliteResearchTopItem diff x = containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+eliteResearchTopItem diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+    Hard -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+    VeryHard -> sjOrBombs x
+    Extreme -> sjOrBombs x
 
 eliteResearchDoor :: Difficulty -> [ItemName] -> Bool
-eliteResearchDoor diff x = containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
+eliteResearchDoor diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
+    Medium -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
+    Hard -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
+    VeryHard -> sjOrBombs x && ice x
+    Extreme -> sjOrBombs x && ice x
 
 toStarageDepotA :: Difficulty -> [ItemName] -> Bool
-toStarageDepotA diff x = containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
+toStarageDepotA diff x = case diff of
+    Easy -> containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
+    Medium -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
+    Hard -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
+    VeryHard -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
+    Extreme -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
 
 climbFungalHallAccess :: Difficulty -> [ItemName] -> Bool
-climbFungalHallAccess diff x = containsAll x [SpaceJumpBoots, PlasmaBeam]
+climbFungalHallAccess diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    VeryHard -> sjOrBombs x && plasma x
+    Extreme -> sjOrBombs x && plasma x
 
 fungalHallATraversal :: Difficulty -> [ItemName] -> Bool
-fungalHallATraversal diff x = containsAll x [SpaceJumpBoots, GrappleBeam, IceBeam]
+fungalHallATraversal diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, IceBeam]
+    Medium -> containsAll x [SpaceJumpBoots, IceBeam]
+    Hard -> containsAll x [SpaceJumpBoots, IceBeam]
+    VeryHard -> sjOrBombs x && ice x
+    Extreme -> sjOrBombs x && ice x
 
 miningTunnelTraversal :: Difficulty -> [ItemName] -> Bool
-miningTunnelTraversal diff x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+miningTunnelTraversal _ x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
 
+-- TODO Double check e-tank requirements
 miningTunnelItem :: Difficulty -> [ItemName] -> Bool
-miningTunnelItem diff x = containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || containsCount 11 EnergyTank x)
+miningTunnelItem diff x = case diff of
+    Easy -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
+    Medium -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
+    Hard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 10 EnergyTank x && boost x))
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x))
+    Extreme -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x))
 
 quarantineAccessBTraversal :: Difficulty -> [ItemName] -> Bool
-quarantineAccessBTraversal diff x = containsAll x [SpaceJumpBoots, IceBeam]
+quarantineAccessBTraversal diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    Medium -> plasma x
+    Hard -> plasma x
+    VeryHard -> plasma x
+    Extreme -> plasma x
 
 fungalHallBTraversal :: Difficulty -> [ItemName] -> Bool
-fungalHallBTraversal diff x = containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
+fungalHallBTraversal diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
+    Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    VeryHard -> sjOrBombs x && plasma x
+    Extreme -> sjOrBombs x && plasma x
 
 mqbTraversal :: Difficulty -> [ItemName] -> Bool
-mqbTraversal diff x = containsAll x [SpiderBall, MorphBall, GrappleBeam]
-
-mqbTraversalItem :: Difficulty -> [ItemName] -> Bool
-mqbTraversalItem diff x = supers x && mqaTraversal diff x
-
-mqbItem :: Difficulty -> [ItemName] -> Bool
-mqbItem diff x = containsAll x [SuperMissile,Missile,ChargeBeam,PlasmaBeam]
+mqbTraversal diff x = case diff of
+    Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, GrappleBeam]
+    Medium -> containsAll x [SpiderBall, MorphBall, GrappleBeam]
+    Hard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sj x
+    VeryHard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x
+    Extreme -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x
 
 ppcBottomClimb :: Difficulty -> [ItemName] -> Bool
-ppcBottomClimb diff x = containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
+ppcBottomClimb diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
+    Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
+    Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    VeryHard -> sjOrBombs x && plasma x
+    Extreme -> sjOrBombs x && plasma x
 
 eliteQuarters :: Difficulty -> [ItemName] -> Bool
-eliteQuarters diff x = contains x XRayVisor
+eliteQuarters _ x = contains x XRayVisor
 
 eliteQuartersPlasma :: Difficulty -> [ItemName] -> Bool
 eliteQuartersPlasma diff x = contains x PlasmaBeam && eliteQuarters diff x
 
 mqbBackClimb :: Difficulty -> [ItemName] -> Bool
-mqbBackClimb diff x = containsAll x [SpaceJumpBoots, PlasmaBeam]
+mqbBackClimb diff x = case diff of
+    Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+    Medium -> plasma x && sjOrBombs x
+    Hard -> plasma x && sjOrBombs x
+    VeryHard -> plasma x && sjOrBombs x
+    Extreme -> plasma x && sjOrBombs x
 
 -- Helper functions
 containsCount :: Eq a => Int -> a -> [a] -> Bool
@@ -1581,8 +1689,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (eliteResearchDoor diff) (R MResearchAccess)
                                     ,Edge (eliteResearchTopItem diff) (I EliteResearchLaser)
                                     ,Edge pb (I EliteResearchPhazonElite)]
-            -- Not dealing with boosting through the wall for now
-            ,Room MResearchAccess [Edge blocked (R MEliteResearch)
+            -- Currently require boosting through wall
+            ,Room MResearchAccess [Edge (shaftClimb2 diff) (R MEliteResearch)
                                     ,Edge (oreProcessingClimb diff) (R MOreProcessing)]
             ,Room MOreProcessing [Edge ice (R MResearchAccess)
                                     ,Edge ice (R MElevatorAccessA)
@@ -1594,7 +1702,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (I StorageDepotB)]
             ,Room MElevatorAccessA [Edge ice (R MOreProcessing)
                                     ,Edge ice (R MElevatorA)]
-            ,Room MElevatorA [Edge (shaftClimb diff) (R MElevatorAccessA)
+            ,Room MElevatorA [Edge (shaftClimb1 diff) (R MElevatorAccessA)
                                     ,Edge ice (R MEliteControlAccess)]
             ,Room MEliteControlAccess [Edge ice (R MElevatorA)
                                     ,Edge wave (R MEliteControl)
