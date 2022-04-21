@@ -32,21 +32,50 @@ module State where
 
     isCompletableHelper :: Map Id Node -> State -> Bool
     isCompletableHelper graph currState = let newState = collectFreeItems graph currState;
-                                                candidates = getCandidateStates graph newState;
+                                                candidates = getCandidateStates2 graph newState;
                                             in 
                                                 isComplete graph newState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
 
     isComplete :: Map Id Node -> State -> Bool
     isComplete graph (State inventory (Room roomId edges) collectedItems) = 
-        let Just artifactTempleItem = Map.lookup (I ArtifactTemple) graph 
+        let artifactTempleItem = getVal (Map.lookup (I ArtifactTemple) graph) "Missing Item ArtifactTemple"
         in complete inventory && isAccessible graph roomId OArtifactTemple inventory 
         -- Either you collected Artifact Temple or you can collect it and return
         && (ArtifactTemple `elem` collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
+    isComplete _ _ = error "invalid args for isComplete"
 
     getBestCandidate :: [CandidateState] -> State
-    getBestCandidate list = let (candidate:rest) = sort list
+    getBestCandidate [] = error "called getBestCandidate with empty list"
+    getBestCandidate list = let (candidate:_) = sort list
                                 CandidateState currState _ _ = candidate
                             in currState
+
+    {-- Slower and doesn't work
+    createState :: Map Id Node -> State -> Node -> (ItemName,State)
+    createState graph oldState item = let Item itemId itemName warp = item; 
+                                            State inv room col = oldState
+                in (itemName, State (itemName:inv) (getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)) (itemId:col))
+
+    getCandidateStates2 :: Map Id Node -> State -> [CandidateState]
+    getCandidateStates2 graph state = let   accessibleItems = getAccessibleItems graph state;
+                                            newItemStates = map (createState graph state) accessibleItems;
+                                            newCandidates = map (\(i,x) -> CandidateState x 1 [i]) newItemStates
+        in help graph newCandidates
+        where
+            help graph [] = []
+            help graph (candidate:rest) = 
+                let CandidateState startState currDepth currNewItems = candidate
+                    Room startRoom _ = currentNode startState 
+                    startInventory = inventory startState
+                    accessibleItems = getAccessibleItems graph startState;
+                    newItemStates = map (createState graph startState) accessibleItems
+                    newCandidates = map (\(i,x) -> CandidateState x (currDepth+1) (i:currNewItems)) newItemStates
+                in if isMutuallyAccessible graph startRoom OLandingSite startInventory
+                        then (if containsUpgrade currNewItems startInventory then candidate:help graph rest else help graph rest)
+                    else if isAccessible graph startRoom OLandingSite startInventory && containsUpgrade currNewItems startInventory
+                        then (if currDepth <= 5 then candidate:help graph (newCandidates ++ rest) else candidate:help graph rest)
+                    else (if currDepth <= 5 then help graph (newCandidates ++ rest) else help graph rest)
+                    --}
 
     -- Try some warp chains and return some possible states that we could reach (that have a chance of being an improvement)
     getCandidateStates :: Map Id Node -> State -> [CandidateState]
@@ -63,15 +92,15 @@ module State where
             recurseDeeper = getCandidateStatesHelper graph (getAccessibleItems graph newState) newState (depth+1) (itemName:newItems) 
             candidate = CandidateState newState depth (itemName:newItems) 
         in
-            if isAccessible graph warp OLandingSite (itemName:inventory)
+            {--if isAccessible graph warp OLandingSite (itemName:inventory)
                 then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
             else
                 recurseItemList ++ recurseDeeper
             
-            {-- The below code is the original implementation
+             The below code is the original implementation
                 It leads to massive amounts of checking when using "easy" difficulty item requirements
                 This is because one-way paths to Landing Site are frequent
-                In higher difficulties this might not be an issue 
+                In higher difficulties this might not be an issue --}
 
                 if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
                     then (if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList)
@@ -145,7 +174,7 @@ module State where
                                         itemNodeIds = getItemNodeIds reachableNodeIds;
                                         uncheckedRoomIds = roomIds \\ checkedRooms;
                                         uncollectedItemIds = itemNodeIds \\ map I collectedItems;
-                                        maybeUncollectedItems = mapM ((\x -> x graph) . Map.lookup) uncollectedItemIds -- Result is Maybe [Node] with all the item nodes
+                                        maybeUncollectedItems = mapM ((\x -> x graph) . Map.lookup) uncollectedItemIds -- Result is Maybe [Node] with all of the item nodes
                                     in case maybeUncollectedItems of 
                                         Nothing -> error "Missing Item"
                                         Just uncollectedItems -> uncollectedItems ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) inventory collectedItems
