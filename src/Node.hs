@@ -1125,7 +1125,7 @@ containsAny :: [ItemName] -> [ItemName] -> Bool
 containsAny [] [] = True
 containsAny _ [] = True
 containsAny [] _ = False 
-containsAny items (x:rest) = contains items x || containsAll items rest
+containsAny items (x:rest) = contains items x || containsAny items rest
 
 buildNodes :: Difficulty -> [Node]
 buildNodes diff = [ -- Tallon Overworld Rooms
