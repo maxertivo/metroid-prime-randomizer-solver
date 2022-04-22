@@ -13,7 +13,7 @@ module State where
     instance Ord CandidateState where
         compare p@(CandidateState a b c) q@(CandidateState d e f)
             | countOf c [WaveBeam, IceBeam, PlasmaBeam] > countOf f [WaveBeam, IceBeam, PlasmaBeam] = LT
-            | countOf c [WaveBeam, IceBeam, PlasmaBeam] < countOf f [WaveBeam, IceBeam, PlasmaBeam]= GT
+            | countOf c [WaveBeam, IceBeam, PlasmaBeam] < countOf f [WaveBeam, IceBeam, PlasmaBeam] = GT
             | countOf c upgrades < countOf f upgrades = GT
             | countOf c upgrades > countOf f upgrades = LT
             | b < e = LT
@@ -32,7 +32,7 @@ module State where
 
     isCompletableHelper :: Map Id Node -> State -> Bool
     isCompletableHelper graph currState = let newState = collectFreeItems graph currState;
-                                                candidates = getCandidateStates2 graph newState;
+                                                candidates = getCandidateStates graph newState;
                                             in 
                                                 isComplete graph newState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
 
@@ -68,22 +68,18 @@ module State where
             {--if isAccessible graph warp OLandingSite (itemName:inventory)
                 then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
             else
-                recurseItemList ++ recurseDeeper
-            
-             The below code is the original implementation
-                It leads to massive amounts of checking when using "easy" difficulty item requirements
-                This is because one-way paths to Landing Site are frequent
-                In higher difficulties this might not be an issue --}
+                recurseItemList ++ recurseDeeper --}
 
-                if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
-                    then (if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList)
-                else if isAccessible graph warp OLandingSite (itemName:inventory) && containsUpgrade (itemName:newItems) (itemName:inventory)
-                    then (if depth <= 5 then candidate : (recurseItemList ++ recurseDeeper) else candidate : recurseItemList)
-                else
-                    (if depth <= 5 then recurseItemList ++ recurseDeeper else recurseItemList) --}
+            if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
+                then (if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList)
+            else if isAccessible graph warp OLandingSite (itemName:inventory) && containsUpgrade (itemName:newItems) (itemName:inventory)
+                then (if depth <= 5 then candidate : (recurseItemList ++ recurseDeeper) else candidate : recurseItemList)
+            else
+                (if depth <= 5 then recurseItemList ++ recurseDeeper else recurseItemList) --}
 
     -- TODO may want to add Artifacts as progressing items
     -- Also may want to add < 5 e tanks and < 8 missiles
+    -- Also may want to add triggers
     containsUpgrade :: [ItemName] -> [ItemName] -> Bool
     containsUpgrade newItems inventory = let previousInventory = inventory \\ newItems 
                                         in containsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
