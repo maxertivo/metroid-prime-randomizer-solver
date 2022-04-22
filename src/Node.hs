@@ -1122,7 +1122,7 @@ containsAll [] _ = False
 containsAll items (x:rest) = contains items x && containsAll items rest
 
 containsAny :: [ItemName] -> [ItemName] -> Bool
-containsAny [] [] = True
+containsAny [] [] = False
 containsAny _ [] = False
 containsAny [] _ = False 
 containsAny items (x:rest) = contains items x || containsAny items rest
