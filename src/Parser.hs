@@ -195,7 +195,7 @@ defaultWarps =
     , (MMainQuarry, MainQuarry)
     , (MSecurityAccessA, SecurityAccessA)
     , (MStorageDepotB, StorageDepotB)
-    , (MStorageDepotA, StorageDepotA)
+    , (MMineSecurityStation, StorageDepotA) -- TODO this prevents us from getting locked in if the barrier is considered one-way
     , (MEliteResearch, EliteResearchPhazonElite)
     , (MEliteResearch, EliteResearchLaser)
     , (MEliteControlAccess, EliteControlAccess)

@@ -5,6 +5,8 @@ import Util
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set, fromList, toList)
+import qualified Data.Set as Set
 
 data State = State {inventory :: [ItemName], currentNode :: Node, collectedItems :: [ItemId]}
             deriving (Show)
@@ -129,9 +131,15 @@ isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory =
                                                 in isAccessibleHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) destination inventory
 
 getAccessibleItems :: Map Id Node -> State -> [Node]
-getAccessibleItems graph (State inventory (Room roomId edges) collectedItems) = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
+getAccessibleItems graph (State inventory (Room roomId edges) collectedItems) = 
+    let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
+        uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
+        maybeItems = mapM (((\ x -> x graph) . Map.lookup) . I) uniqueItemIds -- Result is Maybe [Node] with all of the item nodes
+        in case maybeItems of 
+                Nothing -> error "Missing Item"
+                Just items -> items
 
-getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> [ItemName] -> [ItemId] -> [Node]
+getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> [ItemName] -> [ItemId] -> [ItemId]
 getAccessibleItemsHelper _ [] _ _ _ = []
 getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems = 
     case Map.lookup (R roomId) graph of
@@ -141,13 +149,10 @@ getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedIte
                                     bools = eval predicates inventory;
                                     reachableNodeIds = checkBools nodeIds bools;
                                     roomIds = getRoomIds reachableNodeIds;
-                                    itemNodeIds = getItemNodeIds reachableNodeIds;
+                                    itemIds = getItemIds reachableNodeIds;
                                     uncheckedRoomIds = roomIds \\ checkedRooms;
-                                    uncollectedItemIds = itemNodeIds \\ map I collectedItems;
-                                    maybeUncollectedItems = mapM ((\x -> x graph) . Map.lookup) uncollectedItemIds -- Result is Maybe [Node] with all of the item nodes
-                                in case maybeUncollectedItems of 
-                                    Nothing -> error "Missing Item"
-                                    Just uncollectedItems -> uncollectedItems ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) inventory collectedItems
+                                    uncollectedItemIds = itemIds \\ collectedItems;
+                                in uncollectedItemIds ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) inventory collectedItems                            
 
 checkBools :: [Id] -> [Bool] -> [Id]
 checkBools (id:rest1) (bool:rest2) = if bool then id : checkBools rest1 rest2  else checkBools rest1 rest2
@@ -158,7 +163,7 @@ getRoomIds ((R roomId):rest) = roomId : getRoomIds rest
 getRoomIds (item:rest) = getRoomIds rest
 getRoomIds [] = []
 
-getItemNodeIds :: [Id] -> [Id]                   
-getItemNodeIds ((I itemId):rest) = I itemId : getItemNodeIds rest
-getItemNodeIds (room:rest) = getItemNodeIds rest
-getItemNodeIds [] = []
+getItemIds :: [Id] -> [ItemId]                   
+getItemIds ((I itemId):rest) = itemId : getItemIds rest
+getItemIds (room:rest) = getItemIds rest
+getItemIds [] = []

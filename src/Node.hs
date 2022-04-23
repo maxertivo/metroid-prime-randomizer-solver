@@ -26,7 +26,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | OSaveStation | OCargoFreightLifttoDeckGamma | ODeckBetaTransitHall | OBiohazardContainment | ODeckBetaSecurityHall | OBiotechResearchArea1
                 | ODeckBetaConduitHall | OConnectionElevatortoDeckBeta | OHydroAccessTunnel | OGreatTreeHall | OGreatTreeHallTop | OTransportTunnelD
                 | OTransporttoChozoRuinsSouth | OGreatTreeChamber | OLifeGroveTunnel | OLifeGrove | OTransportTunnelE | OTransporttoPhazonMinesEast
-                | OTempleHall | OTempleSecurityStation | OTempleLobby | OArtifactTemple
+                | OTempleHall | OTempleSecurityStation | OTempleLobby | OArtifactTemple | OTallonFrontSw | OTallonBackSw
 
                 | RTransporttoTallonOverworldNorth | RRuinsEntrance | RMainPlaza | RMainPlazaLedge | RNurseryAccess | REyonTunnel | RRuinedNursery | RSaveStation1 
                 | RNorthAtrium | RRuinedGallery | RMapStation | RTotemAccess | RHiveTotem | RTransportAccessNorth | RTransporttoMagmoorCavernsNorth 
@@ -36,13 +36,14 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | RArboretum | RGatheringHallAccess | RGatheringHall | RSaveStation2 | RWateryHallAccess | RWateryHall | RDynamoAccess | RDynamo | REastAtrium 
                 | REnergyCoreAccess | REnergyCore | RBurnDomeAccess | RBurnDome | RWestFurnaceAccess | RFurnace | REastFurnaceAccess | RCrosswayAccessWest 
                 | RCrossway | RCrosswayAccessSouth | RElderHallAccess | RHalloftheElders | RElderChamber | RReflectingPoolAccess | RReflectingPool | RAntechamber 
-                | RSaveStation3 | RTransporttoTallonOverworldEast | RTransportAccessSouth | RTransporttoTallonOverworldSouth | RRuinedFountainNonWarp
+                | RSaveStation3 | RTransporttoTallonOverworldEast | RTransportAccessSouth | RTransporttoTallonOverworldSouth | RRuinedFountainNonWarp | RChozoFrontSw 
+                | RChozoBackSw
 
                 | CTransporttoChozoRuinsNorth | CBurningTrail | CSaveStationMagmoorA | CLakeTunnel | CLavaLake | CPitTunnel | CTriclopsPit | CStorageCavern 
                 | CMonitorTunnel | CMonitorStation | CTransportTunnelA | CTransporttoPhendranaDriftsNorth | CWarriorShrine | CShoreTunnel | CFieryShores 
                 | CTransportTunnelB | CTransporttoTallonOverworldWest | CTwinFiresTunnel | CTwinFires | CNorthCoreTunnel | CGeothermalCore | CPlasmaProcessing 
                 | CSouthCoreTunnel | CMagmoorWorkstation | CWorkstationTunnel | CTransportTunnelC | CTransporttoPhendranaDriftsSouth | CSaveStationMagmoorB 
-                | CTransporttoPhazonMinesWest
+                | CTransporttoPhazonMinesWest | CMagmoorFrontSw | CMagmoorBackSw
                 
                 | DTransporttoMagmoorCavernsWest | DShorelineEntrance | DPhendranaShorelines | DSaveStationB | DIceRuinsAccess | DIceRuinsEast | DPlazaWalkway 
                 | DRuinsEntryway | DIceRuinsWest | DCanyonEntryway | DPhendranaCanyon | DTempleEntryway | DChozoIceTemple | DChapelTunnel | DChapeloftheElders 
@@ -52,6 +53,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | DSouthQuarantineTunnel | DTransporttoMagmoorCavernsSouth | DTransportAccess | DFrozenPike | DPikeAccess | DFrostCaveAccess | DFrostCave 
                 | DSaveStationC | DUpperEdgeTunnel | DPhendranasEdge | DStorageCave | DSecurityCave | DLowerEdgeTunnel | DHunterCave | DLakeTunnel 
                 | DGravityChamber | DChamberAccess | DHunterCaveAccess | DQuarantineCaveBack | DGravityChamberTop | DHunterCaveFar | DObservatoryTop
+                | DPhendranaFrontSw | DPhendranaBackSw
 
                 | MTransporttoTallonOverworldSouth | MQuarryAccess | MMainQuarry | MSaveStationMinesA | MSecurityAccessA | MMineSecurityStation | MSecurityAccessB 
                 | MStorageDepotA | MEliteResearch | MResearchAccess | MOreProcessing | MElevatorAccessA | MElevatorA | MStorageDepotB | MWasteDisposal 
@@ -59,7 +61,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MCentralDynamo | MSaveStationMinesB | MQuarantineAccessA | MMetroidQuarantineA | MElevatorAccessB | MElevatorB | MFungalHallAccess | MFungalHallA 
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
-                | MMetroidQuarantineBBack
+                | MMetroidQuarantineBBack | MMissileStationMinesInbounds | MMinesFrontSw | MMinesBackSw
                 deriving  (Read, Eq, Ord, Show, Enum)
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -83,6 +85,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Extreme
+                deriving (Read ,Eq, Ord, Show, Enum)
 
 -- Basic Predicates
 noReq :: [ItemName] -> Bool
@@ -173,6 +176,17 @@ mainQuarryBarrierWave x = containsAll x [MainQuarryBarriers, WaveBeam]
 chozoIceTempleBarrier :: [ItemName] -> Bool
 chozoIceTempleBarrier x = contains x ChozoIceTempleBarrier
 
+wallcrawl :: Difficulty -> [ItemName] -> Bool
+wallcrawl diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> bombs x
+    VeryHard -> bombs x
+    Extreme -> bombs x
+
+longWallcrawl :: Difficulty -> [ItemName] -> Bool
+longWallcrawl diff x = bombs x && diff == Extreme
+
 -- Tallon Predicates
 sjf :: Difficulty -> [ItemName] -> Bool
 sjf diff x = case diff of 
@@ -181,6 +195,14 @@ sjf diff x = case diff of
     Hard -> True
     VeryHard -> True
     Extreme -> True
+
+tallonCanyonSw :: Difficulty -> [ItemName] -> Bool
+tallonCanyonSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> boost x && bombs x
+    Extreme -> bombs x
 
 rootCaveItem :: Difficulty -> [ItemName] -> Bool
 rootCaveItem diff x = case diff of 
@@ -331,6 +353,14 @@ lifeGroveTunnelItem diff x = case diff of
     VeryHard -> containsAll x [PowerBomb, MorphBall, MorphBallBomb]
     Extreme -> containsAll x [PowerBomb, MorphBall, MorphBallBomb]
 
+lifeGroveSw :: Difficulty -> [ItemName] -> Bool
+lifeGroveSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> pb x && sj x
+    VeryHard -> pb x && sj x
+    Extreme -> pb x && sj x
+
 gthSpiderTrack ::  Difficulty -> [ItemName] -> Bool
 gthSpiderTrack diff x = case diff of 
     Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]
@@ -346,6 +376,14 @@ gtcEnter diff x = case diff of
     Hard -> sjOrBombs x
     VeryHard -> sjOrBombs x
     Extreme -> sjOrBombs x
+
+gtcSw :: Difficulty -> [ItemName] -> Bool
+gtcSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x
+    Extreme -> bombs x
 
 -- Chozo Predicates
 mainPipe :: Difficulty -> [ItemName] -> Bool
@@ -371,6 +409,14 @@ mainPlazaLedge diff x = case diff of
     Hard -> contains x SpaceJumpBoots
     VeryHard -> contains x SpaceJumpBoots
     Extreme -> contains x SpaceJumpBoots
+
+mainPlazaSw :: Difficulty -> [ItemName] -> Bool
+mainPlazaSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> sj x && bombs x
+    VeryHard -> sj x && bombs x
+    Extreme -> sj x && bombs x
 
 ruinedFountainItem :: Difficulty -> [ItemName] -> Bool
 ruinedFountainItem _ x = contains x SpiderBall
@@ -436,6 +482,22 @@ climbSunTower _ x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile
 sunchamberghost :: Difficulty -> [ItemName] -> Bool
 sunchamberghost = climbSunTower
 
+gatheringHallSw :: Difficulty -> [ItemName] -> Bool
+gatheringHallSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> sj x && bombs x
+    VeryHard -> bombs x
+    Extreme -> bombs x
+
+wateryHallSw :: Difficulty -> [ItemName] -> Bool
+wateryHallSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> sj x && bombs x
+    VeryHard -> bombs x
+    Extreme -> bombs x
+
 wateryHallTraverse :: Difficulty -> [ItemName] -> Bool 
 wateryHallTraverse diff x = containsAll x [MorphBall, MorphBallBomb, Missile]
 
@@ -462,6 +524,9 @@ furnaceItem diff x = case diff of
     Hard -> containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
     VeryHard ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
     Extreme ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
+
+crosswayInfiniteSpeed :: Difficulty -> [ItemName] -> Bool 
+crosswayInfiniteSpeed diff x = diff == Extreme && containsAll x [MorphBall, BoostBall, Missile]
 
 crosswayTraverse :: Difficulty -> [ItemName] -> Bool 
 crosswayTraverse diff x = case diff of 
@@ -559,6 +624,22 @@ heatResistOr8Etanks diff x = case diff of
     VeryHard -> heatResist x || containsCount 8 EnergyTank x
     Extreme -> heatResist x || containsCount 8 EnergyTank x
 
+burningTrailSw :: Difficulty -> [ItemName] -> Bool 
+burningTrailSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x
+    Extreme -> bombs x
+
+magmoorFrontWallcrawl :: Difficulty -> [ItemName] -> Bool 
+magmoorFrontWallcrawl diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> False
+    Extreme -> heatResist x && bombs x
+
 lavaLakeTraversal :: Difficulty -> [ItemName] -> Bool 
 lavaLakeTraversal diff x = vmr4Tank diff x && bombs x
 
@@ -641,6 +722,14 @@ workstationItem diff x = containsAll x [MorphBall, WaveBeam]
 workstationWaveDoor :: Difficulty -> [ItemName] -> Bool
 workstationWaveDoor diff x = sjOrBombs x && contains x WaveBeam
 
+workstationSw :: Difficulty -> [ItemName] -> Bool
+workstationSw diff x =  case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> sj x
+    Extreme -> sjOrBombs x
+
 geoCore :: Difficulty -> [ItemName] -> Bool
 geoCore diff x = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
@@ -661,6 +750,14 @@ shorelinesTower diff x = case diff of
     VeryHard -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
     Extreme -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
 
+shorelinesItem:: Difficulty -> [ItemName] -> Bool
+shorelinesItem diff x = case diff of 
+    Easy -> plasma x
+    Medium -> plasma x
+    Hard -> plasma x || (wave x && boost x && sj x && bombs x) -- Infinite Speed
+    VeryHard -> plasma x || (wave x && boost x && sj x && bombs x)
+    Extreme -> plasma x || (wave x && boost x && sj x && bombs x)
+
 
 iceTempleClimb :: Difficulty -> [ItemName] -> Bool
 iceTempleClimb diff x = case diff of 
@@ -674,9 +771,9 @@ iceTempleItem :: Difficulty -> [ItemName] -> Bool
 iceTempleItem diff x = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
     Medium ->containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
-    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
-    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
-    Extreme -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x) -- Infinite Speed
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x)
+    Extreme -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x)
 
 climbShorelines :: Difficulty -> [ItemName] -> Bool 
 climbShorelines diff x = case diff of 
@@ -702,13 +799,21 @@ irwDoor diff x = case diff of
     VeryHard -> sjOrBombs x && wave x
     Extreme -> sjOrBombs x && wave x
 
-irwItem:: Difficulty -> [ItemName] -> Bool
+irwItem :: Difficulty -> [ItemName] -> Bool
 irwItem diff x = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
     Medium -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
     Hard -> containsAll x [Missile, PlasmaBeam]
     VeryHard -> containsAll x [Missile, PlasmaBeam]
     Extreme -> containsAll x [Missile, PlasmaBeam]
+
+irwSw:: Difficulty -> [ItemName] -> Bool
+irwSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x
+    Extreme -> bombs x
 
 ruinedCourtyardConduit :: Difficulty -> [ItemName] -> Bool
 ruinedCourtyardConduit _ x = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
@@ -724,6 +829,14 @@ ruinedCourtyardClimb diff x = case diff of
     Hard -> (spider x && sjOrBombs x) || sj x
     VeryHard -> sjOrBombs x
     Extreme -> sjOrBombs x
+
+ruinedCourtyardSw :: Difficulty -> [ItemName] -> Bool
+ruinedCourtyardSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> sj x
+    VeryHard -> sj x
+    Extreme -> sj x
 
 quarantineTunnel :: Difficulty -> [ItemName] -> Bool
 quarantineTunnel _ x = containsAll x [MorphBall, WaveBeam]
@@ -893,6 +1006,14 @@ frostCaveItem diff x = case diff of
 frostCaveToTunnel :: Difficulty -> [ItemName] -> Bool
 frostCaveToTunnel _ x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
 
+frostCaveSw :: Difficulty -> [ItemName] -> Bool
+frostCaveSw diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> sj x
+    VeryHard -> sjOrBombs x 
+    Extreme -> sjOrBombs x 
+
 -- Mines Predicates
 quarrySave :: Difficulty -> [ItemName] -> Bool
 quarrySave diff x = case diff of 
@@ -952,6 +1073,14 @@ shaftClimb2 diff x = case diff of
     Hard -> ice x && boost x && (spider x || sj x)
     VeryHard ->  ice x && boost x && (spider x || sj x)
     Extreme -> ice x && boost x && (spider x || sj x)
+
+securityAccessBSw:: Difficulty -> [ItemName] -> Bool
+securityAccessBSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x
+    Extreme -> bombs x
 
 maintTunnel :: Difficulty -> [ItemName] -> Bool
 maintTunnel _ x = containsAll x [MorphBall, IceBeam, PowerBomb]
@@ -1020,8 +1149,8 @@ eliteResearchDoor diff x = case diff of
     VeryHard -> sjOrBombs x && ice x
     Extreme -> sjOrBombs x && ice x
 
-toStarageDepotA :: Difficulty -> [ItemName] -> Bool
-toStarageDepotA diff x = case diff of
+toStorageDepotA :: Difficulty -> [ItemName] -> Bool
+toStorageDepotA diff x = case diff of
     Easy -> containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
     Medium -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
     Hard -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
@@ -1102,6 +1231,14 @@ mqbBackClimb diff x = case diff of
     VeryHard -> plasma x && sjOrBombs x
     Extreme -> plasma x && sjOrBombs x
 
+mqbSw :: Difficulty -> [ItemName] -> Bool
+mqbSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> sj x && bombs x
+    VeryHard -> bombs x
+    Extreme -> bombs x
+
 -- Helper functions
 containsCount :: Eq a => Int -> a -> [a] -> Bool
 containsCount num element list
@@ -1138,7 +1275,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room OAlcove [Edge noReq (R OLandingSite)
                                     ,Edge noReq (I Alcove)]
             ,Room OCanyonCavern [Edge noReq (R OLandingSite)
-                                    ,Edge noReq (R OTallonCanyon)]
+                                    ,Edge noReq (R OTallonCanyon)
+                                    ,Edge (tallonCanyonSw diff) (R OTallonFrontSw)]
             ,Room OTallonCanyon [Edge noReq (R OCanyonCavern)
                                     ,Edge boostBombs (R OGully)
                                     ,Edge noReq (R ORootTunnel)
@@ -1223,6 +1361,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room OTransporttoChozoRuinsSouth [Edge ice (R OTransportTunnelD)
                                     ,Edge noReq (R RTransporttoTallonOverworldSouth)]
             ,Room OGreatTreeChamber [Edge noReq (R OGreatTreeHallTop)
+                                    ,Edge (gtcSw diff) (R OTallonBackSw)
                                     ,Edge noReq (I GreatTreeChamber)]
             ,Room OLifeGroveTunnel [Edge noReq (R OGreatTreeHallTop)
                                     ,Edge (lifeGroveTunnel diff) (R OLifeGrove)
@@ -1242,6 +1381,14 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R OArtifactTemple)]
             ,Room OArtifactTemple [Edge noReq (R OTempleLobby)
                                     ,Edge noReq (I ArtifactTemple)]
+            --TODO can you get past frigate morph tunnel with this SW?
+            ,Room OTallonBackSw [Edge bombs (R OLifeGrove)
+                                    ,Edge bombs (R OGreatTreeHallTop)
+                                    ,Edge bombs (I LifeGroveUnderwaterSpinner)]
+            ,Room OTallonFrontSw [Edge bombs (R OFrigateCrashSite)
+                                    ,Edge bombs (R OTallonCanyon)
+                                    ,Edge bombs (I ArborChamber)
+                                    ,Edge bombs (I RootCave)]
 
             -- Chozo Ruins Rooms
             ,Room RTransporttoTallonOverworldNorth [Edge noReq (R OTransporttoChozoRuinsWest)
@@ -1254,6 +1401,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R RNurseryAccess)
                                     ,Edge (mainPlazaGrappleLedge diff) (R RPistonTunnel)
                                     ,Edge (mainPlazaLedge diff) (R RMainPlazaLedge)
+                                    ,Edge (mainPlazaSw diff) (R RChozoFrontSw)
                                     ,Edge (mainPipe diff) (I MainPlazaHalfPipe)
                                     ,Edge (mainPlazaGrappleLedge diff) (I MainPlazaGrappleLedge)
                                     ,Edge supers (I MainPlazaTree)]
@@ -1357,6 +1505,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge missile (R RSaveStation2)
                                     ,Edge noReq (R RWateryHallAccess)
                                     ,Edge morph (R REastAtrium)
+                                    ,Edge (gatheringHallSw diff) (R RChozoBackSw)
                                     ,Edge bombs (I GatheringHall)]
             ,Room RWateryHallAccess [Edge noReq (R RGatheringHall)
                                     ,Edge missile (R RWateryHall)
@@ -1364,6 +1513,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room RWateryHall [Edge missile (R RWateryHallAccess)
                                     ,Edge (wateryHallTraverse diff) (R RDynamoAccess)
                                     ,Edge (wateryHallWater diff) (I WateryHallUnderwater)
+                                    ,Edge (wateryHallSw diff) (R RChozoBackSw)
                                     ,Edge noReq (I WateryHallScanPuzzle)]
             ,Room RDynamoAccess [Edge missile (R RWateryHall)
                                     ,Edge missile (R RDynamo)]
@@ -1428,13 +1578,20 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (R RTransporttoTallonOverworldEast)]
             ,Room RTransporttoTallonOverworldEast [Edge bombs (R RSaveStation3)
                                     ,Edge noReq (R OTransporttoChozoRuinsEast)]
+            ,Room RChozoBackSw [Edge bombs (R RReflectingPool)
+                                    ,Edge (crosswayInfiniteSpeed diff) (I ElderChamber)
+                                    ,Edge (longWallcrawl diff) (R RChozoFrontSw)]
+            ,Room RChozoFrontSw [Edge bombs (I TrainingChamber)
+                                    ,Edge bombs (I TrainingChamberAccess)
+                                    ,Edge bombs (I TowerofLight)]
             
             --Magmoor Caverns Rooms
             ,Room CTransporttoChozoRuinsNorth [Edge noReq (R RTransporttoMagmoorCavernsNorth)
                                     ,Edge noReq (R CBurningTrail)]
             ,Room CBurningTrail [Edge noReq (R CTransporttoChozoRuinsNorth)
                                     ,Edge missile (R CSaveStationMagmoorA)
-                                    ,Edge noReq (R CLakeTunnel)]
+                                    ,Edge noReq (R CLakeTunnel)
+                                    ,Edge (burningTrailSw diff) (R CMagmoorFrontSw)]
             ,Room CSaveStationMagmoorA [Edge missile (R CBurningTrail)]
             ,Room CLakeTunnel [Edge noReq (R CBurningTrail)
                                     ,Edge noReq (R CLavaLake)]
@@ -1491,6 +1648,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room CMagmoorWorkstation [Edge noReq (R CSouthCoreTunnel)
                                     ,Edge sjOrBombs (R CWorkstationTunnel)
                                     ,Edge (workstationWaveDoor diff) (R CTransportTunnelC)
+                                    ,Edge (workstationSw diff) (R CMagmoorBackSw)
                                     ,Edge (workstationItem diff) (I MagmoorWorkstation)]
             ,Room CTransportTunnelC [Edge wave (R CMagmoorWorkstation)
                                     ,Edge wave (R CTransporttoPhendranaDriftsSouth)]
@@ -1502,6 +1660,11 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (workstationTunnel diff) (R CTransporttoPhazonMinesWest)]
             ,Room CTransporttoPhazonMinesWest [Edge (workstationTunnel diff) (R CWorkstationTunnel)
                                     ,Edge noReq (R MTransporttoMagmoorCavernsSouth)]
+            ,Room CMagmoorBackSw [Edge bombs (R CTransporttoPhazonMinesWest)
+                                    ,Edge (longWallcrawl diff) (R CMagmoorFrontSw)
+                                    ,Edge bombs (I MagmoorWorkstation) -- TODO double-check this
+                                    ,Edge bombs (I PlasmaProcessing)]
+            ,Room CMagmoorFrontSw [Edge (magmoorFrontWallcrawl diff) (R CMagmoorBackSw)]
 
             -- Phendrana Drifts Rooms
             ,Room DTransporttoMagmoorCavernsWest [Edge noReq (R CTransporttoPhendranaDriftsNorth)
@@ -1539,6 +1702,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R DIceRuinsWest)]
             ,Room DIceRuinsWest [Edge noReq (R DRuinsEntryway)
                                     ,Edge missile (R DCanyonEntryway)
+                                    ,Edge (irwSw diff) (R DPhendranaFrontSw)
                                     ,Edge (irwDoor diff) (R DCourtyardEntryway)
                                     ,Edge (irwItem diff) (I IceRuinsWest)]
             ,Room DCanyonEntryway [Edge noReq (R DIceRuinsWest)
@@ -1551,6 +1715,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (ruinedCourtyardSave diff) (R DSaveStationA)
                                     ,Edge wave (R DSpecimenStorage)
                                     ,Edge (ruinedCourtyardConduit diff) (R DQuarantineAccess) 
+                                    ,Edge (ruinedCourtyardSw diff) (R DPhendranaFrontSw)
                                     ,Edge morph (I RuinedCourtyard)]
             ,Room DSaveStationA [Edge missile (R DCourtyardEntryway) -- If you fall
                                     ,Edge (ruinedCourtyardSave diff) (R DRuinedCourtyard) -- If can make it to the spawn point
@@ -1630,6 +1795,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DFrostCave [Edge (frostCaveAccess diff) (R DFrostCaveAccess)
                                     ,Edge (frostCaveDoor diff) (R DSaveStationC)
                                     ,Edge (frostCaveToTunnel diff) (R DUpperEdgeTunnel)
+                                    ,Edge (frostCaveSw diff) (R DPhendranaBackSw)
                                     ,Edge (frostCaveItem diff) (I FrostCave)]
             ,Room DSaveStationC [Edge (frostCaveDoor diff) (R DFrostCave)]
             ,Room DUpperEdgeTunnel [Edge (frostCaveAccess diff) (R DFrostCave)
@@ -1662,6 +1828,19 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge wave (R DHunterCaveFar)]
             ,Room DHunterCaveAccess [Edge wave (R DHunterCaveFar)
                                     ,Edge (frozenPikeBottom diff) (R DFrozenPike)]
+            ,Room DPhendranaFrontSw [Edge bombs (R DRuinedCourtyard)
+                                    ,Edge bombs (I QuarantineMonitor)
+                                    ,Edge bombs (I QuarantineCave)
+                                    ,Edge (longWallcrawl diff) (R DPhendranaBackSw)]
+            ,Room DPhendranaBackSw [Edge (longWallcrawl diff) (R DPhendranaFrontSw)
+                                    ,Edge bombs (R DFrostCave)
+                                    ,Edge bombs (R DGravityChamber)
+                                    ,Edge bombs (I GravityChamberGrappleLedge)
+                                    ,Edge bombs (I TransportAccess) -- TODO can you get this from oob?
+                                    ,Edge bombs (R DTransportAccess)
+                                    ,Edge bombs (R DFrozenPike)
+                                    ,Edge bombs (I SecurityCave)
+                                    ,Edge bombs (I StorageCave)]
 
             -- Phazon Mines Rooms
             ,Room MTransporttoTallonOverworldSouth [Edge noReq (R OTransporttoPhazonMinesEast)
@@ -1679,11 +1858,12 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge ice (R MMineSecurityStation)
                                     ,Edge pb (I SecurityAccessA)]
             ,Room MMineSecurityStation [Edge waveIce (R MSecurityAccessA)
-                                    ,Edge (toStarageDepotA diff) (R MStorageDepotA)
+                                    ,Edge (toStorageDepotA diff) (R MStorageDepotA)
                                     ,Edge wave (R MSecurityAccessB)]
             ,Room MStorageDepotA [Edge blocked (R MMineSecurityStation) -- For simplicity, it's blocked for now.
                                     ,Edge noReq (I StorageDepotA)]
             ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
+                                    ,Edge (securityAccessBSw diff) (R MMinesFrontSw)
                                     ,Edge ice (R MEliteResearch)]
             ,Room MEliteResearch [Edge ice (R MSecurityAccessB)
                                     ,Edge (eliteResearchDoor diff) (R MResearchAccess)
@@ -1757,10 +1937,12 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                         ,Edge (miningTunnelTraversal diff) (R MFungalHallB)
                                         ,Edge (miningTunnelItem diff) (I PhazonMiningTunnel)]
             ,Room MFungalHallB [Edge (miningTunnelTraversal diff) (R MPhazonMiningTunnel)
-                                        ,Edge (fungalHallBTraversal diff) (R MMissileStationMines)
+                                        ,Edge (fungalHallBTraversal diff) (R MMissileStationMinesInbounds)
                                         ,Edge (fungalHallBTraversal diff) (R MQuarantineAccessB)
                                         ,Edge bombs (I FungalHallB)]
-            ,Room MMissileStationMines [Edge morph (R MFungalHallB)] -- You get warped out of bounds and need morph
+            ,Room MMissileStationMinesInbounds [Edge plasma (R MFungalHallB)]
+            ,Room MMissileStationMines [Edge morph (R MMissileStationMinesInbounds) -- You get warped out of bounds and need morph
+                                        ,Edge (wallcrawl diff) (R MMinesBackSw)] 
             ,Room MQuarantineAccessB [Edge plasma (R MFungalHallB)
                                         ,Edge (quarantineAccessBTraversal diff) (R MMetroidQuarantineB)]
             -- These rooms are treated as though the barrier is one-way (Warp is on the mushroom side)
@@ -1769,6 +1951,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MMetroidQuarantineBBack [Edge blocked (R MMetroidQuarantineB)
                                         ,Edge plasma (R MSaveStationMinesC)
                                         ,Edge (mqbBackClimb diff) (R MEliteQuartersAccess)
+                                        ,Edge (mqbSw diff) (R MMinesBackSw)
                                         ,Edge supers (I MetroidQuarantineB)]
             ,Room MSaveStationMinesC [Edge plasma (R MMetroidQuarantineBBack)]
             ,Room MEliteQuartersAccess [Edge plasma (R MMetroidQuarantineBBack)
@@ -1779,6 +1962,14 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
                                         ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
                                         ,Edge noReq (I ProcessingCenterAccess)]
+            ,Room MMinesFrontSw [Edge bombs (I StorageDepotA)
+                                        ,Edge bombs (R MMainQuarry)
+                                        ,Edge bombs (I SecurityAccessA)] -- TODO: Is this possible?
+            ,Room MMinesBackSw [Edge bombs (R MFungalHallB)
+                                        ,Edge bombs (R MPhazonProcessingCenter)
+                                        ,Edge bombs (I FungalHallAccess)
+                                        ,Edge bombs (R MMetroidQuarantineB)
+                                        ,Edge (longWallcrawl diff) (I FungalHallAccess)]
 
             -- Pseudo-items
             ,Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB

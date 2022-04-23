@@ -24,6 +24,10 @@ countFalse = assertEqual "countFalse" False (containsCount 3 PowerBomb [ChargeBe
 
 countNeg = assertEqual "countNeg" False (containsCount (-1) PowerBomb [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
 
+containsAny1 = assertEqual "contiainsAny1" False (containsAny [IceBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+
+containsAny2 = assertEqual "contiainsAny2" True (containsAny [GrappleBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+
 testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 17 - - Warps to: Chozo Ruins | Save Station 1\nElevators:\nChozo Ruins - Transport to Tallon Overworld North <> Tallon Overworld - Transport to Chozo Ruins West"
 
 tests = [testCase "stripPrefixTest1" stripPrefixTest1
@@ -35,7 +39,9 @@ tests = [testCase "stripPrefixTest1" stripPrefixTest1
         , testCase "countTrue" countTrue
         , testCase "countTrue2" countTrue2
         , testCase "countFalse" countFalse
-        , testCase "countNeg" countNeg]
+        , testCase "countNeg" countNeg
+        , testCase "containsAny1" containsAny1
+        , testCase "containsAny2" containsAny2]
 
 main :: IO ()
 main = defaultMainWithOpts tests mempty
