@@ -15,7 +15,7 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
                 | VariaSuit | SpiderBall | BoostBall | PowerBomb | ChargeBeam | SuperMissile | XRayVisor | GrappleBeam
                 | ThermalVisor | Missile | EnergyTank | Wavebuster | IceSpreader | Flamethrower | Artifact
 
-                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier
+                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier | StorageDepotABarrier
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -78,7 +78,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger
+                | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger | StorageDepotATrigger
 
                 --Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
                 -- Research Lab Hydra barrier, Mine Security Station?
@@ -1074,6 +1074,9 @@ shaftClimb2 diff x = case diff of
     VeryHard ->  ice x && boost x && (spider x || sj x)
     Extreme -> ice x && boost x && (spider x || sj x)
 
+storageDepotABarrier :: Difficulty -> [ItemName] -> Bool
+storageDepotABarrier _ x = contains x StorageDepotABarrier
+
 securityAccessBSw:: Difficulty -> [ItemName] -> Bool
 securityAccessBSw diff x = case diff of
     Easy -> False
@@ -1859,8 +1862,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge pb (I SecurityAccessA)]
             ,Room MMineSecurityStation [Edge waveIce (R MSecurityAccessA)
                                     ,Edge (toStorageDepotA diff) (R MStorageDepotA)
-                                    ,Edge wave (R MSecurityAccessB)]
-            ,Room MStorageDepotA [Edge blocked (R MMineSecurityStation) -- For simplicity, it's blocked for now.
+                                    ,Edge wave (R MSecurityAccessB)
+                                    ,Edge pb (I StorageDepotATrigger)]
+            ,Room MStorageDepotA [Edge (storageDepotABarrier diff) (R MMineSecurityStation) -- For simplicity, it's blocked for now.
                                     ,Edge noReq (I StorageDepotA)]
             ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
                                     ,Edge (securityAccessBSw diff) (R MMinesFrontSw)
@@ -1975,4 +1979,5 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
             ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
             ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
+            ,Item StorageDepotATrigger StorageDepotABarrier MMineSecurityStation
             ]
