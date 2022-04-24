@@ -32,7 +32,7 @@ isComplete graph (State inventory (Room roomId edges) collectedItems) =
     && (Set.member ArtifactTemple collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
 isComplete _ _ = error "invalid args for isComplete"
 
--- Try some warp chains and return some possible states that we could reach (that have a chance of being an improvement)
+-- Try some warp chains and return the best state we could reach
 getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
 getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems graph state) state 1 []
 
