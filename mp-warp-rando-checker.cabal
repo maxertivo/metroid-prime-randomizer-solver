@@ -26,7 +26,7 @@ version:            0.1.0.0
 extra-source-files: CHANGELOG.md
 
 library
-    exposed-modules:  Node, Parser, Graph, State, Util
+    exposed-modules:  Node, Parser, Graph, State, Util, Predicates, Solver
 
     -- Modules included in this library but not exported.
     -- other-modules:

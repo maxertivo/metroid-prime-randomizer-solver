@@ -1,9 +1,9 @@
 module Main where
 
 import Parser
-import State
 import Node
 import Graph
+import Solver
 import System.Directory
 
 main :: IO ()

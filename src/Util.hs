@@ -1,10 +1,12 @@
 module Util where
 
+import Node
+
+import Data.Maybe
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Node
 
 getIndex :: [a] -> Integer -> Maybe a
 getIndex [] i = Nothing
@@ -68,3 +70,52 @@ minMaybe Nothing Nothing = Nothing
 minMaybe Nothing (Just y) = Just y
 minMaybe (Just x) Nothing = Just x
 minMaybe (Just x) (Just y) = Just (min x y)
+
+-- Helper functions for Predicates
+containsCount :: Int -> ItemName -> Map ItemName Int-> Bool
+containsCount num element map
+    | num < 0 = False
+    | num == 0 = True
+    | otherwise = num <= fromMaybe 0 (Map.lookup element map)
+
+contains :: Map ItemName Int -> ItemName -> Bool
+contains map item = case Map.lookup item map of 
+    Just num -> True
+    Nothing -> False
+
+containsAll :: Map ItemName Int -> [ItemName] -> Bool
+containsAll _ [] = True
+containsAll map (x:rest) = contains map x && containsAll map rest
+
+containsAny :: Map ItemName Int -> [ItemName] -> Bool
+containsAny _ [] = False
+containsAny map (x:rest) = contains map x || containsAny map rest
+
+listContains :: [ItemName] -> ItemName -> Bool
+listContains items item = item `Prelude.elem` items
+
+listContainsAll :: [ItemName] -> [ItemName] -> Bool
+listContainsAll [] [] = True
+listContainsAll _ [] = True
+listContainsAll [] _ = False 
+listContainsAll items (x:rest) = listContains items x && listContainsAll items rest
+
+listContainsAny :: [ItemName] -> [ItemName] -> Bool
+listContainsAny [] [] = False
+listContainsAny _ [] = False
+listContainsAny [] _ = False 
+listContainsAny items (x:rest) = listContains items x || listContainsAny items rest
+                        
+checkBools :: [Id] -> [Bool] -> [Id]
+checkBools (id:rest1) (bool:rest2) = if bool then id : checkBools rest1 rest2  else checkBools rest1 rest2
+checkBools _ _ = []
+
+getRoomIds :: [Id] -> [RoomId]                   
+getRoomIds ((R roomId):rest) = roomId : getRoomIds rest
+getRoomIds (item:rest) = getRoomIds rest
+getRoomIds [] = []
+
+getItemIds :: [Id] -> [ItemId]                   
+getItemIds ((I itemId):rest) = itemId : getItemIds rest
+getItemIds (room:rest) = getItemIds rest
+getItemIds [] = []
