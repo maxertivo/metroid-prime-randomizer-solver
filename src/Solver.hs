@@ -36,6 +36,7 @@ isComplete _ _ = error "invalid args for isComplete"
 getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
 getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems graph state) state 1 []
 
+--TODO This is slow when you get warped to an area where you can access lots of rooms/items, but cannot access Landing Site
 getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> Maybe CandidateState
 getBestCandidateHelper _ [] _ _ _ = Nothing
 getBestCandidateHelper graph (item:rest) currState depth newItems = 
@@ -50,11 +51,6 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         warpCanAccessStart = isAccessible graph warp OLandingSite newInventory
         startCanAccessWarp = isAccessible graph OLandingSite warp newInventory
     in
-        {--if isAccessible graph warp OLandingSite (itemName:inventory)
-            then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
-        else
-            recurseItemList ++ recurseDeeper --}
-
         if warpCanAccessStart && startCanAccessWarp
             then (if containsUpgrade (itemName:newItems) newInventory then minMaybe candidate recurseItemList else recurseItemList)
         else if warpCanAccessStart && containsUpgrade (itemName:newItems) newInventory

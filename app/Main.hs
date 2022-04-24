@@ -20,6 +20,6 @@ main' directory (".":rest) = main' directory rest
 main' directory (fileName:rest) = do
     fileContents <- readFile (directory ++ "/" ++ fileName)
     putStr $ fileName ++ ": "
-    let graph = buildMap $ buildNodes Extreme ++ parse fileContents
+    let graph = buildMap $ buildNodes VeryHard ++ parse fileContents
     print (isCompletable graph)
     main' directory rest

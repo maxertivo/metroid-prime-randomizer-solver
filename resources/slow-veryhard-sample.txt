@@ -1,0 +1,103 @@
+Randomizer V3.1
+Seed: 835221018
+Excluded pickups: 5 19 28 
+Chozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 13 - - Warps to: Chozo Ruins | Eyon Tunnel
+Chozo - - - Main Plaza (Grapple Ledge) - - - - - - Missile Expansion 38 - - Warps to: Chozo Ruins | Sunchamber Lobby
+Chozo - - - Main Plaza (Tree)  - - - - - - - - - - Artifact of Truth  - - - Warps to: Tallon Overworld | Artifact Temple
+Chozo - - - Main Plaza (Locked Door) - - - - - - - Missile Expansion 35 - - Warps to: Tallon Overworld | Reactor Core
+Chozo - - - Ruined Fountain  - - - - - - - - - - - Missile Expansion 32 - - Warps to: Phendrana Drifts | Frost Cave
+Chozo - - - Ruined Shrine ("Beetle Battle")  - - - Morph Ball
+Chozo - - - Ruined Shrine (Half-Pipe)  - - - - - - Wave Beam  - - - - - - - Warps to: Chozo Ruins | Transport to Magmoor Caverns North
+Chozo - - - Ruined Shrine (Lower Tunnel) - - - - - Missile Expansion 7  - - Warps to: Phendrana Drifts | Ice Ruins West
+Chozo - - - Vault  - - - - - - - - - - - - - - - - Artifact of Lifegiver  - Warps to: Phazon Mines | Phazon Mining Tunnel
+Chozo - - - Training Chamber - - - - - - - - - - - Artifact of Sun  - - - - Warps to: Phazon Mines | Elite Quarters Access
+Chozo - - - Ruined Nursery - - - - - - - - - - - - Missile Expansion 12 - - Warps to: Phazon Mines | Metroid Quarantine B
+Chozo - - - Training Chamber Access  - - - - - - - Thermal Visor  - - - - - Warps to: Phendrana Drifts | Research Core Access
+Chozo - - - Magma Pool - - - - - - - - - - - - - - Grapple Beam - - - - - - Warps to: Tallon Overworld | Biotech Research Area 1
+Chozo - - - Tower of Light - - - - - - - - - - - - Power Bomb Expansion 1 - Warps to: Phendrana Drifts | Quarantine Access
+Chozo - - - Tower Chamber  - - - - - - - - - - - - Power Bomb Expansion 2 - Warps to: Phendrana Drifts | West Tower Entrance
+Chozo - - - Ruined Gallery (Missile Wall)  - - - - Charge Beam  - - - - - - Warps to: Magmoor Caverns | Save Station Magmoor A
+Chozo - - - Ruined Gallery (Tunnel)  - - - - - - - Flamethrower - - - - - - Warps to: Tallon Overworld | Transport Tunnel C
+Chozo - - - Transport Access North - - - - - - - - Artifact of Chozo  - - - Warps to: Chozo Ruins | East Furnace Access
+Chozo - - - Gathering Hall - - - - - - - - - - - - Missile Expansion 25 - - Warps to: Phendrana Drifts | Frozen Pike
+Chozo - - - Hive Totem - - - - - - - - - - - - - - Missile Launcher
+Chozo - - - Sunchamber (Flaahgra)  - - - - - - - - Power Bomb Expansion 3 - Warps to: Magmoor Caverns | Transport Tunnel A
+Chozo - - - Sunchamber (Ghosts)  - - - - - - - - - Spider Ball  - - - - - - Warps to: Phendrana Drifts | Chapel Tunnel
+Chozo - - - Watery Hall Access - - - - - - - - - - Missile Expansion 24 - - Warps to: Phendrana Drifts | Research Core
+Chozo - - - Watery Hall (Scan Puzzle)  - - - - - - Energy Tank 9  - - - - - Warps to: Chozo Ruins | Sunchamber
+Chozo - - - Watery Hall (Underwater) - - - - - - - Missile Expansion 18 - - Warps to: Tallon Overworld | Alcove
+Chozo - - - Dynamo (Lower) - - - - - - - - - - - - Missile Expansion 10 - - Warps to: Chozo Ruins | Energy Core
+Chozo - - - Dynamo (Spider Track)  - - - - - - - - Missile Expansion 37 - - Warps to: Tallon Overworld | Biotech Research Area 1
+Chozo - - - Burn Dome (Missile)  - - - - - - - - - Energy Tank 5  - - - - - Warps to: Tallon Overworld | Great Tree Hall
+Chozo - - - Burn Dome (I. Drone) - - - - - - - - - Morph Ball Bomb
+Chozo - - - Furnace (Spider Tracks)  - - - - - - - Missile Expansion 5  - - Warps to: Chozo Ruins | Save Station 3
+Chozo - - - Furnace (Inside Furnace) - - - - - - - Missile Expansion 46 - - Warps to: Phendrana Drifts | Gravity Chamber
+Chozo - - - Hall of the Elders - - - - - - - - - - Missile Expansion 2  - - Warps to: Magmoor Caverns | Plasma Processing
+Chozo - - - Crossway - - - - - - - - - - - - - - - Missile Expansion 17 - - Warps to: Phendrana Drifts | Frost Cave
+Chozo - - - Elder Chamber  - - - - - - - - - - - - Missile Expansion 43 - - Warps to: Chozo Ruins | Eyon Tunnel
+Chozo - - - Antechamber  - - - - - - - - - - - - - Energy Tank 1  - - - - - Warps to: Phazon Mines | Dynamo Access
+Phendrana - Phendrana Shorelines (Behind Ice)  - - Missile Expansion 19 - - Warps to: Phendrana Drifts | Control Tower
+Phendrana - Phendrana Shorelines (Spider Track)  - Varia Suit - - - - - - - Warps to: Phendrana Drifts | Upper Edge Tunnel
+Phendrana - Chozo Ice Temple - - - - - - - - - - - Energy Tank 6  - - - - - Warps to: Magmoor Caverns | Lake Tunnel
+Phendrana - Ice Ruins West - - - - - - - - - - - - Energy Tank 3  - - - - - Warps to: Tallon Overworld | Landing Site
+Phendrana - Ice Ruins East (Behind Ice)  - - - - - Missile Expansion 36 - - Warps to: Tallon Overworld | Root Cave
+Phendrana - Ice Ruins East (Spider Track)  - - - - Missile Expansion 4  - - Warps to: Chozo Ruins | Ruined Shrine Access
+Phendrana - Chapel of the Elders - - - - - - - - - Missile Expansion 27 - - Warps to: Chozo Ruins | Reflecting Pool Access
+Phendrana - Ruined Courtyard - - - - - - - - - - - Artifact of Wild - - - - Warps to: Chozo Ruins | Plaza Access
+Phendrana - Phendrana Canyon - - - - - - - - - - - Energy Tank 10 - - - - - Warps to: Phazon Mines | Transport to Magmoor Caverns South
+Phendrana - Quarantine Cave  - - - - - - - - - - - Artifact of Spirit - - - Warps to: Tallon Overworld | Landing Site
+Phendrana - Research Lab Hydra - - - - - - - - - - Missile Expansion 42 - - Warps to: Chozo Ruins | Watery Hall
+Phendrana - Quarantine Monitor - - - - - - - - - - Missile Expansion 8  - - Warps to: Tallon Overworld | Life Grove
+Phendrana - Observatory  - - - - - - - - - - - - - Energy Tank 2  - - - - - Warps to: Tallon Overworld | Transport to Magmoor Caverns East
+Phendrana - Transport Access - - - - - - - - - - - Missile Expansion 1  - - Warps to: Magmoor Caverns | Shore Tunnel
+Phendrana - Control Tower  - - - - - - - - - - - - Artifact of World  - - - Warps to: Chozo Ruins | Gathering Hall
+Phendrana - Research Core  - - - - - - - - - - - - Missile Expansion 29 - - Warps to: Phendrana Drifts | Chapel of the Elders
+Phendrana - Frost Cave - - - - - - - - - - - - - - Power Bomb - - - - - - - Warps to: Phazon Mines | Ore Processing
+Phendrana - Research Lab Aether (Tank) - - - - - - Artifact of Strength - - Warps to: Phendrana Drifts | Frost Cave
+Phendrana - Research Lab Aether (Morph Track)  - - Missile Expansion 26 - - Warps to: Phazon Mines | Central Dynamo
+Phendrana - Gravity Chamber (Underwater) - - - - - Missile Expansion 16 - - Warps to: Tallon Overworld | Temple Lobby
+Phendrana - Gravity Chamber (Grapple Ledge)  - - - Ice Spreader - - - - - - Warps to: Phendrana Drifts | Chozo Ice Temple
+Phendrana - Storage Cave - - - - - - - - - - - - - Missile Expansion 33 - - Warps to: Magmoor Caverns | Transport Tunnel A
+Phendrana - Security Cave  - - - - - - - - - - - - Power Bomb Expansion 4 - Warps to: Magmoor Caverns | Storage Cavern
+Tallon  - - Landing Site - - - - - - - - - - - - - Missile Expansion 28 - - Warps to: Magmoor Caverns | Lake Tunnel
+Tallon  - - Alcove - - - - - - - - - - - - - - - - Plasma Beam  - - - - - - Warps to: Tallon Overworld | Artifact Temple
+Tallon  - - Frigate Crash Site - - - - - - - - - - Missile Expansion 44 - - Warps to: Phendrana Drifts | Quarantine Monitor
+Tallon  - - Overgrown Cavern - - - - - - - - - - - Energy Tank 4  - - - - - Warps to: Magmoor Caverns | Plasma Processing
+Tallon  - - Root Cave  - - - - - - - - - - - - - - Space Jump Boots - - - - Warps to: Phazon Mines | Phazon Processing Center
+Tallon  - - Artifact Temple  - - - - - - - - - - - Missile Expansion 47 - - Warps to: Phazon Mines | Fungal Hall B
+Tallon  - - Transport Tunnel B - - - - - - - - - - Ice Beam - - - - - - - - Warps to: Phazon Mines | Central Dynamo
+Tallon  - - Arbor Chamber  - - - - - - - - - - - - Artifact of Elder  - - - Warps to: Magmoor Caverns | Pit Tunnel
+Tallon  - - Cargo Freight Lift to Deck Gamma - - - Missile Expansion 39 - - Warps to: Phendrana Drifts | Map Station
+Tallon  - - Biohazard Containment  - - - - - - - - Artifact of Newborn  - - Warps to: Phazon Mines | Transport Access
+Tallon  - - Hydro Access Tunnel  - - - - - - - - - Artifact of Nature - - - Warps to: Tallon Overworld | Connection Elevator to Deck Beta
+Tallon  - - Great Tree Chamber - - - - - - - - - - Energy Tank 11 - - - - - Warps to: Chozo Ruins | Furnace
+Tallon  - - Life Grove Tunnel  - - - - - - - - - - Energy Tank 12 - - - - - Warps to: Magmoor Caverns | Burning Trail
+Tallon  - - Life Grove (Start) - - - - - - - - - - Missile Expansion 21 - - Warps to: Tallon Overworld | Canyon Cavern
+Tallon  - - Life Grove (Underwater Spinner)  - - - Boost Ball - - - - - - - Warps to: Phendrana Drifts | Quarantine Cave
+Mines - - - Main Quarry  - - - - - - - - - - - - - Phazon Suit  - - - - - - Warps to: Chozo Ruins | Ruined Fountain Access
+Mines - - - Security Access A  - - - - - - - - - - Artifact of Warrior  - - Warps to: Chozo Ruins | Burn Dome Access
+Mines - - - Storage Depot B  - - - - - - - - - - - Missile Expansion 3  - - Warps to: Chozo Ruins | Dynamo Access
+Mines - - - Storage Depot A  - - - - - - - - - - - Missile Expansion 30 - - Warps to: Magmoor Caverns | Lava Lake
+Mines - - - Elite Research (Phazon Elite)  - - - - Energy Tank 13 - - - - - Warps to: Tallon Overworld | Gully
+Mines - - - Elite Research (Laser) - - - - - - - - Missile Expansion 48 - - Warps to: Magmoor Caverns | Shore Tunnel
+Mines - - - Elite Control Access - - - - - - - - - Missile Expansion 34 - - Warps to: Magmoor Caverns | Workstation Tunnel
+Mines - - - Ventilation Shaft  - - - - - - - - - - Missile Expansion 11 - - Warps to: Phazon Mines | Metroid Quarantine A
+Mines - - - Phazon Processing Center - - - - - - - Missile Expansion 14 - - Warps to: Tallon Overworld | Root Cave
+Mines - - - Processing Center Access - - - - - - - Missile Expansion 22 - - Warps to: Phazon Mines | Security Access A
+Mines - - - Elite Quarters - - - - - - - - - - - - Wavebuster - - - - - - - Warps to: Tallon Overworld | Alcove
+Mines - - - Central Dynamo - - - - - - - - - - - - Missile Expansion 9  - - Warps to: Magmoor Caverns | Transport Tunnel A
+Mines - - - Metroid Quarantine B - - - - - - - - - Energy Tank 14 - - - - - Warps to: Phazon Mines | Maintenance Tunnel
+Mines - - - Metroid Quarantine A - - - - - - - - - Energy Tank 7  - - - - - Warps to: Tallon Overworld | Gully
+Mines - - - Fungal Hall B  - - - - - - - - - - - - Super Missile  - - - - - Warps to: Tallon Overworld | Deck Beta Transit Hall
+Mines - - - Phazon Mining Tunnel - - - - - - - - - Gravity Suit - - - - - - Warps to: Phendrana Drifts | Aether Lab Entryway
+Mines - - - Fungal Hall Access - - - - - - - - - - Missile Expansion 23 - - Warps to: Phendrana Drifts | Phendrana's Edge
+Magmoor - - Lava Lake  - - - - - - - - - - - - - - Energy Tank 8  - - - - - Warps to: Tallon Overworld | Gully
+Magmoor - - Triclops Pit - - - - - - - - - - - - - Missile Expansion 31 - - Warps to: Tallon Overworld | Root Tunnel
+Magmoor - - Storage Cavern - - - - - - - - - - - - Missile Expansion 20 - - Warps to: Chozo Ruins | Transport to Tallon Overworld North
+Magmoor - - Transport Tunnel A - - - - - - - - - - Missile Expansion 40 - - Warps to: Magmoor Caverns | Transport to Phendrana Drifts North
+Magmoor - - Warrior Shrine - - - - - - - - - - - - Missile Expansion 49 - - Warps to: Chozo Ruins | Dynamo Access
+Magmoor - - Shore Tunnel - - - - - - - - - - - - - Missile Expansion 41 - - Warps to: Chozo Ruins | Vault
+Magmoor - - Fiery Shores (Morph Track) - - - - - - Missile Expansion 45 - - Warps to: Phendrana Drifts | Frost Cave
+Magmoor - - Fiery Shores (Warrior Shrine Tunnel) - X-Ray Visor  - - - - - - Warps to: Chozo Ruins | Watery Hall
+Magmoor - - Plasma Processing  - - - - - - - - - - Missile Expansion 6  - - Warps to: Magmoor Caverns | Transport to Phazon Mines West
+Magmoor - - Magmoor Workstation  - - - - - - - - - Missile Expansion 15 - - Warps to: Tallon Overworld | Main Ventilation Shaft Section A
