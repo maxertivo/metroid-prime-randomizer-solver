@@ -27,8 +27,7 @@ thereby eliminating the need to consider difficulty when solving the graph.
 
 Regarding Warps:
 If the item does not warp, it is treated as if it warps to the room containing the item (Or in some cases, an adjacent room that is more appropriate).
-
-    --}
+--}
 
 buildMap :: [Node] -> Map Id Node
 buildMap nodes = Map.fromList (map createMapKeys nodes)

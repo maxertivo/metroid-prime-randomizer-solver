@@ -1,5 +1,11 @@
 module Util where
 
+import Data.Map (Map)
+import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Node
+
 getIndex :: [a] -> Integer -> Maybe a
 getIndex [] i = Nothing
 getIndex (x:rest) 0 = Just x
@@ -41,3 +47,24 @@ countOf mainList itemsToCount = f mainList itemsToCount 0
             then f items rest (count + 1)
             else f items rest count
     f items [] count = count
+
+addItem :: ItemName -> Map ItemName Int -> Map ItemName Int
+addItem name map = case Map.lookup name map of
+    Just num -> Map.insert name (num+1) map
+    Nothing -> Map.insert name 1 map
+
+removeAll :: Map ItemName Int -> [ItemName] -> Map ItemName Int
+removeAll map [] = map
+removeAll map (y:rest) = case Map.lookup y map of
+    Just num -> if num == 1 then Map.delete y map else Map.insert y (num-1) map
+    Nothing -> map
+
+removeSet :: (Ord a) => [a] -> Set a -> [a]
+removeSet [] _ = []
+removeSet (x:rest) set = if Set.member x set then removeSet rest set else x : removeSet rest set
+
+minMaybe :: (Ord a) => Maybe a -> Maybe a -> Maybe a
+minMaybe Nothing Nothing = Nothing
+minMaybe Nothing (Just y) = Just y
+minMaybe (Just x) Nothing = Just x
+minMaybe (Just x) (Just y) = Just (min x y)

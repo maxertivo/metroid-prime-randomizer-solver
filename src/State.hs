@@ -8,7 +8,7 @@ import qualified Data.Map as Map
 import Data.Set (Set, fromList, toList)
 import qualified Data.Set as Set
 
-data State = State {inventory :: [ItemName], currentNode :: Node, collectedItems :: [ItemId]}
+data State = State {inventory :: Map ItemName Int, currentNode :: Node, collectedItems :: Set ItemId}
             deriving (Show)
 data CandidateState = CandidateState{state :: State, depth :: Int, newItems :: [ItemName]}
             deriving (Show)
@@ -17,8 +17,8 @@ instance Ord CandidateState where
     compare p@(CandidateState a b c) q@(CandidateState d e f)
         | countOf c [WaveBeam, IceBeam, PlasmaBeam] > countOf f [WaveBeam, IceBeam, PlasmaBeam] = LT
         | countOf c [WaveBeam, IceBeam, PlasmaBeam] < countOf f [WaveBeam, IceBeam, PlasmaBeam] = GT
-        | countOf c upgrades < countOf f upgrades = GT
         | countOf c upgrades > countOf f upgrades = LT
+        | countOf c upgrades < countOf f upgrades = GT
         | b < e = LT
         | b > e = GT
         | otherwise = compareElem c f
@@ -31,72 +31,69 @@ upgrades = [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam,Spi
 
 isCompletable :: Map Id Node -> Bool
 isCompletable graph = let Just startingRoom = Map.lookup (R OLandingSite) graph
-                        in isCompletableHelper graph (State [] startingRoom [])
+                        in isCompletableHelper graph (State Map.empty startingRoom Set.empty)
 
 isCompletableHelper :: Map Id Node -> State -> Bool
-isCompletableHelper graph currState = let newState = collectFreeItems graph currState;
-                                            candidates = getCandidateStates graph newState;
-                                        in 
-                                            isComplete graph newState || (nonEmpty candidates && isCompletableHelper graph (getBestCandidate candidates))
+isCompletableHelper graph currState = 
+    let newState = collectFreeItems graph currState;
+        maybeCandidate = getBestCandidate graph newState;
+    in 
+        isComplete graph newState || case maybeCandidate of 
+                                        Nothing -> False
+                                        Just candidate -> isCompletableHelper graph (state candidate)
 
 isComplete :: Map Id Node -> State -> Bool
 isComplete graph (State inventory (Room roomId edges) collectedItems) = 
     let artifactTempleItem = getVal (Map.lookup (I ArtifactTemple) graph) "Missing Item ArtifactTemple"
     in complete inventory && isAccessible graph roomId OArtifactTemple inventory 
     -- Either you collected Artifact Temple or you can collect it and return
-    && (ArtifactTemple `elem` collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
+    && (Set.member ArtifactTemple collectedItems || isAccessible graph (warp artifactTempleItem) OArtifactTemple inventory)
 isComplete _ _ = error "invalid args for isComplete"
 
-getBestCandidate :: [CandidateState] -> State
-getBestCandidate [] = error "called getBestCandidate with empty list"
-getBestCandidate list = let (candidate:_) = sort list
-                            CandidateState currState _ _ = candidate
-                        in currState
-
 -- Try some warp chains and return some possible states that we could reach (that have a chance of being an improvement)
-getCandidateStates :: Map Id Node -> State -> [CandidateState]
-getCandidateStates graph state = getCandidateStatesHelper graph (getAccessibleItems graph state) state 1 []
+getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
+getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems graph state) state 1 []
 
-getCandidateStatesHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> [CandidateState]
-getCandidateStatesHelper _ [] _ _ _ = []
-getCandidateStatesHelper graph (item:rest) currState depth newItems = 
+getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> Maybe CandidateState
+getBestCandidateHelper _ [] _ _ _ = Nothing
+getBestCandidateHelper graph (item:rest) currState depth newItems = 
     let Item itemId itemName warp = item
         State inventory (Room roomId edges) collectedItems = currState
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
-        newState = State (itemName:inventory) newRoom (itemId:collectedItems) 
-        recurseItemList = getCandidateStatesHelper graph rest currState depth newItems 
-        recurseDeeper = getCandidateStatesHelper graph (getAccessibleItems graph newState) newState (depth+1) (itemName:newItems) 
-        candidate = CandidateState newState depth (itemName:newItems) 
+        newInventory = addItem itemName inventory
+        newState = State newInventory newRoom (Set.insert itemId collectedItems) 
+        recurseItemList = getBestCandidateHelper graph rest currState depth newItems 
+        recurseDeeper = getBestCandidateHelper graph (getAccessibleItems graph newState) newState (depth+1) (itemName:newItems) 
+        candidate = Just (CandidateState newState depth (itemName:newItems))
+        warpCanAccessStart = isAccessible graph warp OLandingSite newInventory
+        startCanAccessWarp = isAccessible graph OLandingSite warp newInventory
     in
         {--if isAccessible graph warp OLandingSite (itemName:inventory)
             then if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList
         else
             recurseItemList ++ recurseDeeper --}
 
-        if isMutuallyAccessible graph warp OLandingSite (itemName:inventory)
-            then (if containsUpgrade (itemName:newItems) (itemName:inventory) then candidate:recurseItemList else recurseItemList)
-        else if isAccessible graph warp OLandingSite (itemName:inventory) && containsUpgrade (itemName:newItems) (itemName:inventory)
-            then (if depth <= 5 then candidate : (recurseItemList ++ recurseDeeper) else candidate : recurseItemList)
+        if warpCanAccessStart && startCanAccessWarp
+            then (if containsUpgrade (itemName:newItems) newInventory then minMaybe candidate recurseItemList else recurseItemList)
+        else if warpCanAccessStart && containsUpgrade (itemName:newItems) newInventory
+            then (if depth <= 5 then minMaybe candidate (minMaybe recurseItemList recurseDeeper) else minMaybe candidate recurseItemList)
         else
-            (if depth <= 5 then recurseItemList ++ recurseDeeper else recurseItemList) --}
+            (if depth <= 5 then minMaybe recurseItemList recurseDeeper else recurseItemList) --}
 
 -- TODO may want to add Artifacts as progressing items
 -- Also may want to add < 5 e tanks and < 8 missiles
 -- Also may want to add triggers
-containsUpgrade :: [ItemName] -> [ItemName] -> Bool
-containsUpgrade newItems inventory = let previousInventory = inventory \\ newItems 
-                                    in containsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
+containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
+containsUpgrade newItems inventory = let previousInventory = removeAll inventory newItems 
+                                    in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                                                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit] -- These are always an improvement
-                                    || (contains newItems SpiderBall && contains previousInventory MorphBall)
-                                    || (contains newItems MorphBallBomb && contains previousInventory MorphBall)
-                                    || (contains newItems BoostBall && contains previousInventory MorphBall)
+                                    || (listContains newItems SpiderBall && contains previousInventory MorphBall)
+                                    || (listContains newItems MorphBallBomb && contains previousInventory MorphBall)
+                                    || (listContains newItems BoostBall && contains previousInventory MorphBall)
                                     || (not (supers previousInventory) && supers inventory)
-                                    || (contains newItems Missile && not (contains previousInventory Missile))
-                                    || (contains newItems PowerBomb && (contains previousInventory MorphBall && not (contains previousInventory PowerBomb)))
-                                    || (contains newItems VariaSuit && not (containsAny previousInventory [PhazonSuit,GravitySuit]))
-
-isMutuallyAccessible :: Map Id Node -> RoomId -> RoomId -> [ItemName] -> Bool
-isMutuallyAccessible graph room1 room2 inventory = isAccessible graph room1 room2 inventory && isAccessible graph room2 room1 inventory
+                                    || (listContains newItems Missile && not (contains previousInventory Missile))
+                                    || (listContains newItems PowerBomb && (contains previousInventory MorphBall && not (contains previousInventory PowerBomb)))
+                                    || (listContains newItems VariaSuit && not (containsAny previousInventory [PhazonSuit,GravitySuit]))
 
 collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state
@@ -106,19 +103,23 @@ collectFreeItemsHelper _ [] currState = currState
 collectFreeItemsHelper graph (item:rest) currState = 
     let (State inventory (Room roomId edges) collectedItems) = currState
         Item itemId itemName warp = item
+        newInventory = addItem itemName inventory
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
-        newState = State (itemName:inventory) (Room roomId edges) (itemId:collectedItems) 
+        newState = State newInventory (Room roomId edges) (Set.insert itemId collectedItems) 
     in 
         -- If we can reach landing site, then the warp is not useful, so collecting the item has no cost
-        if isMutuallyAccessible graph warp roomId (itemName:inventory)
+        if isMutuallyAccessible graph warp roomId newInventory
             then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
         else 
             collectFreeItemsHelper graph rest currState
 
-isAccessible :: Map Id Node -> RoomId -> RoomId -> [ItemName] -> Bool
+isMutuallyAccessible :: Map Id Node -> RoomId -> RoomId -> Map ItemName Int -> Bool
+isMutuallyAccessible graph room1 room2 inventory = isAccessible graph room1 room2 inventory && isAccessible graph room2 room1 inventory
+
+isAccessible :: Map Id Node -> RoomId -> RoomId -> Map ItemName Int -> Bool
 isAccessible graph fromRoom = isAccessibleHelper graph [fromRoom] [] 
 
-isAccessibleHelper :: Map Id Node -> [RoomId] -> [RoomId] -> RoomId -> [ItemName] -> Bool
+isAccessibleHelper :: Map Id Node -> [RoomId] -> [RoomId] -> RoomId -> Map ItemName Int -> Bool
 isAccessibleHelper _ [] _ _ _ = False
 isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory = 
     roomId == destination || case Map.lookup (R roomId) graph of
@@ -139,7 +140,7 @@ getAccessibleItems graph (State inventory (Room roomId edges) collectedItems) =
                 Nothing -> error "Missing Item"
                 Just items -> items
 
-getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> [ItemName] -> [ItemId] -> [ItemId]
+getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> Map ItemName Int -> Set ItemId -> [ItemId]
 getAccessibleItemsHelper _ [] _ _ _ = []
 getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems = 
     case Map.lookup (R roomId) graph of
@@ -151,7 +152,7 @@ getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedIte
                                     roomIds = getRoomIds reachableNodeIds;
                                     itemIds = getItemIds reachableNodeIds;
                                     uncheckedRoomIds = roomIds \\ checkedRooms;
-                                    uncollectedItemIds = itemIds \\ collectedItems;
+                                    uncollectedItemIds = removeSet itemIds collectedItems;
                                 in uncollectedItemIds ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) inventory collectedItems                            
 
 checkBools :: [Id] -> [Bool] -> [Id]

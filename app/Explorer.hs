@@ -22,14 +22,14 @@ main = do
     fileContents <- readFile "resources/sample.txt"
     let graph = buildMap $ buildNodes Extreme ++ parse fileContents
     case Map.lookup (R RHiveTotem) graph of
-        Just node -> explore graph [] node
+        Just node -> explore graph Map.empty node
         Nothing -> return ()
     
   
 
-explore :: Map Id Node -> [ItemName] -> Node -> IO ()
+explore :: Map Id Node -> Map ItemName Int -> Node -> IO ()
 explore nodes items (Item id name warp) =  case Map.lookup (R warp) nodes of 
-                            Just warpNode -> explore nodes (name : items) warpNode
+                            Just warpNode -> explore nodes (addItem name items) warpNode
                             Nothing -> throw $ MissingWarp $ R warp
 explore nodes items (Room roomId edges) = do
     let predicates = map canUse edges
@@ -38,7 +38,7 @@ explore nodes items (Room roomId edges) = do
     
     putStrLn  "---------------------------------------"
     putStrLn  $ "Current Room: " ++ show roomId
-    putStrLn  $ "Items: " ++ show items
+    putStrLn  $ "Items: " ++ show (Map.assocs items)
     printEdges ids bools
     command <- getLine
 

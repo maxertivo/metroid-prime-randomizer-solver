@@ -5,6 +5,8 @@ import Data.Monoid
 import Control.Monad
 import Parser
 import Node
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 stripPrefixTest1 = assertEqual "stripPrefixTest1" (Just "Rest") (stripPrefix "somePrefix" "somePrefixRest")
 
@@ -16,17 +18,17 @@ parseTest1 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest1"
 parseTest2 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest2" Missile b
 parseTest3 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest3" RSaveStation1 c
 
-countTrue = assertEqual "countTrue" True (containsCount 2 Missile [ChargeBeam, Missile, Missile, GrappleBeam, Missile])
+countTrue = assertEqual "countTrue" True (containsCount 2 Missile (Map.fromList [(ChargeBeam,1), (Missile,3), (GrappleBeam,1)]))
 
-countTrue2 = assertEqual "countTrue2" True (containsCount 3 Missile [ChargeBeam, Missile, Missile, GrappleBeam, Missile])
+countTrue2 = assertEqual "countTrue2" True (containsCount 3 Missile (Map.fromList [(ChargeBeam,1), (Missile,3), (GrappleBeam,1)]))
 
-countFalse = assertEqual "countFalse" False (containsCount 3 PowerBomb [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+countFalse = assertEqual "countFalse" False (containsCount 3 PowerBomb (Map.fromList [(ChargeBeam,1), (Missile,3), (GrappleBeam,1), (PowerBomb, 2)]))
 
-countNeg = assertEqual "countNeg" False (containsCount (-1) PowerBomb [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+countNeg = assertEqual "countNeg" False (containsCount (-1) PowerBomb (Map.fromList [(ChargeBeam,1), (Missile,3), (GrappleBeam,1), (PowerBomb, 2)]))
 
-containsAny1 = assertEqual "contiainsAny1" False (containsAny [IceBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+containsAny1 = assertEqual "contiainsAny1" False (listContainsAny [IceBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
 
-containsAny2 = assertEqual "contiainsAny2" True (containsAny [GrappleBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
+containsAny2 = assertEqual "contiainsAny2" True (listContainsAny [GrappleBeam, WaveBeam] [ChargeBeam, PowerBomb ,GrappleBeam, PowerBomb, Missile, Missile, Missile])
 
 testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 17 - - Warps to: Chozo Ruins | Save Station 1\nElevators:\nChozo Ruins - Transport to Tallon Overworld North <> Tallon Overworld - Transport to Chozo Ruins West"
 
