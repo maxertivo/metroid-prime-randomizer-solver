@@ -728,7 +728,7 @@ workstationSw diff x =  case diff of
     Medium -> False
     Hard -> False
     VeryHard -> sj x
-    Extreme -> sjOrBombs x
+    Extreme -> sj x || (ice x && bombs x)
 
 geoCore :: Difficulty -> [ItemName] -> Bool
 geoCore diff x = case diff of 
