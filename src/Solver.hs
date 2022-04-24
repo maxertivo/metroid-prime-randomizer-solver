@@ -89,7 +89,7 @@ collectFreeItemsHelper graph (item:rest) currState =
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
         newState = State newInventory (Room roomId edges) (Set.insert itemId collectedItems) 
     in 
-        -- If we can reach landing site, then the warp is not useful, so collecting the item has no cost
+        -- If we can reach our starting location, then the warp is not useful, so collecting the item has no cost
         if isMutuallyAccessible graph warp roomId newInventory
             then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
         else 
