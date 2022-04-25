@@ -46,6 +46,7 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         newState = State newInventory newRoom (Set.insert itemId collectedItems) 
         accessibleItems = getAccessibleItems graph newState
         numAccessibleItems = length accessibleItems
+        belowDepthLimit = (numAccessibleItems > 8 && depth <= 2)  || (numAccessibleItems <= 8 && depth <= 5)
         recurseItemList = getBestCandidateHelper graph rest currState depth newItems 
         recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth+1) (itemName:newItems) 
         candidate = Just (CandidateState newState depth (itemName:newItems))
@@ -55,9 +56,9 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         if warpCanAccessStart && startCanAccessWarp
             then (if containsUpgrade (itemName:newItems) newInventory then minMaybe candidate recurseItemList else recurseItemList)
         else if warpCanAccessStart && containsUpgrade (itemName:newItems) newInventory
-            then (if (numAccessibleItems > 8 && depth <= 2) || (numAccessibleItems <= 8 && depth <= 5)  then minMaybe candidate (minMaybe recurseItemList recurseDeeper) else minMaybe candidate recurseItemList)
+            then (if belowDepthLimit then minMaybe candidate (minMaybe recurseItemList recurseDeeper) else minMaybe candidate recurseItemList)
         else
-            (if (numAccessibleItems > 8 && depth <= 2) || (numAccessibleItems <= 8 && depth <= 5) then minMaybe recurseItemList recurseDeeper else recurseItemList) --}
+            (if belowDepthLimit then minMaybe recurseItemList recurseDeeper else recurseItemList)
 
 -- TODO may want to add Artifacts as progressing items
 -- Also may want to add < 5 e tanks and < 8 missiles
