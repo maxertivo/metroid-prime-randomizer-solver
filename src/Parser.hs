@@ -208,7 +208,7 @@ defaultWarps =
     , (MMainQuarry, MainQuarry)
     , (MSecurityAccessA, SecurityAccessA)
     , (MStorageDepotB, StorageDepotB)
-    , (MMineSecurityStation, MMineSecurityStation)
+    , (MStorageDepotA, StorageDepotA)
     , (MEliteResearch, EliteResearchPhazonElite)
     , (MEliteResearch, EliteResearchLaser)
     , (MEliteControlAccess, EliteControlAccess)
