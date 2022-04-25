@@ -1,5 +1,6 @@
 module Parser where
 
+import Data.Char
 import Node
 import Text.Read
 
@@ -116,6 +117,18 @@ dropElevators (x:rest) =
     if startsWith "Elevators:" x
         then []
         else x : dropElevators rest
+
+lowerString :: String -> String
+lowerString str = [ toLower loweredString | loweredString <- str]
+
+parseDifficulty :: String -> Difficulty
+parseDifficulty x
+    | lowerString x == "e" || lowerString x == "easy" = Easy
+    | lowerString x == "m" || lowerString x == "medium" = Medium
+    | lowerString x == "h" || lowerString x == "hard" = Hard
+    | lowerString x == "v" || lowerString x == "veryhard" = VeryHard
+    | lowerString x == "x" || lowerString x == "expert" = Expert
+    | otherwise = error "Invalid difficulty"
 
 defaultWarps :: [(RoomId, ItemId)]
 defaultWarps =

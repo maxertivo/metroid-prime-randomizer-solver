@@ -20,7 +20,7 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let graph = buildMap $ buildNodes Extreme ++ parse fileContents
+    let graph = buildMap $ buildNodes Expert ++ parse fileContents
     case Map.lookup (R RHiveTotem) graph of
         Just node -> explore graph Map.empty node
         Nothing -> return ()
