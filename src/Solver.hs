@@ -67,13 +67,13 @@ containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory = let previousInventory = removeAll inventory newItems 
                                     in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                                                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit] -- These are always an improvement
-                                    || (listContains newItems SpiderBall && contains previousInventory MorphBall)
-                                    || (listContains newItems MorphBallBomb && contains previousInventory MorphBall)
-                                    || (listContains newItems BoostBall && contains previousInventory MorphBall)
+                                    || (not (spider previousInventory) && spider inventory)
+                                    || (not (bombs previousInventory) && bombs inventory)
+                                    || (not (boost previousInventory) && boost inventory)
                                     || (not (supers previousInventory) && supers inventory)
-                                    || (listContains newItems Missile && not (contains previousInventory Missile))
-                                    || (listContains newItems PowerBomb && (contains previousInventory MorphBall && not (contains previousInventory PowerBomb)))
-                                    || (listContains newItems VariaSuit && not (containsAny previousInventory [PhazonSuit,GravitySuit]))
+                                    || (not (missile previousInventory) && missile inventory)
+                                    || (not (pb previousInventory) && pb inventory)
+                                    || (not (heatResist previousInventory) && heatResist inventory)
 
 collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state

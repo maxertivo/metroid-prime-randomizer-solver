@@ -316,7 +316,7 @@ mainPipe diff x = case diff of
 mainPlazaGrappleLedge :: Difficulty -> Map ItemName Int -> Bool
 mainPlazaGrappleLedge diff x = case diff of 
     Easy -> contains x GrappleBeam
-    Medium -> contains x GrappleBeam
+    Medium -> containsAny x [GrappleBeam, SpaceJumpBoots]
     Hard -> containsAny x [GrappleBeam, SpaceJumpBoots]
     VeryHard -> containsAny x [GrappleBeam, SpaceJumpBoots]
     Expert -> containsAny x [GrappleBeam, SpaceJumpBoots]
@@ -616,13 +616,18 @@ crossTft diff x = case diff of
 crossTftReverse :: Difficulty -> Map ItemName Int -> Bool
 crossTftReverse diff x = case diff of 
     Easy -> spider x
-    Medium -> spider x
+    Medium -> spider x || sj x
     Hard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
     VeryHard -> spider x || sj x || heatResist x
     Expert -> spider x || sj x || heatResist x
 
 crossTwinFires :: Difficulty -> Map ItemName Int -> Bool
-crossTwinFires diff x = sjOrBombs x && contains x WaveBeam
+crossTwinFires diff x = case diff of 
+    Easy -> sj x && contains x WaveBeam
+    Medium -> sj x && contains x WaveBeam
+    Hard -> sj x  && contains x WaveBeam
+    VeryHard -> (sj x || missile x) && contains x WaveBeam
+    Expert -> (sj x || missile x) && contains x WaveBeam
 
 crossNorthCoreTunnel :: Difficulty -> Map ItemName Int -> Bool
 crossNorthCoreTunnel diff x = case diff of 
@@ -690,9 +695,9 @@ iceTempleItem :: Difficulty -> Map ItemName Int -> Bool
 iceTempleItem diff x = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
     Medium ->containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
-    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x) -- Infinite Speed
-    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x)
-    Expert -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x) -- Infinite Speed
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x)
+    Expert -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x)
 
 climbShorelines :: Difficulty -> Map ItemName Int -> Bool 
 climbShorelines diff x = case diff of 
