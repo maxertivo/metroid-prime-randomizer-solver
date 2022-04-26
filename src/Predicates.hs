@@ -198,7 +198,6 @@ cargoFreightLift diff x = case diff of
 biohazard :: Difficulty -> Map ItemName Int -> Bool
 biohazard _ x = contains x WaveBeam
 
---TODO revisit this for accuracy
 climbBiohazard :: Difficulty -> Map ItemName Int -> Bool
 climbBiohazard diff x = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots]
@@ -215,14 +214,13 @@ biotech diff x = case diff of
     VeryHard -> contains x WaveBeam
     Expert -> contains x WaveBeam
 
---TODO revisit this for accuracy
 biotechReverse :: Difficulty -> Map ItemName Int -> Bool
 biotechReverse diff x = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots]
     Medium -> sj x || (contains x GravitySuit && bombs x)
-    Hard -> True
-    VeryHard -> True
-    Expert -> True
+    Hard -> sjOrBombs x
+    VeryHard -> sjOrBombs x -- You probably don't need bombs but you will likely have them anyway
+    Expert -> sjOrBombs x
 
 lgUnderWater :: Difficulty -> Map ItemName Int -> Bool
 lgUnderWater diff x = case diff of 
@@ -298,6 +296,15 @@ gtcEnter diff x = case diff of
 
 gtcSw :: Difficulty -> Map ItemName Int -> Bool
 gtcSw diff x = case diff of
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x
+    Expert -> bombs x
+
+-- You can get past Connection Elevator to Deck Beta without gravity by wallcrawling
+wallcrawlIntoFrigate :: Difficulty -> Map ItemName Int -> Bool
+wallcrawlIntoFrigate diff x = case diff of
     Easy -> False
     Medium -> False
     Hard -> False

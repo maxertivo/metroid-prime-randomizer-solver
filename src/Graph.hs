@@ -156,9 +156,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R OArtifactTemple)]
             ,Room OArtifactTemple [Edge noReq (R OTempleLobby)
                                     ,Edge noReq (I ArtifactTemple)]
-            --TODO can you get past frigate morph tunnel with this SW?
             ,Room OTallonBackSw [Edge bombs (R OLifeGrove)
                                     ,Edge bombs (R OGreatTreeHallTop)
+                                    ,Edge (wallcrawlIntoFrigate diff) (R ODeckBetaConduitHall)
                                     ,Edge bombs (I LifeGroveUnderwaterSpinner)]
             ,Room OTallonFrontSw [Edge bombs (R OFrigateCrashSite)
                                     ,Edge bombs (R OTallonCanyon)
