@@ -944,6 +944,14 @@ frostCaveSw diff x = case diff of
     VeryHard -> sjOrBombs x 
     Expert -> sjOrBombs x 
 
+transportAccessItemOob :: Difficulty -> Map ItemName Int -> Bool
+transportAccessItemOob diff x = case diff of 
+    Easy -> False
+    Medium -> False
+    Hard -> False
+    VeryHard -> bombs x && boost x -- This is annoying but possible with boost
+    Expert -> bombs x && boost x
+
 -- Mines Predicates
 quarrySave :: Difficulty -> Map ItemName Int -> Bool
 quarrySave diff x = case diff of 

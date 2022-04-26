@@ -437,7 +437,6 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R MTransporttoMagmoorCavernsSouth)]
             ,Room CMagmoorBackSw [Edge bombs (R CTransporttoPhazonMinesWest)
                                     ,Edge (longWallcrawl diff) (R CMagmoorFrontSw)
-                                    ,Edge bombs (I MagmoorWorkstation) -- TODO double-check this
                                     ,Edge bombs (I PlasmaProcessing)]
             ,Room CMagmoorFrontSw [Edge (magmoorFrontWallcrawl diff) (R CMagmoorBackSw)]
 
@@ -611,7 +610,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (R DFrostCave)
                                     ,Edge bombs (R DGravityChamber)
                                     ,Edge bombs (I GravityChamberGrappleLedge)
-                                    ,Edge bombs (I TransportAccess) -- TODO can you get this from oob?
+                                    ,Edge (transportAccessItemOob diff) (I TransportAccess)
                                     ,Edge bombs (R DTransportAccess)
                                     ,Edge bombs (R DFrozenPike)
                                     ,Edge bombs (I SecurityCave)
