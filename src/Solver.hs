@@ -46,7 +46,7 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         newState = State newInventory newRoom (Set.insert itemId collectedItems) 
         accessibleItems = getAccessibleItems graph newState
         numAccessibleItems = length accessibleItems
-        belowDepthLimit = if numAccessibleItems > 8 then depth <= 2 else depth <= 5
+        belowDepthLimit = if numAccessibleItems > 8 then depth <= 2 else depth <= 5 -- TODO remove depth limit if only one accessible item? Maybe even two.
         recurseItemList = getBestCandidateHelper graph rest currState depth newItems 
         recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth+1) (itemName:newItems) 
         candidate = Just (CandidateState newState depth (itemName:newItems))
