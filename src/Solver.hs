@@ -4,6 +4,7 @@ import Node
 import State
 import Util
 import Predicates
+import Parser
 
 import Data.List
 import Data.Map (Map)
@@ -74,6 +75,7 @@ containsUpgrade newItems inventory = let previousInventory = removeAll inventory
                                     || (not (missile previousInventory) && missile inventory)
                                     || (not (pb previousInventory) && pb inventory)
                                     || (not (heatResist previousInventory) && heatResist inventory)
+                                    || listContains newItems EnergyTank &&  not (containsCount 6 EnergyTank previousInventory)
 
 collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state
@@ -88,7 +90,7 @@ collectFreeItemsHelper graph (item:rest) currState =
         newState = State newInventory (Room roomId edges) (Set.insert itemId collectedItems) 
     in 
         -- If we can reach our starting location, then the warp is not useful, so collecting the item has no cost
-        if isMutuallyAccessible graph warp roomId newInventory
+        if isMutuallyAccessible graph warp OLandingSite newInventory && isMutuallyAccessible graph (getDefaultWarp itemId defaultWarps) OLandingSite newInventory
             then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
         else 
             collectFreeItemsHelper graph rest currState

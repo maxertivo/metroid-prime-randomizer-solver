@@ -232,4 +232,8 @@ defaultWarps =
     , (CFieryShores, FieryShoresWarriorShrineTunnel)
     , (CPlasmaProcessing, PlasmaProcessing)
     , (CMagmoorWorkstation, MagmoorWorkstation)
+    , (OMainVentilationShaftSectionB, FrigatePowerDoorTrigger)
+    , ( MMainQuarry, MainQuarryBarrierTriggers )
+    , ( DChozoIceTemple, ChozoIceTempleTrigger )
+    , ( MMineSecurityStation, StorageDepotATrigger)
     ]
