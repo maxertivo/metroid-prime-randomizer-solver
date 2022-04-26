@@ -486,7 +486,6 @@ hoteIce diff x = case diff of
     VeryHard -> containsAll x [MorphBall, MorphBallBomb, IceBeam]
     Expert -> containsAll x [MorphBall, MorphBallBomb, IceBeam]
 
--- TODO maybe add infinite speed?
 hotePlasma :: Difficulty -> Map ItemName Int -> Bool 
 hotePlasma diff x = case diff of 
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam, PlasmaBeam]

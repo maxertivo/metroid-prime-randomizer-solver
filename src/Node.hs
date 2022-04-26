@@ -83,7 +83,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger | StorageDepotATrigger
 
-                --Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
+                -- TODO Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
                 -- Research Lab Hydra barrier
                 deriving  (Read, Eq, Ord, Show, Enum)
 

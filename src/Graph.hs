@@ -652,7 +652,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge ice (R MElevatorAccessA)
                                     ,Edge (oreProcessingTop diff) (R MWasteDisposal)
                                     ,Edge (oreProcessingTop diff) (R MStorageDepotB)]
-            ,Room MWasteDisposal [Edge ice (R MOreProcessing)
+            ,Room MWasteDisposal [Edge ice (R MOreProcessing) -- TODO You can easily get to Storage Depot B from here
                                     ,Edge (wasteDisposalTraversal diff) (R MMainQuarry)]
             ,Room MStorageDepotB [Edge ice (R MOreProcessing)
                                     ,Edge noReq (I StorageDepotB)]
