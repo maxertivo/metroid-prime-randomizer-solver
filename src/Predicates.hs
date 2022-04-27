@@ -611,22 +611,21 @@ monitorStationClimb diff x ids = case diff of
 warriorShrineTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 warriorShrineTunnel diff x ids = vmr4Tank diff x ids && pb x ids && bombs x ids
 
--- TODO can you use spider without heat resistance?
 crossTft :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 crossTft diff x ids = case diff of 
-    Easy -> spider x ids
-    Medium -> spider x ids
-    Hard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
-    VeryHard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
-    Expert -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    Easy -> spider x ids && heatResist x ids
+    Medium -> spider x ids && heatResist x ids
+    Hard -> (spider x ids && heatResist x ids) || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    VeryHard -> (spider x ids && heatResist x ids) || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    Expert -> (spider x ids && heatResist x ids) || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
 
 crossTftReverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 crossTftReverse diff x ids = case diff of 
-    Easy -> spider x ids
-    Medium -> spider x ids || sj x ids
-    Hard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
-    VeryHard -> spider x ids || sj x ids || heatResist x ids
-    Expert -> spider x ids || sj x ids || heatResist x ids
+    Easy -> spider x ids && heatResist x ids
+    Medium -> (spider x ids && heatResist x ids) || sj x ids || (bombs x ids && containsCount 3 EnergyTank x)
+    Hard -> (spider x ids && heatResist x ids) || sj x ids || (bombs x ids && containsCount 2 EnergyTank x)
+    VeryHard -> heatResist x ids || sj x ids || containsCount 2 EnergyTank x
+    Expert -> heatResist x ids || sj x ids || containsCount 2 EnergyTank x
 
 crossTwinFires :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 crossTwinFires diff x ids = case diff of 
@@ -1121,13 +1120,13 @@ fungalHallATraversal diff x ids = case diff of
 miningTunnelTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 miningTunnelTraversal _ x ids = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
 
--- TODO Double check e-tank requirements
+-- High difficulties require farming for health. This assumes you only need to survive until you warp.
 miningTunnelItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 miningTunnelItem diff x ids = case diff of
     Easy -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
     Medium -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
-    Hard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 10 EnergyTank x && boost x ids))
-    VeryHard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x ids))
+    Hard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (contains x GravitySuit && containsCount 10 EnergyTank x && boost x ids))
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (((contains x GravitySuit && containsCount 6 EnergyTank x) || containsCount 10 EnergyTank x) && boost x ids))
     Expert -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x ids))
 
 quarantineAccessBTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
