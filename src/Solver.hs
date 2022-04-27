@@ -36,9 +36,9 @@ isComplete _ _ = error "invalid args for isComplete"
 getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
 getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems graph state) state 1 []
 
-getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> Maybe CandidateState
+getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [Pickup] -> Maybe CandidateState
 getBestCandidateHelper _ [] _ _ _ = Nothing
-getBestCandidateHelper graph (item:rest) currState depth newItems = 
+getBestCandidateHelper graph (item:rest) currState depth pickups = 
     let Item itemId itemName warp = item
         State inventory (Room roomId edges) collectedItems = currState
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
@@ -50,34 +50,36 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
             | numAccessibleItems > 8 = depth <= 2
             | numAccessibleItems > 2 = depth <= 5
             | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
-        recurseItemList = getBestCandidateHelper graph rest currState depth newItems 
-        recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth+1) (itemName:newItems) 
-        candidate = Just (CandidateState newState depth (itemName:newItems))
+        recurseItemList = getBestCandidateHelper graph rest currState depth pickups 
+        recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth+1) ((itemId,itemName):pickups) 
+        candidate = Just (CandidateState newState depth ((itemId,itemName):pickups))
         warpCanAccessStart = isAccessible graph warp OLandingSite newInventory collectedItems
         startCanAccessWarp = isAccessible graph OLandingSite warp newInventory collectedItems
     in
         if warpCanAccessStart && startCanAccessWarp
-            then (if containsUpgrade (itemName:newItems) newInventory then minMaybe candidate recurseItemList else recurseItemList)
-        else if warpCanAccessStart && containsUpgrade (itemName:newItems) newInventory
+            then (if containsUpgrade ((itemId,itemName):pickups) newInventory then minMaybe candidate recurseItemList else recurseItemList)
+        else if warpCanAccessStart && containsUpgrade ((itemId,itemName):pickups) newInventory
             then (if belowDepthLimit then minMaybe candidate (minMaybe recurseItemList recurseDeeper) else minMaybe candidate recurseItemList)
         else
             (if belowDepthLimit then minMaybe recurseItemList recurseDeeper else recurseItemList)
 
--- TODO certain item IDs are progression items
-containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
-containsUpgrade newItems inventory = let previousInventory = removeAll inventory newItems 
-                                         y = Data.Set.empty
-                                    in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
+containsUpgrade :: [Pickup] -> Map ItemName Int -> Bool
+containsUpgrade pickups inventory = let ids = Data.Set.fromList (map fst pickups)
+                                        newItemNames = map snd pickups
+                                        previousInventory = removeAll inventory newItemNames
+                                    in listContainsAny newItemNames [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                                                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit,Artifact] -- These are always an improvement
-                                    || (not (spider previousInventory y) && spider inventory y)
-                                    || (not (bombs previousInventory y) && bombs inventory y)
-                                    || (not (boost previousInventory y) && boost inventory y)
-                                    || (not (supers previousInventory y) && supers inventory y)
-                                    || (not (missile previousInventory y) && missile inventory y)
-                                    || (not (pb previousInventory y) && pb inventory y)
-                                    || (not (heatResist previousInventory y) && heatResist inventory y)
-                                    || listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory)
-                                    || listContains newItems Missile && not (containsCount 8 Missile previousInventory)
+                                    || (not (spider previousInventory ids) && spider inventory ids)
+                                    || (not (bombs previousInventory ids) && bombs inventory ids)
+                                    || (not (boost previousInventory ids) && boost inventory ids)
+                                    || (not (supers previousInventory ids) && supers inventory ids)
+                                    || (not (missile previousInventory ids) && missile inventory ids)
+                                    || (not (pb previousInventory ids) && pb inventory ids)
+                                    || (not (heatResist previousInventory ids) && heatResist inventory ids)
+                                    || listContains newItemNames EnergyTank && not (containsCount 6 EnergyTank previousInventory)
+                                    || listContains newItemNames Missile && not (containsCount 8 Missile previousInventory)
+                                    || elem SunchamberFlaahgra ids 
+                                    || elem CentralDynamo ids
 
 collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state

@@ -16,6 +16,8 @@ data Edge = Edge {canUse :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id
 instance Show Edge where 
     show (Edge _ nodeId) = show nodeId
 
+type Pickup = (ItemId, ItemName)
+
 data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | SpaceJumpBoots | PhazonSuit | GravitySuit 
                 | VariaSuit | SpiderBall | BoostBall | PowerBomb | ChargeBeam | SuperMissile | XRayVisor | GrappleBeam
                 | ThermalVisor | Missile | EnergyTank | Wavebuster | IceSpreader | Flamethrower | Artifact
