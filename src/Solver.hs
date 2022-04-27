@@ -46,7 +46,10 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         newState = State newInventory newRoom (Set.insert itemId collectedItems) 
         accessibleItems = getAccessibleItems graph newState
         numAccessibleItems = length accessibleItems
-        belowDepthLimit = if numAccessibleItems > 8 then depth <= 2 else depth <= 5 -- TODO remove depth limit if only one accessible item? Maybe even two.
+        belowDepthLimit
+            | numAccessibleItems > 8 = depth <= 2
+            | numAccessibleItems > 2 = depth <= 5
+            | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
         recurseItemList = getBestCandidateHelper graph rest currState depth newItems 
         recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth+1) (itemName:newItems) 
         candidate = Just (CandidateState newState depth (itemName:newItems))
@@ -60,13 +63,10 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         else
             (if belowDepthLimit then minMaybe recurseItemList recurseDeeper else recurseItemList)
 
--- TODO may want to add Artifacts as progressing items
--- Also may want to add < 5 e tanks and < 8 missiles
--- Also may want to add triggers
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory = let previousInventory = removeAll inventory newItems 
                                     in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
-                                                            ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit] -- These are always an improvement
+                                                            ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit,Artifact] -- These are always an improvement
                                     || (not (spider previousInventory) && spider inventory)
                                     || (not (bombs previousInventory) && bombs inventory)
                                     || (not (boost previousInventory) && boost inventory)
@@ -74,6 +74,8 @@ containsUpgrade newItems inventory = let previousInventory = removeAll inventory
                                     || (not (missile previousInventory) && missile inventory)
                                     || (not (pb previousInventory) && pb inventory)
                                     || (not (heatResist previousInventory) && heatResist inventory)
+                                    || listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory)
+                                    || listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 
 collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state
@@ -115,7 +117,7 @@ getAccessibleItems :: Map Id Node -> State -> [Node]
 getAccessibleItems graph (State inventory (Room roomId edges) collectedItems) = 
     let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
         uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
-        maybeItems = mapM (((\ x -> x graph) . Map.lookup) . I) uniqueItemIds -- Result is Maybe [Node] with all of the item nodes
+        maybeItems = mapM (((\ x -> x graph) . Map.lookup) . I) uniqueItemIds
         in case maybeItems of 
                 Nothing -> error "Missing Item"
                 Just items -> items

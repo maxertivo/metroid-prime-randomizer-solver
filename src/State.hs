@@ -13,6 +13,7 @@ data State = State {inventory :: Map ItemName Int, currentNode :: Node, collecte
 data CandidateState = CandidateState{state :: State, depth :: Int, newItems :: [ItemName]}
             deriving (Show)
 
+{-- Sorts from best to worst, so the better candidate is actually the "lesser" one --}
 instance Ord CandidateState where
     compare p@(CandidateState a b c) q@(CandidateState d e f)
         | countOf c [WaveBeam, IceBeam, PlasmaBeam] > countOf f [WaveBeam, IceBeam, PlasmaBeam] = LT
@@ -21,10 +22,10 @@ instance Ord CandidateState where
         | countOf c upgrades < countOf f upgrades = GT
         | b < e = LT
         | b > e = GT
-        | otherwise = compareElem c f
+        | otherwise = compare (Data.List.minimum c) (Data.List.minimum f)
 
 instance Eq CandidateState where 
     p@(CandidateState a b c) == q@(CandidateState d e f) = compare p q == EQ 
 
 upgrades :: [ItemName]
-upgrades = [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam,SpiderBall,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit]
+upgrades = [MorphBall, MorphBallBomb,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam,SpiderBall,BoostBall,ChargeBeam,SuperMissile,XRayVisor,PhazonSuit,GravitySuit,VariaSuit]
