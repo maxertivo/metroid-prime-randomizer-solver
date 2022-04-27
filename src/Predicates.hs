@@ -389,14 +389,13 @@ crossMagmaPool diff x ids = case diff of
     VeryHard -> ((heatResist x ids && contains x GrappleBeam) || sj x ids) && wave x ids
     Expert -> ((heatResist x ids && contains x GrappleBeam) || sj x ids) && wave x ids
 
---TODO check how many etanks this requires
 magmaPoolItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 magmaPoolItem diff x ids = case diff of 
     Easy -> heatResist x ids && containsAll x [GrappleBeam,MorphBall,PowerBomb]
     Medium -> heatResist x ids && containsAll x [GrappleBeam,MorphBall,PowerBomb]
     Hard -> heatResist x ids && ((containsAny x [GrappleBeam,SpaceJumpBoots] && pb x ids) || boost x ids)
-    VeryHard -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids && (containsCount 3 EnergyTank x ||heatResist x ids)) || (boost x ids && (containsCount 7 EnergyTank x || heatResist x ids))
-    Expert -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids && (containsCount 3 EnergyTank x ||heatResist x ids)) || (boost x ids && (containsCount 7 EnergyTank x || heatResist x ids))
+    VeryHard -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids && (contains x EnergyTank || heatResist x ids)) || (boost x ids && (containsCount 5 EnergyTank x || heatResist x ids))
+    Expert -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids) || (boost x ids && (containsCount 5 EnergyTank x || heatResist x ids))
 
 tcItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 tcItem _ x ids = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]

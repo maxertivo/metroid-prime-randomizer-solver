@@ -12,7 +12,7 @@ A graph is represented as a collection of nodes. Specifically, it's a Map of the
 Note that Rooms and Items are both nodes in this graph, with edges representing the requirements (specified as a function) to move from node to node.
 As such, Items are nodes that force you to traverse to their designated "warp" room.
 
-We calculate if a seed is completable by constructing a graph representing it and calling isCompletable(Graph).
+We calculate if a seed is completable by constructing a graph representing it and calling isCompletable.
 This function does the following:
     1. Collects all "free" items. That is, items where we can handle the warp and the warp is not useful for later
     2. Checks if you can complete the game with current items. If so, we are done and can complete the game.
@@ -24,9 +24,9 @@ The trickiest part of constructing this graph is determining the requirements to
 
 Graph Construction:
 Much of the graph construction is hard coded. During construction, the difficulty is passed in to any edge predicate the requires it, 
-thereby eliminating the need to consider difficulty when solving the graph.
+thereby eliminating the need to pass in the difficulty when solving the graph.
 
-Regarding Warps:
+Non-Warping Items:
 If the item does not warp, it is treated as if it warps to the room containing the item (Or in some cases, an adjacent room that is more appropriate).
 --}
 
@@ -174,7 +174,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge morph (R RRuinedFountainAccess)
                                     ,Edge missile (R RRuinedShrineAccess)
                                     ,Edge noReq (R RNurseryAccess)
-                                    ,Edge (mainPlazaGrappleLedge diff) (R RPistonTunnel)
+                                    ,Edge (mainPlazaGrappleLedge diff) (R RPistonTunnelInbounds)
                                     ,Edge (mainPlazaLedge diff) (R RMainPlazaLedge)
                                     ,Edge (mainPlazaSw diff) (R RChozoFrontSw)
                                     ,Edge (mainPipe diff) (I MainPlazaHalfPipe)
@@ -252,10 +252,12 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge wavePb (I MagmaPool)
                                     ,Edge morph (I TrainingChamberAccess)]
             ,Room RTrainingChamber [Edge wave (R RTowerofLightAccess)
-                                    ,Edge (tcTunnel diff) (R RPistonTunnel)
+                                    ,Edge (tcTunnel diff) (R RPistonTunnelInbounds)
                                     ,Edge (tcItem diff) (I TrainingChamber)]
-            ,Room RPistonTunnel [Edge morph (R RMainPlaza)
+            ,Room RPistonTunnelInbounds [Edge morph (R RMainPlaza)
                                     ,Edge blocked (R RTrainingChamber)] -- Since it is blocked initially, it's simpler to consider it one-way
+            ,Room RPistonTunnel [Edge morph (R RPistonTunnelInbounds) -- If you jump after being warped here, you go oob
+                                    ,Edge (wallcrawl diff) (R RChozoFrontSw)]
             ,Room RArboretumAccess [Edge noReq (R RRuinedFountainNonWarp)
                                     ,Edge missile (R RArboretum)]
             ,Room RArboretum [Edge missile (R RArboretumAccess)
