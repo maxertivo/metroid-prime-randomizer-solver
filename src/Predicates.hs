@@ -5,663 +5,665 @@ import Util
 
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set, member)
+import qualified Data.Set as Set
 
 -- Basic Predicates
-noReq :: Map ItemName Int -> Bool
-noReq _ = True 
+noReq :: Map ItemName Int -> Set ItemId -> Bool
+noReq _ _ = True 
 
-blocked :: Map ItemName Int -> Bool
-blocked _ = False
+blocked :: Map ItemName Int -> Set ItemId -> Bool
+blocked _ _ = False
 
-complete :: Map ItemName Int -> Bool
-complete = containsCount 12 Artifact
+complete :: Map ItemName Int -> Set ItemId -> Bool
+complete x _ = containsCount 12 Artifact x
 
-morph :: Map ItemName Int -> Bool
-morph x = contains x MorphBall
+morph :: Map ItemName Int -> Set ItemId -> Bool
+morph x ids = contains x MorphBall
 
-sj :: Map ItemName Int -> Bool
-sj x = contains x SpaceJumpBoots
+sj :: Map ItemName Int -> Set ItemId -> Bool
+sj x ids = contains x SpaceJumpBoots
 
-sjOrBombs :: Map ItemName Int -> Bool
-sjOrBombs x = contains x SpaceJumpBoots || bombs x
+sjOrBombs :: Map ItemName Int -> Set ItemId -> Bool
+sjOrBombs x ids = contains x SpaceJumpBoots || bombs x ids
 
-missile :: Map ItemName Int -> Bool
-missile x = contains x Missile
+missile :: Map ItemName Int -> Set ItemId -> Bool
+missile x ids = contains x Missile
 
-bombs :: Map ItemName Int -> Bool
-bombs x = containsAll x [MorphBall, MorphBallBomb]
+bombs :: Map ItemName Int -> Set ItemId -> Bool
+bombs x ids = containsAll x [MorphBall, MorphBallBomb]
 
-pb :: Map ItemName Int -> Bool
-pb x = containsAll x [PowerBomb, MorphBall]
+pb :: Map ItemName Int -> Set ItemId -> Bool
+pb x ids = containsAll x [PowerBomb, MorphBall]
 
-boost :: Map ItemName Int -> Bool
-boost x = containsAll x [MorphBall, BoostBall]
+boost :: Map ItemName Int -> Set ItemId -> Bool
+boost x ids = containsAll x [MorphBall, BoostBall]
 
-spider :: Map ItemName Int -> Bool
-spider x = containsAll x [MorphBall, SpiderBall]
+spider :: Map ItemName Int -> Set ItemId -> Bool
+spider x ids = containsAll x [MorphBall, SpiderBall]
 
-waveIce :: Map ItemName Int -> Bool
-waveIce x = containsAll x [WaveBeam, PlasmaBeam]
+waveIce :: Map ItemName Int -> Set ItemId -> Bool
+waveIce x _ = containsAll x [WaveBeam, PlasmaBeam]
 
-grapple :: Map ItemName Int -> Bool
-grapple x = contains x GrappleBeam
+grapple ::Map ItemName Int -> Set ItemId -> Bool
+grapple x _ = contains x GrappleBeam
 
-boostBombs :: Map ItemName Int -> Bool
-boostBombs x = containsAll x [MorphBall, BoostBall, MorphBallBomb]
+boostBombs :: Map ItemName Int -> Set ItemId -> Bool
+boostBombs x _ = containsAll x [MorphBall, BoostBall, MorphBallBomb]
 
-morphMissile :: Map ItemName Int -> Bool
-morphMissile x = containsAll x [MorphBall, Missile]
+morphMissile :: Map ItemName Int -> Set ItemId -> Bool
+morphMissile x _ = containsAll x [MorphBall, Missile]
 
-bombsPbs :: Map ItemName Int -> Bool
-bombsPbs x = containsAll x [MorphBall, MorphBallBomb, PowerBomb]
+bombsPbs :: Map ItemName Int -> Set ItemId -> Bool
+bombsPbs x _ = containsAll x [MorphBall, MorphBallBomb, PowerBomb]
 
-wave :: Map ItemName Int -> Bool
-wave x = contains x WaveBeam
+wave :: Map ItemName Int -> Set ItemId -> Bool
+wave x ids = contains x WaveBeam
 
-ice :: Map ItemName Int -> Bool
-ice x = contains x IceBeam
+ice :: Map ItemName Int -> Set ItemId -> Bool
+ice x ids = contains x IceBeam
 
-plasma :: Map ItemName Int -> Bool
-plasma x = contains x PlasmaBeam
+plasma :: Map ItemName Int -> Set ItemId -> Bool
+plasma x ids = contains x PlasmaBeam
 
-spiderIce :: Map ItemName Int -> Bool
-spiderIce x = containsAll x [IceBeam, MorphBall, SpiderBall]
+supers :: Map ItemName Int -> Set ItemId -> Bool
+supers x ids = containsAll x [Missile, SuperMissile, ChargeBeam]
 
-supers :: Map ItemName Int -> Bool
-supers x = containsAll x [Missile, SuperMissile, ChargeBeam]
+gravSpace :: Map ItemName Int -> Set ItemId -> Bool
+gravSpace x ids = containsAll x [GravitySuit, SpaceJumpBoots]
 
-gravSpace :: Map ItemName Int -> Bool
-gravSpace x = containsAll x [GravitySuit, SpaceJumpBoots]
+wavePb :: Map ItemName Int -> Set ItemId -> Bool
+wavePb x ids = wave x ids && pb x ids
 
-wavePb :: Map ItemName Int -> Bool
-wavePb x = wave x && pb x
+heatResist :: Map ItemName Int -> Set ItemId -> Bool
+heatResist x ids = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
 
-heatResist :: Map ItemName Int -> Bool
-heatResist x  = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
-
-floaty :: Map ItemName Int -> Bool
-floaty x = not $ contains x GravitySuit
+floaty :: Map ItemName Int -> Set ItemId -> Bool
+floaty x ids = not $ contains x GravitySuit
 
 -- A bit of an obscure trick, you can use infinite speed in landing site to unload the room
-tallonFloaty :: Map ItemName Int -> Bool
-tallonFloaty x = boost x && floaty x
+tallonFloaty :: Map ItemName Int -> Set ItemId -> Bool
+tallonFloaty x ids = boost x ids && floaty x ids
 
-mainQuarryBarrierIce :: Map ItemName Int -> Bool
-mainQuarryBarrierIce x = containsAll x [MainQuarryBarriers, IceBeam]
+mainQuarryBarrierIce :: Map ItemName Int -> Set ItemId -> Bool
+mainQuarryBarrierIce x ids = containsAll x [MainQuarryBarriers, IceBeam]
 
-mainQuarryBarrierWave :: Map ItemName Int -> Bool
-mainQuarryBarrierWave x = containsAll x [MainQuarryBarriers, WaveBeam]
+mainQuarryBarrierWave :: Map ItemName Int -> Set ItemId -> Bool
+mainQuarryBarrierWave x ids = containsAll x [MainQuarryBarriers, WaveBeam]
 
-chozoIceTempleBarrier :: Map ItemName Int -> Bool
-chozoIceTempleBarrier x = contains x ChozoIceTempleBarrier
+chozoIceTempleBarrier :: Map ItemName Int -> Set ItemId -> Bool
+chozoIceTempleBarrier x ids = contains x ChozoIceTempleBarrier
 
-wallcrawl :: Difficulty -> Map ItemName Int -> Bool
-wallcrawl diff x = case diff of 
+wallcrawl :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+wallcrawl diff x ids = case diff of 
     Easy -> False
     Medium -> False
-    Hard -> bombs x
-    VeryHard -> bombs x
-    Expert -> bombs x
+    Hard -> bombs x ids
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-longWallcrawl :: Difficulty -> Map ItemName Int -> Bool
-longWallcrawl diff x = bombs x && diff == Expert
+longWallcrawl :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+longWallcrawl diff x ids = bombs x ids && diff == Expert
 
 -- Tallon Predicates
-sjf :: Difficulty -> Map ItemName Int -> Bool
-sjf diff x = case diff of 
-    Easy -> sj x
-    Medium -> sj x
+sjf :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+sjf diff x ids = case diff of 
+    Easy -> sj x ids
+    Medium -> sj x ids
     Hard -> True
     VeryHard -> True
     Expert -> True
 
-tallonCanyonSw :: Difficulty -> Map ItemName Int -> Bool
-tallonCanyonSw diff x = case diff of 
+tallonCanyonSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+tallonCanyonSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> boost x && bombs x
-    Expert -> bombs x
+    VeryHard -> boost x ids && bombs x ids
+    Expert -> bombs x ids
 
-rootCaveItem :: Difficulty -> Map ItemName Int -> Bool
-rootCaveItem diff x = case diff of 
+rootCaveItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+rootCaveItem diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor]
     Medium -> containsAll x [SpaceJumpBoots, GrappleBeam]
     Hard -> contains x SpaceJumpBoots
     VeryHard -> contains x SpaceJumpBoots
     Expert -> contains x SpaceJumpBoots
 
-arbor :: Difficulty -> Map ItemName Int -> Bool
-arbor diff x = case diff of 
+arbor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+arbor diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor, PlasmaBeam]
     Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
     Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
     VeryHard -> contains x PlasmaBeam
     Expert -> contains x PlasmaBeam
 
-fcsClimb :: Difficulty -> Map ItemName Int -> Bool
-fcsClimb diff x = case diff of 
+fcsClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fcsClimb diff x ids = case diff of 
     Easy -> False
     Medium -> contains x SpaceJumpBoots && contains x IceBeam
     Hard -> contains x SpaceJumpBoots && contains x IceBeam
-    VeryHard -> sjOrBombs x && contains x IceBeam
-    Expert -> sjOrBombs x && contains x IceBeam
+    VeryHard -> sjOrBombs x ids && contains x IceBeam
+    Expert -> sjOrBombs x ids && contains x IceBeam
 
-frigatePowerDoor :: Difficulty -> Map ItemName Int -> Bool
-frigatePowerDoor diff x = case diff of 
+frigatePowerDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frigatePowerDoor diff x ids = case diff of 
     Easy -> contains x FrigatePowerDoor
     Medium -> contains x FrigatePowerDoor
     Hard -> contains x FrigatePowerDoor
-    VeryHard -> bombs x || contains x FrigatePowerDoor
-    Expert -> bombs x || contains x FrigatePowerDoor
+    VeryHard -> bombs x ids || contains x FrigatePowerDoor
+    Expert -> bombs x ids || contains x FrigatePowerDoor
 
-fcsEntry :: Difficulty -> Map ItemName Int -> Bool
-fcsEntry diff x = case diff of 
+fcsEntry :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fcsEntry diff x ids = case diff of 
     Easy -> contains x IceBeam && (contains x GrappleBeam || (contains x MorphBall && (contains x SpaceJumpBoots || contains x GravitySuit)))
     Medium -> contains x IceBeam && (contains x GrappleBeam || contains x MorphBall)
     Hard -> contains x IceBeam && (contains x GrappleBeam || contains x MorphBall || contains x SpaceJumpBoots)
     VeryHard -> contains x IceBeam && (contains x GrappleBeam || contains x MorphBall || contains x SpaceJumpBoots)
-    Expert -> contains x IceBeam && (contains x GrappleBeam || contains x MorphBall || contains x SpaceJumpBoots) || (contains x SpaceJumpBoots && tallonFloaty x)
+    Expert -> contains x IceBeam && (contains x GrappleBeam || contains x MorphBall || contains x SpaceJumpBoots) || (contains x SpaceJumpBoots && tallonFloaty x ids)
     
-fcsItem :: Difficulty -> Map ItemName Int -> Bool
-fcsItem diff x = case diff of 
-    Easy -> sj x && contains x GravitySuit
-    Medium -> sjOrBombs x && contains x GravitySuit
+fcsItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fcsItem diff x ids = case diff of 
+    Easy -> sj x ids && contains x GravitySuit
+    Medium -> sjOrBombs x ids && contains x GravitySuit
     Hard -> True
     VeryHard -> True
     Expert -> True
     
-climbFrigateMvs :: Difficulty -> Map ItemName Int -> Bool
-climbFrigateMvs diff x = case diff of
-    Easy -> sj x
-    Medium -> sj x
-    Hard -> sjOrBombs x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+climbFrigateMvs :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbFrigateMvs diff x ids = case diff of
+    Easy -> sj x ids
+    Medium -> sj x ids
+    Hard -> sjOrBombs x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-climbReactorCore :: Difficulty -> Map ItemName Int -> Bool
-climbReactorCore diff x = case diff of
-    Easy -> sj x
-    Medium -> sj x
-    Hard -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
-    VeryHard -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
-    Expert -> sj x || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
+climbReactorCore :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbReactorCore diff x ids = case diff of
+    Easy -> sj x ids
+    Medium -> sj x ids
+    Hard -> sj x ids || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
+    VeryHard -> sj x ids || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
+    Expert -> sj x ids || containsAll x [GravitySuit, MorphBall, MorphBallBomb]
 
-cargoFreightLift :: Difficulty -> Map ItemName Int -> Bool
-cargoFreightLift diff x = case diff of 
+cargoFreightLift :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+cargoFreightLift diff x ids = case diff of 
     Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
-    Medium -> contains x WaveBeam && (bombs x || containsAll x [GravitySuit, SpaceJumpBoots])
-    Hard -> contains x WaveBeam && (bombs x || containsAll x [GravitySuit, SpaceJumpBoots])
-    VeryHard -> contains x WaveBeam && (bombs x || containsAll x [GravitySuit, SpaceJumpBoots])
-    Expert -> contains x WaveBeam && (bombs x || containsAll x [GravitySuit, SpaceJumpBoots])
+    Medium -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
+    Hard -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
+    VeryHard -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
+    Expert -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
 
-biohazard :: Difficulty -> Map ItemName Int -> Bool
-biohazard _ x = contains x WaveBeam
+biohazard :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+biohazard _ x ids = contains x WaveBeam
 
-climbBiohazard :: Difficulty -> Map ItemName Int -> Bool
-climbBiohazard diff x = case diff of 
+climbBiohazard :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbBiohazard diff x ids = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots]
-    Medium -> sj x || (contains x GravitySuit && bombs x)
-    Hard -> sj x || contains x GravitySuit || bombs x
-    VeryHard -> sj x ||  contains x GravitySuit || bombs x
-    Expert -> sj x || contains x GravitySuit || bombs x
+    Medium -> sj x ids || (contains x GravitySuit && bombs x ids)
+    Hard -> sj x ids || contains x GravitySuit || bombs x ids
+    VeryHard -> sj x ids ||  contains x GravitySuit || bombs x ids
+    Expert -> sj x ids || contains x GravitySuit || bombs x ids
 
-biotech :: Difficulty -> Map ItemName Int -> Bool
-biotech diff x = case diff of 
+biotech :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+biotech diff x ids = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots, WaveBeam]
-    Medium -> contains x WaveBeam && (sj x || (contains x GravitySuit && bombs x))
+    Medium -> contains x WaveBeam && (sj x ids || (contains x GravitySuit && bombs x ids))
     Hard -> contains x WaveBeam
     VeryHard -> contains x WaveBeam
     Expert -> contains x WaveBeam
 
-biotechReverse :: Difficulty -> Map ItemName Int -> Bool
-biotechReverse diff x = case diff of 
+biotechReverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+biotechReverse diff x ids = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots]
-    Medium -> sj x || (contains x GravitySuit && bombs x)
-    Hard -> sjOrBombs x
-    VeryHard -> sjOrBombs x -- You probably don't need bombs but you will likely have them anyway
-    Expert -> sjOrBombs x
+    Medium -> sj x ids || (contains x GravitySuit && bombs x ids)
+    Hard -> sjOrBombs x ids
+    VeryHard -> sjOrBombs x ids -- You probably don't need bombs but you will likely have them anyway
+    Expert -> sjOrBombs x ids
 
-lgUnderWater :: Difficulty -> Map ItemName Int -> Bool
-lgUnderWater diff x = case diff of 
+lgUnderWater :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+lgUnderWater diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, PowerBomb, SpaceJumpBoots]
-    Medium -> containsAll x [MorphBall, BoostBall, PowerBomb] && sjOrBombs x
-    Hard -> containsAll x [MorphBall, BoostBall, PowerBomb] && sjOrBombs x
-    VeryHard -> pb x && sjOrBombs x
-    Expert -> pb x && sjOrBombs x
+    Medium -> containsAll x [MorphBall, BoostBall, PowerBomb] && sjOrBombs x ids
+    Hard -> containsAll x [MorphBall, BoostBall, PowerBomb] && sjOrBombs x ids
+    VeryHard -> pb x ids && sjOrBombs x ids
+    Expert -> pb x ids && sjOrBombs x ids
 
-hydroTunnel ::  Difficulty -> Map ItemName Int -> Bool
-hydroTunnel diff x = case diff of 
+hydroTunnel ::  Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+hydroTunnel diff x ids = case diff of 
     Easy -> containsAll x [GravitySuit, MorphBall, MorphBallBomb]
     Medium -> containsAll x [GravitySuit, MorphBall, MorphBallBomb]
-    Hard -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x
-    VeryHard -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x
-    Expert -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x
+    Hard -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x ids
+    VeryHard -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x ids
+    Expert -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x ids
 
-gthClimb :: Difficulty -> Map ItemName Int -> Bool
-gthClimb diff x = case diff of 
+gthClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gthClimb diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
     Medium -> containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall] && containsAny x [BoostBall, MorphBallBomb]
     VeryHard -> containsAll x [SpaceJumpBoots, MorphBall] && containsAny x [BoostBall, MorphBallBomb]
     Expert -> contains x MorphBall && containsAny x [BoostBall, MorphBallBomb]
 
-bars :: Difficulty -> Map ItemName Int -> Bool
-bars diff x = case diff of 
+bars :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+bars diff x ids = case diff of 
     Easy -> False
     Medium -> False
-    Hard -> bombs x
-    VeryHard -> bombs x
-    Expert -> bombs x
+    Hard -> bombs x ids
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-lifeGroveTunnel :: Difficulty -> Map ItemName Int -> Bool
-lifeGroveTunnel diff x = case diff of 
+lifeGroveTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+lifeGroveTunnel diff x ids = case diff of 
     Easy -> containsAll x [PowerBomb, MorphBall, BoostBall]
     Medium -> containsAll x [PowerBomb, MorphBall, BoostBall]
     Hard -> containsAll x [PowerBomb, MorphBall, BoostBall]
     VeryHard -> containsAll x [PowerBomb, MorphBall] && containsAny x [MorphBallBomb, BoostBall]
     Expert -> containsAll x [PowerBomb, MorphBall] && containsAny x [MorphBallBomb, BoostBall]
 
-lifeGroveTunnelItem :: Difficulty -> Map ItemName Int -> Bool
-lifeGroveTunnelItem diff x = case diff of 
+lifeGroveTunnelItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+lifeGroveTunnelItem diff x ids = case diff of 
     Easy -> containsAll x [PowerBomb, MorphBall, BoostBall, MorphBallBomb]
     Medium -> containsAll x [PowerBomb, MorphBall, BoostBall, MorphBallBomb]
     Hard -> containsAll x [PowerBomb, MorphBall, BoostBall, MorphBallBomb]
     VeryHard -> containsAll x [PowerBomb, MorphBall, MorphBallBomb]
     Expert -> containsAll x [PowerBomb, MorphBall, MorphBallBomb]
 
-lifeGroveSw :: Difficulty -> Map ItemName Int -> Bool
-lifeGroveSw diff x = case diff of 
+lifeGroveSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+lifeGroveSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
-    Hard -> pb x && sj x
-    VeryHard -> pb x && sj x
-    Expert -> pb x && sj x
+    Hard -> pb x ids && sj x ids
+    VeryHard -> pb x ids && sj x ids
+    Expert -> pb x ids && sj x ids
 
-gthSpiderTrack ::  Difficulty -> Map ItemName Int -> Bool
-gthSpiderTrack diff x = case diff of 
+gthSpiderTrack ::  Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gthSpiderTrack diff x ids = case diff of 
     Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]
     Medium -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]
     Hard -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots] 
     VeryHard -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots] 
-    Expert -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]  || bombs x
+    Expert -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]  || bombs x ids
 
-gtcEnter ::  Difficulty -> Map ItemName Int -> Bool
-gtcEnter diff x = case diff of 
-    Easy -> sj x
-    Medium -> sj x
-    Hard -> sjOrBombs x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+gtcEnter ::  Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gtcEnter diff x ids = case diff of 
+    Easy -> sj x ids
+    Medium -> sj x ids
+    Hard -> sjOrBombs x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-gtcSw :: Difficulty -> Map ItemName Int -> Bool
-gtcSw diff x = case diff of
+gtcSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gtcSw diff x ids = case diff of
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x
-    Expert -> bombs x
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
 -- You can get past Connection Elevator to Deck Beta without gravity by wallcrawling
-wallcrawlIntoFrigate :: Difficulty -> Map ItemName Int -> Bool
-wallcrawlIntoFrigate diff x = case diff of
+wallcrawlIntoFrigate :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+wallcrawlIntoFrigate diff x ids = case diff of
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x
-    Expert -> bombs x
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
 -- Chozo Predicates
-mainPipe :: Difficulty -> Map ItemName Int -> Bool
-mainPipe diff x = case diff of 
-    Easy -> sj x || boost x 
-    Medium -> sj x || boost x 
-    Hard -> sj x || boost x 
-    VeryHard -> sj x || boost x || bombs x
-    Expert -> sj x || boost x || bombs x
+mainPipe :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mainPipe diff x ids = case diff of 
+    Easy -> sj x ids || boost x ids 
+    Medium -> sj x ids || boost x ids 
+    Hard -> sj x ids || boost x ids 
+    VeryHard -> sj x ids || boost x ids || bombs x ids
+    Expert -> sj x ids || boost x ids || bombs x ids
 
-mainPlazaGrappleLedge :: Difficulty -> Map ItemName Int -> Bool
-mainPlazaGrappleLedge diff x = case diff of 
+mainPlazaGrappleLedge :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mainPlazaGrappleLedge diff x ids = case diff of 
     Easy -> contains x GrappleBeam
     Medium -> containsAny x [GrappleBeam, SpaceJumpBoots]
     Hard -> containsAny x [GrappleBeam, SpaceJumpBoots]
     VeryHard -> containsAny x [GrappleBeam, SpaceJumpBoots]
     Expert -> containsAny x [GrappleBeam, SpaceJumpBoots]
 
-mainPlazaLedge :: Difficulty -> Map ItemName Int -> Bool
-mainPlazaLedge diff x = case diff of 
+mainPlazaLedge :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mainPlazaLedge diff x ids = case diff of 
     Easy -> False
     Medium -> contains x SpaceJumpBoots
     Hard -> contains x SpaceJumpBoots
     VeryHard -> contains x SpaceJumpBoots
     Expert -> contains x SpaceJumpBoots
 
-mainPlazaSw :: Difficulty -> Map ItemName Int -> Bool
-mainPlazaSw diff x = case diff of
+mainPlazaSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mainPlazaSw diff x ids = case diff of
     Easy -> False
     Medium -> False
-    Hard -> sj x && bombs x
-    VeryHard -> sj x && bombs x
-    Expert -> sj x && bombs x
+    Hard -> sj x ids && bombs x ids
+    VeryHard -> sj x ids && bombs x ids
+    Expert -> sj x ids && bombs x ids
 
-ruinedFountainItem :: Difficulty -> Map ItemName Int -> Bool
-ruinedFountainItem _ x = contains x SpiderBall
+ruinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ruinedFountainItem _ x ids = contains x SpiderBall
 
-towerChamber :: Difficulty -> Map ItemName Int -> Bool
-towerChamber diff x = case diff of 
+leaveRuinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+leaveRuinedFountainItem _ x ids = Data.Set.member RuinedFountain ids && spider x ids
+
+towerChamber :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+towerChamber diff x ids = case diff of 
     Easy -> containsAll x [GravitySuit, SpaceJumpBoots, WaveBeam]
     Medium -> containsAll x [SpaceJumpBoots, WaveBeam]
     Hard -> contains x WaveBeam
     VeryHard -> contains x WaveBeam
     Expert -> contains x WaveBeam
      
-rsHalf :: Difficulty -> Map ItemName Int -> Bool
-rsHalf diff x = case diff of 
-    Easy -> boost x
-    Medium -> boost x || containsAll x [SpaceJumpBoots, MorphBall]
-    Hard -> boost x || containsAll x [SpaceJumpBoots, MorphBall]
+rsHalf :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+rsHalf diff x ids = case diff of 
+    Easy -> boost x ids
+    Medium -> boost x ids || containsAll x [SpaceJumpBoots, MorphBall]
+    Hard -> boost x ids || containsAll x [SpaceJumpBoots, MorphBall]
     VeryHard -> contains x MorphBall
     Expert -> contains x MorphBall
 
-tolAccess :: Difficulty -> Map ItemName Int -> Bool
-tolAccess diff x = case diff of 
+tolAccess :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+tolAccess diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
     Medium -> containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam] || containsAll x [SpaceJumpBoots, WaveBeam]
     Hard -> containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam] || containsAll x [SpaceJumpBoots, WaveBeam]
     VeryHard -> contains x WaveBeam
     Expert -> contains x WaveBeam
 
-towerOfLight :: Difficulty -> Map ItemName Int -> Bool
-towerOfLight diff x = case diff of 
-    Easy -> containsCount 8 Missile x && sj x
-    Medium -> containsCount 8 Missile x && sj x
-    Hard -> sj x
-    VeryHard -> (containsCount 8 Missile x && bombs x) || sj x
-    Expert -> (containsCount 8 Missile x && bombs x) || sj x
+towerOfLight :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+towerOfLight diff x ids = case diff of 
+    Easy -> containsCount 8 Missile x && sj x ids
+    Medium -> containsCount 8 Missile x && sj x ids
+    Hard -> sj x ids
+    VeryHard -> (containsCount 8 Missile x && bombs x ids) || sj x ids
+    Expert -> (containsCount 8 Missile x && bombs x ids) || sj x ids
 
-crossMagmaPool :: Difficulty -> Map ItemName Int -> Bool
-crossMagmaPool diff x  = case diff of 
-    Easy -> heatResist x && containsAll x [GrappleBeam,WaveBeam]
-    Medium -> heatResist x && containsAll x [GrappleBeam,WaveBeam]
-    Hard -> ((heatResist x && contains x GrappleBeam) || sj x) && wave x
-    VeryHard -> ((heatResist x && contains x GrappleBeam) || sj x) && wave x
-    Expert -> ((heatResist x && contains x GrappleBeam) || sj x) && wave x
+crossMagmaPool :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+crossMagmaPool diff x ids = case diff of 
+    Easy -> heatResist x ids && containsAll x [GrappleBeam,WaveBeam]
+    Medium -> heatResist x ids && containsAll x [GrappleBeam,WaveBeam]
+    Hard -> ((heatResist x ids && contains x GrappleBeam) || sj x ids) && wave x ids
+    VeryHard -> ((heatResist x ids && contains x GrappleBeam) || sj x ids) && wave x ids
+    Expert -> ((heatResist x ids && contains x GrappleBeam) || sj x ids) && wave x ids
 
 --TODO check how many etanks this requires
-magmaPoolItem :: Difficulty -> Map ItemName Int -> Bool
-magmaPoolItem diff x  = case diff of 
-    Easy -> heatResist x && containsAll x [GrappleBeam,MorphBall,PowerBomb]
-    Medium -> heatResist x && containsAll x [GrappleBeam,MorphBall,PowerBomb]
-    Hard -> heatResist x && ((containsAny x [GrappleBeam,SpaceJumpBoots] && pb x) || boost x)
-    VeryHard -> (grapple x && pb x && heatResist x) || (sj x && pb x && (containsCount 3 EnergyTank x ||heatResist x)) || (boost x && (containsCount 7 EnergyTank x || heatResist x))
-    Expert -> (grapple x && pb x && heatResist x) || (sj x && pb x && (containsCount 3 EnergyTank x ||heatResist x)) || (boost x && (containsCount 7 EnergyTank x || heatResist x))
+magmaPoolItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+magmaPoolItem diff x ids = case diff of 
+    Easy -> heatResist x ids && containsAll x [GrappleBeam,MorphBall,PowerBomb]
+    Medium -> heatResist x ids && containsAll x [GrappleBeam,MorphBall,PowerBomb]
+    Hard -> heatResist x ids && ((containsAny x [GrappleBeam,SpaceJumpBoots] && pb x ids) || boost x ids)
+    VeryHard -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids && (containsCount 3 EnergyTank x ||heatResist x ids)) || (boost x ids && (containsCount 7 EnergyTank x || heatResist x ids))
+    Expert -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids && (containsCount 3 EnergyTank x ||heatResist x ids)) || (boost x ids && (containsCount 7 EnergyTank x || heatResist x ids))
 
-tcItem :: Difficulty -> Map ItemName Int -> Bool
-tcItem _ x = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
+tcItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+tcItem _ x ids = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
 
-tcTunnel :: Difficulty -> Map ItemName Int -> Bool
-tcTunnel _ = boostBombs
+tcTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+tcTunnel _ x ids = boost x ids && bombs x ids
 
-climbSunTower :: Difficulty -> Map ItemName Int -> Bool
-climbSunTower _ x = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
+climbSunTower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbSunTower _ x ids = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
 
-sunchamberghost :: Difficulty -> Map ItemName Int -> Bool
-sunchamberghost = climbSunTower
+sunchamberghost :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+sunchamberghost _ _ = Data.Set.member SunchamberFlaahgra
 
-gatheringHallSw :: Difficulty -> Map ItemName Int -> Bool
-gatheringHallSw diff x = case diff of
+gatheringHallSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gatheringHallSw diff x ids = case diff of
     Easy -> False
     Medium -> False
-    Hard -> sj x && bombs x
-    VeryHard -> bombs x
-    Expert -> bombs x
+    Hard -> sj x ids && bombs x ids
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-wateryHallSw :: Difficulty -> Map ItemName Int -> Bool
-wateryHallSw diff x = case diff of
+wateryHallSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+wateryHallSw diff x ids = case diff of
     Easy -> False
     Medium -> False
-    Hard -> sj x && bombs x
-    VeryHard -> bombs x
-    Expert -> bombs x
+    Hard -> sj x ids && bombs x ids
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-wateryHallTraverse :: Difficulty -> Map ItemName Int -> Bool 
-wateryHallTraverse diff x = containsAll x [MorphBall, MorphBallBomb, Missile]
+wateryHallTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+wateryHallTraverse diff x ids = containsAll x [MorphBall, MorphBallBomb, Missile]
 
-wateryHallWater :: Difficulty -> Map ItemName Int -> Bool 
-wateryHallWater diff x = case diff of 
-    Easy -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x) 
-    Medium -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x) 
+wateryHallWater :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+wateryHallWater diff x ids = case diff of 
+    Easy -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x ids) 
+    Medium -> contains x GravitySuit && (contains x SpaceJumpBoots || bombs x ids) 
     Hard -> True
     VeryHard ->  True
     Expert ->  True
 
-furnaceTraverse :: Difficulty -> Map ItemName Int -> Bool 
-furnaceTraverse diff x = case diff of 
+furnaceTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+furnaceTraverse diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, MorphBallBomb, SpiderBall]
     Medium -> containsAll x [MorphBall, MorphBallBomb]
     Hard -> containsAll x [MorphBall, MorphBallBomb]
     VeryHard ->  containsAll x [MorphBall, MorphBallBomb]
     Expert ->  containsAll x [MorphBall, MorphBallBomb]
 
-furnaceItem :: Difficulty -> Map ItemName Int -> Bool 
-furnaceItem diff x = case diff of 
+furnaceItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+furnaceItem diff x ids = case diff of 
     Easy ->containsAll x [MorphBall, MorphBallBomb, SpiderBall, PowerBomb, BoostBall]
     Medium -> containsAll x [MorphBall, MorphBallBomb, SpiderBall, PowerBomb, BoostBall]
-    Hard -> containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
-    VeryHard ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
-    Expert ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x ids)
+    VeryHard ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x ids)
+    Expert ->  containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x ids)
 
-crosswayInfiniteSpeed :: Difficulty -> Map ItemName Int -> Bool 
-crosswayInfiniteSpeed diff x = diff == Expert && containsAll x [MorphBall, BoostBall, Missile]
+crosswayInfiniteSpeed :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+crosswayInfiniteSpeed diff x ids = diff == Expert && containsAll x [MorphBall, BoostBall, Missile]
 
-crosswayTraverse :: Difficulty -> Map ItemName Int -> Bool 
-crosswayTraverse diff x = case diff of 
+crosswayTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+crosswayTraverse diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, Missile]
-    Medium -> contains x Missile && (boost x || sj x)
-    Hard -> contains x Missile && (boost x || sj x)
-    VeryHard -> contains x Missile && (boost x || sj x || bombs x)
-    Expert -> contains x Missile && (boost x || sj x || bombs x)
+    Medium -> contains x Missile && (boost x ids || sj x ids)
+    Hard -> contains x Missile && (boost x ids || sj x ids)
+    VeryHard -> contains x Missile && (boost x ids || sj x ids || bombs x ids)
+    Expert -> contains x Missile && (boost x ids || sj x ids || bombs x ids)
 
-crosswayItem :: Difficulty -> Map ItemName Int -> Bool 
-crosswayItem diff x = case diff of 
+crosswayItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+crosswayItem diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
     Medium -> containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
-    Hard -> (sj x && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
-    VeryHard -> (sj x && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
-    Expert -> (sj x && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
+    Hard -> (sj x ids && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
+    VeryHard -> (sj x ids && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
+    Expert -> (sj x ids && contains x MorphBall) || containsAll x [MorphBall, BoostBall, Missile, SuperMissile, ChargeBeam, SpiderBall, MorphBallBomb]
 
-hoteWave :: Difficulty -> Map ItemName Int -> Bool 
-hoteWave diff x = case diff of 
+hoteWave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+hoteWave diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, WaveBeam]
-    Medium -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x || sj x)
-    Hard -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x || sj x)
+    Medium -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x ids || sj x ids)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x ids || sj x ids)
     VeryHard -> containsAll x [MorphBall, MorphBallBomb, WaveBeam]
     Expert -> containsAll x [MorphBall, MorphBallBomb, WaveBeam]
 
-hoteIce :: Difficulty -> Map ItemName Int -> Bool 
-hoteIce diff x = case diff of 
+hoteIce :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+hoteIce diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
-    Medium -> containsAll x [MorphBall, MorphBallBomb, IceBeam] && (spider x || sj x)
-    Hard -> containsAll x [MorphBall, MorphBallBomb, IceBeam] && (spider x || sj x)
+    Medium -> containsAll x [MorphBall, MorphBallBomb, IceBeam] && (spider x ids || sj x ids)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, IceBeam] && (spider x ids || sj x ids)
     VeryHard -> containsAll x [MorphBall, MorphBallBomb, IceBeam]
     Expert -> containsAll x [MorphBall, MorphBallBomb, IceBeam]
 
-hotePlasma :: Difficulty -> Map ItemName Int -> Bool 
-hotePlasma diff x = case diff of 
+hotePlasma :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+hotePlasma diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam, PlasmaBeam]
-    Medium -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam] && (spider x || sj x)
-    Hard -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam] && (spider x || sj x)
+    Medium -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam] && (spider x ids || sj x ids)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam] && (spider x ids || sj x ids)
     VeryHard -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam]
     Expert -> containsAll x [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam]
 
-reflectPoolSave :: Difficulty -> Map ItemName Int -> Bool 
-reflectPoolSave diff x = reflectPoolAntechamber diff x && contains x Missile
+reflectPoolSave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+reflectPoolSave diff x ids = reflectPoolAntechamber diff x ids && contains x Missile
 
-reflectPoolIceDoor :: Difficulty -> Map ItemName Int -> Bool 
-reflectPoolIceDoor diff x = reflectPoolAntechamber diff x && contains x IceBeam
+reflectPoolIceDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+reflectPoolIceDoor diff x ids = reflectPoolAntechamber diff x ids && contains x IceBeam
 
-reflectPoolAntechamber :: Difficulty -> Map ItemName Int -> Bool 
-reflectPoolAntechamber diff x = case diff of 
+reflectPoolAntechamber :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+reflectPoolAntechamber diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, MorphBallBomb, BoostBall]
-    Medium -> containsAll x [MorphBall, MorphBallBomb, BoostBall] || sj x
-    Hard -> containsAll x [MorphBall, MorphBallBomb, BoostBall] || sj x
-    VeryHard -> bombs x || sj x
-    Expert -> bombs x || sj x
+    Medium -> containsAll x [MorphBall, MorphBallBomb, BoostBall] || sj x ids
+    Hard -> containsAll x [MorphBall, MorphBallBomb, BoostBall] || sj x ids
+    VeryHard -> bombs x ids || sj x ids
+    Expert -> bombs x ids || sj x ids
 
 -- Magmoor Predicates
-vmr1Tank :: Difficulty -> Map ItemName Int -> Bool 
-vmr1Tank diff x = case diff of 
-    Easy -> heatResist x
-    Medium -> heatResist x
-    Hard -> heatResist x || containsCount 2 EnergyTank x && sj x
-    VeryHard -> heatResist x || (containsCount 1 EnergyTank x && sj x) || containsCount 2 EnergyTank x
-    Expert -> heatResist x || (containsCount 1 EnergyTank x && sj x) || containsCount 2 EnergyTank x
+vmr1Tank :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+vmr1Tank diff x ids = case diff of 
+    Easy -> heatResist x ids
+    Medium -> heatResist x ids
+    Hard -> heatResist x ids || containsCount 2 EnergyTank x && sj x ids
+    VeryHard -> heatResist x ids || (containsCount 1 EnergyTank x && sj x ids) || containsCount 2 EnergyTank x
+    Expert -> heatResist x ids || (containsCount 1 EnergyTank x && sj x ids) || containsCount 2 EnergyTank x
 
-vmr2Tank :: Difficulty -> Map ItemName Int -> Bool 
-vmr2Tank diff x = case diff of 
-    Easy -> heatResist x
-    Medium -> heatResist x
-    Hard -> heatResist x || containsCount 3 EnergyTank x && sj x
-    VeryHard -> heatResist x || (containsCount 2 EnergyTank x && sj x) || containsCount 3 EnergyTank x
-    Expert -> heatResist x || (containsCount 2 EnergyTank x && sj x) || containsCount 3 EnergyTank x
+vmr2Tank :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+vmr2Tank diff x ids = case diff of 
+    Easy -> heatResist x ids
+    Medium -> heatResist x ids
+    Hard -> heatResist x ids || containsCount 3 EnergyTank x && sj x ids
+    VeryHard -> heatResist x ids || (containsCount 2 EnergyTank x && sj x ids) || containsCount 3 EnergyTank x
+    Expert -> heatResist x ids || (containsCount 2 EnergyTank x && sj x ids) || containsCount 3 EnergyTank x
 
-vmr3Tank :: Difficulty -> Map ItemName Int -> Bool 
-vmr3Tank diff x = case diff of 
-    Easy -> heatResist x
-    Medium -> heatResist x
-    Hard -> heatResist x || containsCount 4 EnergyTank x && sj x
-    VeryHard -> heatResist x || (containsCount 3 EnergyTank x && sj x) || containsCount 4 EnergyTank x
-    Expert -> heatResist x || (containsCount 3 EnergyTank x && sj x) || containsCount 4 EnergyTank x
+vmr3Tank :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+vmr3Tank diff x ids = case diff of 
+    Easy -> heatResist x ids
+    Medium -> heatResist x ids
+    Hard -> heatResist x ids || containsCount 4 EnergyTank x && sj x ids
+    VeryHard -> heatResist x ids || (containsCount 3 EnergyTank x && sj x ids) || containsCount 4 EnergyTank x
+    Expert -> heatResist x ids || (containsCount 3 EnergyTank x && sj x ids) || containsCount 4 EnergyTank x
 
-vmr4Tank :: Difficulty -> Map ItemName Int -> Bool 
-vmr4Tank diff x = case diff of 
-    Easy -> heatResist x
-    Medium -> heatResist x
-    Hard -> heatResist x || containsCount 5 EnergyTank x && sj x
-    VeryHard -> heatResist x || (containsCount 4 EnergyTank x && sj x) || containsCount 5 EnergyTank x
-    Expert -> heatResist x || (containsCount 4 EnergyTank x && sj x) || containsCount 5 EnergyTank x
+vmr4Tank :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+vmr4Tank diff x ids = case diff of 
+    Easy -> heatResist x ids
+    Medium -> heatResist x ids
+    Hard -> heatResist x ids || containsCount 5 EnergyTank x && sj x ids
+    VeryHard -> heatResist x ids || (containsCount 4 EnergyTank x && sj x ids) || containsCount 5 EnergyTank x
+    Expert -> heatResist x ids || (containsCount 4 EnergyTank x && sj x ids) || containsCount 5 EnergyTank x
 
-heatResistOr8Etanks :: Difficulty -> Map ItemName Int -> Bool 
-heatResistOr8Etanks diff x = case diff of 
-    Easy -> heatResist x
-    Medium -> heatResist x
-    Hard -> heatResist x || containsCount 8 EnergyTank x
-    VeryHard -> heatResist x || containsCount 8 EnergyTank x
-    Expert -> heatResist x || containsCount 8 EnergyTank x
+heatResistOr8Etanks :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+heatResistOr8Etanks diff x ids = case diff of 
+    Easy -> heatResist x ids
+    Medium -> heatResist x ids
+    Hard -> heatResist x ids || containsCount 8 EnergyTank x
+    VeryHard -> heatResist x ids || containsCount 8 EnergyTank x
+    Expert -> heatResist x ids || containsCount 8 EnergyTank x
 
-burningTrailSw :: Difficulty -> Map ItemName Int -> Bool 
-burningTrailSw diff x = case diff of 
+burningTrailSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+burningTrailSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x
-    Expert -> bombs x
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-magmoorFrontWallcrawl :: Difficulty -> Map ItemName Int -> Bool 
-magmoorFrontWallcrawl diff x = case diff of 
+magmoorFrontWallcrawl :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+magmoorFrontWallcrawl diff x ids = case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
     VeryHard -> False
-    Expert -> heatResist x && bombs x
+    Expert -> heatResist x ids && bombs x ids
 
-lavaLakeTraversal :: Difficulty -> Map ItemName Int -> Bool 
-lavaLakeTraversal diff x = vmr4Tank diff x && bombs x
+lavaLakeTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+lavaLakeTraversal diff x ids = vmr4Tank diff x ids && bombs x ids
 
-lavaLakeReverseTraversal :: Difficulty -> Map ItemName Int -> Bool 
-lavaLakeReverseTraversal diff x = vmr2Tank diff x && bombs x
+lavaLakeReverseTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+lavaLakeReverseTraversal diff x ids = vmr2Tank diff x ids && bombs x ids
 
-lavaLakeItem :: Difficulty -> Map ItemName Int -> Bool 
-lavaLakeItem diff x = case diff of 
-    Easy -> missile x && sj x && heatResist x
-    Medium -> missile x && sj x && heatResist x
-    Hard -> missile x && (heatResist x || (sj x && containsCount 2 EnergyTank x))
-    VeryHard -> missile x && (heatResist x || (sj x && contains x EnergyTank) || containsCount 2 EnergyTank x)
-    Expert -> missile x && (heatResist x || (sj x && contains x EnergyTank) || containsCount 2 EnergyTank x)
+lavaLakeItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+lavaLakeItem diff x ids = case diff of 
+    Easy -> missile x ids && sj x ids && heatResist x ids
+    Medium -> missile x ids && sj x ids && heatResist x ids
+    Hard -> missile x ids && (heatResist x ids || (sj x ids && containsCount 2 EnergyTank x))
+    VeryHard -> missile x ids && (heatResist x ids || (sj x ids && contains x EnergyTank) || containsCount 2 EnergyTank x)
+    Expert -> missile x ids && (heatResist x ids || (sj x ids && contains x EnergyTank) || containsCount 2 EnergyTank x)
 
-pitTunnel :: Difficulty -> Map ItemName Int -> Bool 
-pitTunnel diff x = vmr2Tank diff x && contains x MorphBall
+pitTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+pitTunnel diff x ids = vmr2Tank diff x ids && contains x MorphBall
 
-pitTunnelReverse :: Difficulty -> Map ItemName Int -> Bool 
-pitTunnelReverse diff x = vmr3Tank diff x && contains x MorphBall
+pitTunnelReverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+pitTunnelReverse diff x ids = vmr3Tank diff x ids && contains x MorphBall
 
-triclopsPitItem :: Difficulty -> Map ItemName Int -> Bool 
-triclopsPitItem diff x = case diff of 
-    Easy -> containsAll x [SpaceJumpBoots, Missile] && heatResist x
-    Medium -> containsAll x [SpaceJumpBoots, Missile] && heatResist x
-    Hard -> missile x && vmr1Tank diff x
-    VeryHard -> missile x && vmr1Tank diff x
-    Expert -> missile x && vmr1Tank diff x
+triclopsPitItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+triclopsPitItem diff x ids = case diff of 
+    Easy -> containsAll x [SpaceJumpBoots, Missile] && heatResist x ids
+    Medium -> containsAll x [SpaceJumpBoots, Missile] && heatResist x ids
+    Hard -> missile x ids && vmr1Tank diff x ids
+    VeryHard -> missile x ids && vmr1Tank diff x ids
+    Expert -> missile x ids && vmr1Tank diff x ids
 
-storageCavern :: Difficulty -> Map ItemName Int -> Bool 
-storageCavern diff x = morph x && vmr1Tank diff x
+storageCavern :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+storageCavern diff x ids = morph x ids && vmr1Tank diff x ids
 
-toTransportTunnelA :: Difficulty -> Map ItemName Int -> Bool 
-toTransportTunnelA diff x = bombs x && vmr1Tank diff x
+toTransportTunnelA :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+toTransportTunnelA diff x ids = bombs x ids && vmr1Tank diff x ids
 
-monitorStationClimb :: Difficulty -> Map ItemName Int -> Bool 
-monitorStationClimb diff x = case diff of 
-    Easy ->heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
-    Medium -> heatResist x && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
-    Hard -> vmr3Tank diff x && (sj x || bombs x)
-    VeryHard -> vmr3Tank diff x && (sj x || bombs x)
-    Expert -> vmr3Tank diff x && (sj x || bombs x)
+monitorStationClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+monitorStationClimb diff x ids = case diff of 
+    Easy ->heatResist x ids && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+    Medium -> heatResist x ids && containsAll x [SpaceJumpBoots,MorphBall,BoostBall]
+    Hard -> vmr3Tank diff x ids && (sj x ids || bombs x ids)
+    VeryHard -> vmr3Tank diff x ids && (sj x ids || bombs x ids)
+    Expert -> vmr3Tank diff x ids && (sj x ids || bombs x ids)
 
-warriorShrineTunnel :: Difficulty -> Map ItemName Int -> Bool
-warriorShrineTunnel diff x = vmr4Tank diff x && pb x && bombs x
+warriorShrineTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+warriorShrineTunnel diff x ids = vmr4Tank diff x ids && pb x ids && bombs x ids
 
 -- TODO can you use spider without heat resistance?
-crossTft :: Difficulty -> Map ItemName Int -> Bool
-crossTft diff x = case diff of 
-    Easy -> spider x
-    Medium -> spider x
-    Hard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
-    VeryHard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
-    Expert -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
+crossTft :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+crossTft diff x ids = case diff of 
+    Easy -> spider x ids
+    Medium -> spider x ids
+    Hard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    VeryHard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    Expert -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
 
-crossTftReverse :: Difficulty -> Map ItemName Int -> Bool
-crossTftReverse diff x = case diff of 
-    Easy -> spider x
-    Medium -> spider x || sj x
-    Hard -> spider x || sj x || (contains x GravitySuit && bombs x && containsCount 2 EnergyTank x)
-    VeryHard -> spider x || sj x || heatResist x
-    Expert -> spider x || sj x || heatResist x
+crossTftReverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+crossTftReverse diff x ids = case diff of 
+    Easy -> spider x ids
+    Medium -> spider x ids || sj x ids
+    Hard -> spider x ids || sj x ids || (contains x GravitySuit && bombs x ids && containsCount 2 EnergyTank x)
+    VeryHard -> spider x ids || sj x ids || heatResist x ids
+    Expert -> spider x ids || sj x ids || heatResist x ids
 
-crossTwinFires :: Difficulty -> Map ItemName Int -> Bool
-crossTwinFires diff x = case diff of 
-    Easy -> sj x && contains x WaveBeam
-    Medium -> sj x && contains x WaveBeam
-    Hard -> sj x  && contains x WaveBeam
-    VeryHard -> (sj x || missile x) && contains x WaveBeam
-    Expert -> (sj x || missile x) && contains x WaveBeam
+crossTwinFires :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+crossTwinFires diff x ids = case diff of 
+    Easy -> sj x ids && contains x WaveBeam
+    Medium -> sj x ids && contains x WaveBeam
+    Hard -> sj x ids  && contains x WaveBeam
+    VeryHard -> (sj x ids || missile x ids) && contains x WaveBeam
+    Expert -> (sj x ids || missile x ids) && contains x WaveBeam
 
-crossNorthCoreTunnel :: Difficulty -> Map ItemName Int -> Bool
-crossNorthCoreTunnel diff x = case diff of 
+crossNorthCoreTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+crossNorthCoreTunnel diff x ids = case diff of 
     Easy -> containsAll x [Missile, SpaceJumpBoots, WaveBeam]
     Medium -> containsAll x [Missile, SpaceJumpBoots, WaveBeam]
     Hard -> containsAll x [SpaceJumpBoots, WaveBeam]
-    VeryHard -> contains x WaveBeam && (missile x || sj x)
-    Expert -> contains x WaveBeam && (missile x || sj x)
+    VeryHard -> contains x WaveBeam && (missile x ids || sj x ids)
+    Expert -> contains x WaveBeam && (missile x ids || sj x ids)
 
-workstationTunnel :: Difficulty -> Map ItemName Int -> Bool
-workstationTunnel diff x = containsAll x [IceBeam, PowerBomb, MorphBall]
+workstationTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+workstationTunnel diff x ids = containsAll x [IceBeam, PowerBomb, MorphBall]
 
-workstationItem :: Difficulty -> Map ItemName Int -> Bool
-workstationItem diff x = containsAll x [MorphBall, WaveBeam]
+workstationItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+workstationItem diff x ids = containsAll x [MorphBall, WaveBeam]
 
-workstationWaveDoor :: Difficulty -> Map ItemName Int -> Bool
-workstationWaveDoor diff x = sjOrBombs x && contains x WaveBeam
+workstationWaveDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+workstationWaveDoor diff x ids = sjOrBombs x ids && contains x WaveBeam
 
-workstationSw :: Difficulty -> Map ItemName Int -> Bool
-workstationSw diff x =  case diff of 
+workstationSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+workstationSw diff x ids =  case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> sj x
-    Expert -> sj x || (ice x && bombs x)
+    VeryHard -> sj x ids
+    Expert -> sj x ids || (ice x ids && bombs x ids)
 
-geoCore :: Difficulty -> Map ItemName Int -> Bool
-geoCore diff x = case diff of 
+geoCore :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+geoCore diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
     Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
@@ -669,513 +671,516 @@ geoCore diff x = case diff of
     Expert -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
 
 -- Phendrana Predicates
-iceBarrier :: Difficulty -> Map ItemName Int -> Bool
-iceBarrier _ x = containsAny x [Missile, ChargeBeam]
+iceBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+iceBarrier _ x ids = containsAny x [Missile, ChargeBeam]
 
-shorelinesTower :: Difficulty -> Map ItemName Int -> Bool
-shorelinesTower diff x = case diff of 
+shorelinesTower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+shorelinesTower diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
     Medium -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
     Hard -> containsAll x [MorphBall, SpaceJumpBoots, SpiderBall, ChargeBeam, SuperMissile, Missile]
-    VeryHard -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
-    Expert -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x
+    VeryHard -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x ids
+    Expert -> containsAll x [MorphBall, SpiderBall, ChargeBeam, SuperMissile, Missile] && sjOrBombs x ids
 
-shorelinesItem:: Difficulty -> Map ItemName Int -> Bool
-shorelinesItem diff x = case diff of 
-    Easy -> plasma x
-    Medium -> plasma x
-    Hard -> plasma x || (wave x && boost x && sj x && bombs x) -- Infinite Speed
-    VeryHard -> plasma x || (wave x && boost x && sj x && bombs x)
-    Expert -> plasma x || (wave x && boost x && sj x && bombs x)
+shorelinesItem:: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+shorelinesItem diff x ids = case diff of 
+    Easy -> plasma x ids
+    Medium -> plasma x ids
+    Hard -> plasma x ids || (wave x ids && boost x ids && sj x ids && bombs x ids) -- Infinite Speed
+    VeryHard -> plasma x ids || (wave x ids && boost x ids && sj x ids && bombs x ids)
+    Expert -> plasma x ids || (wave x ids && boost x ids && sj x ids && bombs x ids)
 
 
-iceTempleClimb :: Difficulty -> Map ItemName Int -> Bool
-iceTempleClimb diff x = case diff of 
+iceTempleClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+iceTempleClimb diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
     Hard -> containsAll x [MorphBall, MorphBallBomb, Missile]
     VeryHard -> containsAll x [MorphBall, MorphBallBomb, Missile]
     Expert -> containsAll x [MorphBall, MorphBallBomb, Missile]
 
-iceTempleItem :: Difficulty -> Map ItemName Int -> Bool
-iceTempleItem diff x = case diff of 
+iceTempleItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+iceTempleItem diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
     Medium ->containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, PlasmaBeam]
-    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x) -- Infinite Speed
-    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x)
-    Expert -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x && boost x && bombs x && missile x)
+    Hard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x ids && boost x ids && bombs x ids && missile x ids) -- Infinite Speed
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x ids && boost x ids && bombs x ids && missile x ids)
+    Expert -> containsAll x [MorphBall, MorphBallBomb, PlasmaBeam] || (sj x ids && boost x ids && bombs x ids && missile x ids)
 
-climbShorelines :: Difficulty -> Map ItemName Int -> Bool 
-climbShorelines diff x = case diff of 
-    Easy -> sj x
-    Medium -> sj x
-    Hard -> sj x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+climbShorelines :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+climbShorelines diff x ids = case diff of 
+    Easy -> sj x ids
+    Medium -> sj x ids
+    Hard -> sj x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-ireSpiderTrack :: Difficulty -> Map ItemName Int -> Bool 
-ireSpiderTrack diff x = case diff of 
-    Easy -> spider x
-    Medium -> spider x
-    Hard -> spider x
-    VeryHard -> spider x || bombs x
-    Expert -> spider x || bombs x
+ireSpiderTrack :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool 
+ireSpiderTrack diff x ids = case diff of 
+    Easy -> spider x ids
+    Medium -> spider x ids
+    Hard -> spider x ids
+    VeryHard -> spider x ids || bombs x ids
+    Expert -> spider x ids || bombs x ids
 
-irwDoor :: Difficulty -> Map ItemName Int -> Bool
-irwDoor diff x = case diff of 
+irwDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+irwDoor diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, WaveBeam]
     Medium -> containsAll x [SpaceJumpBoots, WaveBeam]
     Hard -> containsAll x [SpaceJumpBoots, WaveBeam]
-    VeryHard -> sjOrBombs x && wave x
-    Expert -> sjOrBombs x && wave x
+    VeryHard -> sjOrBombs x ids && wave x ids
+    Expert -> sjOrBombs x ids && wave x ids
 
-irwItem :: Difficulty -> Map ItemName Int -> Bool
-irwItem diff x = case diff of 
+irwItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+irwItem diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
     Medium -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
     Hard -> containsAll x [Missile, PlasmaBeam]
     VeryHard -> containsAll x [Missile, PlasmaBeam]
     Expert -> containsAll x [Missile, PlasmaBeam]
 
-irwSw:: Difficulty -> Map ItemName Int -> Bool
-irwSw diff x = case diff of 
+irwSw:: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+irwSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x
-    Expert -> bombs x
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-ruinedCourtyardConduit :: Difficulty -> Map ItemName Int -> Bool
-ruinedCourtyardConduit _ x = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
+ruinedCourtyardConduit :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ruinedCourtyardConduit _ x ids = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
 
-ruinedCourtyardSave :: Difficulty -> Map ItemName Int -> Bool
-ruinedCourtyardSave diff x = containsAll x [SpaceJumpBoots, Missile]
+ruinedCourtyardSave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ruinedCourtyardSave diff x ids = containsAll x [SpaceJumpBoots, Missile]
 
 --Might not need bombs if using spider track, but bombs are almost always unrandomized anyway
-ruinedCourtyardClimb :: Difficulty -> Map ItemName Int -> Bool
-ruinedCourtyardClimb diff x = case diff of 
-    Easy -> (spider x && sjOrBombs x) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
-    Medium -> (spider x && sjOrBombs x) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
-    Hard -> (spider x && sjOrBombs x) || sj x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+ruinedCourtyardClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ruinedCourtyardClimb diff x ids = case diff of 
+    Easy -> (spider x ids && sjOrBombs x ids) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+    Medium -> (spider x ids && sjOrBombs x ids) || containsAll x [SpaceJumpBoots, MorphBall, BoostBall, MorphBallBomb]
+    Hard -> (spider x ids && sjOrBombs x ids) || sj x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-ruinedCourtyardSw :: Difficulty -> Map ItemName Int -> Bool
-ruinedCourtyardSw diff x = case diff of 
+ruinedCourtyardSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ruinedCourtyardSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
-    Hard -> sj x
-    VeryHard -> sj x
-    Expert -> sj x
+    Hard -> sj x ids
+    VeryHard -> sj x ids
+    Expert -> sj x ids
 
-quarantineTunnel :: Difficulty -> Map ItemName Int -> Bool
-quarantineTunnel _ x = containsAll x [MorphBall, WaveBeam]
+quarantineTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+quarantineTunnel _ x ids = containsAll x [MorphBall, WaveBeam]
 
-climbQuarantineCaveEntrance :: Difficulty -> Map ItemName Int -> Bool
-climbQuarantineCaveEntrance diff x = case diff of 
-    Easy -> spider x
-    Medium -> spider x
-    Hard -> spider x || sj x 
-    VeryHard -> spider x || sj x
-    Expert -> spider x || sj x
+climbQuarantineCaveEntrance :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbQuarantineCaveEntrance diff x ids = case diff of 
+    Easy -> spider x ids
+    Medium -> spider x ids
+    Hard -> spider x ids || sj x ids 
+    VeryHard -> spider x ids || sj x ids
+    Expert -> spider x ids || sj x ids
 
-climbQuarantineCaveBack :: Difficulty -> Map ItemName Int -> Bool
-climbQuarantineCaveBack diff x = case diff of 
-    Easy -> spider x 
-    Medium -> spider x || (sj x && grapple x)
-    Hard -> spider x || sj x || grapple x
-    VeryHard -> spider x || sj x || grapple x
-    Expert -> spider x || sj x || grapple x
+climbQuarantineCaveBack :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbQuarantineCaveBack diff x ids = case diff of 
+    Easy -> spider x ids 
+    Medium -> spider x ids || (sj x ids && grapple x ids)
+    Hard -> spider x ids || sj x ids || grapple x ids
+    VeryHard -> spider x ids || sj x ids || grapple x ids
+    Expert -> spider x ids || sj x ids || grapple x ids
 
-quarantineMonitor :: Difficulty -> Map ItemName Int -> Bool
-quarantineMonitor diff x = case diff of 
-    Easy -> grapple x 
-    Medium -> grapple x 
-    Hard -> grapple x || sj x
-    VeryHard -> grapple x || sj x
-    Expert -> grapple x || sj x
+quarantineMonitor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+quarantineMonitor diff x ids = case diff of 
+    Easy -> grapple x ids 
+    Medium -> grapple x ids 
+    Hard -> grapple x ids || sj x ids
+    VeryHard -> grapple x ids || sj x ids
+    Expert -> grapple x ids || sj x ids
 
-phenElevatorClimb :: Difficulty -> Map ItemName Int -> Bool
-phenElevatorClimb diff x = case diff of 
+phenElevatorClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+phenElevatorClimb diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, SpiderBall, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, IceBeam]
-    Hard -> (spider x || sj x) && ice x
-    VeryHard -> (spider x || sj x || bombs x) && ice x
-    Expert -> (spider x || sj x || bombs x) && ice x
+    Hard -> (spider x ids || sj x ids) && ice x ids
+    VeryHard -> (spider x ids || sj x ids || bombs x ids) && ice x ids
+    Expert -> (spider x ids || sj x ids || bombs x ids) && ice x ids
 
-observatoryClimb :: Difficulty -> Map ItemName Int -> Bool
-observatoryClimb diff x = case diff of 
+observatoryClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+observatoryClimb diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
     Medium -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
-    Hard -> sj x
-    VeryHard -> sj x
-    Expert -> sj x
+    Hard -> sj x ids
+    VeryHard -> sj x ids
+    Expert -> sj x ids
 
-observatorySave :: Difficulty -> Map ItemName Int -> Bool
-observatorySave diff x = case diff of 
-    Easy -> sj x && contains x Missile
-    Medium -> sj x && contains x Missile
-    Hard -> sj x && contains x Missile
+observatorySave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+observatorySave diff x ids = case diff of 
+    Easy -> sj x ids && contains x Missile
+    Medium -> sj x ids && contains x Missile
+    Hard -> sj x ids && contains x Missile
     VeryHard -> contains x Missile
     Expert -> contains x Missile
 
-observatoryItem :: Difficulty -> Map ItemName Int -> Bool
-observatoryItem diff x = case diff of 
+observatoryItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+observatoryItem diff x ids = case diff of 
     Easy -> containsAll x [MorphBall, BoostBall, MorphBallBomb, SpaceJumpBoots]
-    Medium -> sj x
-    Hard -> sj x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+    Medium -> sj x ids
+    Hard -> sj x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-controlTowerItem :: Difficulty -> Map ItemName Int -> Bool
-controlTowerItem diff x = case diff of 
-    Easy -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x
-    Medium -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x
-    Hard -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
-    VeryHard -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
-    Expert -> (bombs x && plasma x && missile x) || (sj x && missile x && morph x)
+controlTowerItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+controlTowerItem diff x ids = case diff of 
+    Easy -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x ids
+    Medium -> containsAll x [MorphBall, PlasmaBeam, Missile] && sjOrBombs x ids
+    Hard -> (bombs x ids && plasma x ids && missile x ids) || (sj x ids && missile x ids && morph x ids)
+    VeryHard -> (bombs x ids && plasma x ids && missile x ids) || (sj x ids && missile x ids && morph x ids)
+    Expert -> (bombs x ids && plasma x ids && missile x ids) || (sj x ids && missile x ids && morph x ids)
 
-rlaTrack :: Difficulty -> Map ItemName Int -> Bool
-rlaTrack _ x = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
+rlaTrack :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+rlaTrack _ x ids = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
 
-toStorageCave :: Difficulty -> Map ItemName Int -> Bool
-toStorageCave diff x =  case diff of 
+toStorageCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+toStorageCave diff x ids =  case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam, MorphBall, PowerBomb]
     Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam, MorphBall, PowerBomb]
     Hard ->containsAll x [SpaceJumpBoots, PlasmaBeam, MorphBall, PowerBomb]
-    VeryHard -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x
-    Expert -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x
+    VeryHard -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x ids
+    Expert -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x ids
 
-fromStorageCave :: Difficulty -> Map ItemName Int -> Bool
-fromStorageCave _ x = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
+fromStorageCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fromStorageCave _ x ids = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
 
-toSecurityCave :: Difficulty -> Map ItemName Int -> Bool
-toSecurityCave diff x = case diff of 
+toSecurityCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+toSecurityCave diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, MorphBall]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall]
-    VeryHard -> morph x && (sjOrBombs x || grapple x)
-    Expert -> morph x && (sjOrBombs x || grapple x)
+    VeryHard -> morph x ids && (sjOrBombs x ids || grapple x ids)
+    Expert -> morph x ids && (sjOrBombs x ids || grapple x ids)
 
-phenEdgeLower :: Difficulty -> Map ItemName Int -> Bool
-phenEdgeLower diff x = case diff of 
+phenEdgeLower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+phenEdgeLower diff x ids = case diff of 
     Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
     Medium -> containsAll x [WaveBeam, SpaceJumpBoots]
     Hard -> containsAll x [WaveBeam, SpaceJumpBoots]
-    VeryHard -> wave x && sjOrBombs x
-    Expert -> wave x && sjOrBombs x
+    VeryHard -> wave x ids && sjOrBombs x ids
+    Expert -> wave x ids && sjOrBombs x ids
 
-frozenPikeBottom :: Difficulty -> Map ItemName Int -> Bool
-frozenPikeBottom diff x = case diff of 
+frozenPikeBottom :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frozenPikeBottom diff x ids = case diff of 
     Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
-    Medium -> wave x && sjOrBombs x
-    Hard ->  wave x && sjOrBombs x
-    VeryHard ->  wave x && sjOrBombs x
-    Expert ->  wave x && sjOrBombs x
+    Medium -> wave x ids && sjOrBombs x ids
+    Hard ->  wave x ids && sjOrBombs x ids
+    VeryHard ->  wave x ids && sjOrBombs x ids
+    Expert ->  wave x ids && sjOrBombs x ids
 
-frozenPikeClimb :: Difficulty -> Map ItemName Int -> Bool
-frozenPikeClimb diff x = case diff of 
+frozenPikeClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frozenPikeClimb diff x ids = case diff of 
     Easy -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
     Medium -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
     Hard -> containsAll x [MorphBall,MorphBallBomb,SpaceJumpBoots]
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-gravLedge :: Difficulty -> Map ItemName Int -> Bool
-gravLedge diff x = case diff of 
+gravLedge :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gravLedge diff x ids = case diff of 
     Easy -> containsAll x [PlasmaBeam, GrappleBeam]
     Medium -> containsAll x [PlasmaBeam, GrappleBeam]
-    Hard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
-    VeryHard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
-    Expert -> containsAll x [PlasmaBeam, GrappleBeam] || sj x
+    Hard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x ids
+    VeryHard -> containsAll x [PlasmaBeam, GrappleBeam] || sj x ids
+    Expert -> containsAll x [PlasmaBeam, GrappleBeam] || sj x ids
 
-climbGravityChamber :: Difficulty -> Map ItemName Int -> Bool
-climbGravityChamber diff x = case diff of 
-    Easy -> contains x GravitySuit && sjOrBombs x
-    Medium -> contains x GravitySuit && sjOrBombs x
-    Hard -> contains x GravitySuit && sjOrBombs x
-    VeryHard -> (contains x GravitySuit && sjOrBombs x) || sj x
-    Expert -> (contains x GravitySuit && sjOrBombs x) || sj x
+climbGravityChamber :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbGravityChamber diff x ids = case diff of 
+    Easy -> contains x GravitySuit && sjOrBombs x ids
+    Medium -> contains x GravitySuit && sjOrBombs x ids
+    Hard -> contains x GravitySuit && sjOrBombs x ids
+    VeryHard -> (contains x GravitySuit && sjOrBombs x ids) || sj x ids
+    Expert -> (contains x GravitySuit && sjOrBombs x ids) || sj x ids
 
-gravityChamberToLakeTunnel :: Difficulty -> Map ItemName Int -> Bool
-gravityChamberToLakeTunnel diff x = climbGravityChamber diff x && contains x WaveBeam
+gravityChamberToLakeTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+gravityChamberToLakeTunnel diff x ids = climbGravityChamber diff x ids && contains x WaveBeam
 
-hunterCaveClimb :: Difficulty -> Map ItemName Int -> Bool
-hunterCaveClimb diff x = case diff of 
-    Easy -> contains x Missile && (contains x SpaceJumpBoots || bombs x)
-    Medium -> sjOrBombs x
-    Hard -> sjOrBombs x
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+hunterCaveClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+hunterCaveClimb diff x ids = case diff of 
+    Easy -> contains x Missile && (contains x SpaceJumpBoots || bombs x ids)
+    Medium -> sjOrBombs x ids
+    Hard -> sjOrBombs x ids
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-hunterCaveUpper :: Difficulty -> Map ItemName Int -> Bool
-hunterCaveUpper diff x = case diff of 
+hunterCaveUpper :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+hunterCaveUpper diff x ids = case diff of 
     Easy -> containsAll x [Missile, GrappleBeam]
     Medium -> containsAll x [Missile, GrappleBeam]
-    Hard -> sj x || containsAll x [Missile, GrappleBeam]
-    VeryHard -> sj x || containsAll x [Missile, GrappleBeam]
-    Expert -> sj x || containsAll x [Missile, GrappleBeam]
+    Hard -> sj x ids || containsAll x [Missile, GrappleBeam]
+    VeryHard -> sj x ids || containsAll x [Missile, GrappleBeam]
+    Expert -> sj x ids || containsAll x [Missile, GrappleBeam]
 
-hunterCaveLower :: Difficulty -> Map ItemName Int -> Bool
-hunterCaveLower _ x = contains x Missile && (contains x SpaceJumpBoots || bombs x)
+hunterCaveLower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+hunterCaveLower _ x ids = contains x Missile && (contains x SpaceJumpBoots || bombs x ids)
 
-frostCaveAccess :: Difficulty -> Map ItemName Int -> Bool
-frostCaveAccess _ x = containsAll x [MorphBall, WaveBeam]
+frostCaveAccess :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frostCaveAccess _ x ids = containsAll x [MorphBall, WaveBeam]
 
-frostCaveDoor :: Difficulty -> Map ItemName Int -> Bool
-frostCaveDoor _ x = containsAll x [Missile,WaveBeam] && (contains x SpaceJumpBoots || bombs x)
+frostCaveDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frostCaveDoor _ x ids = containsAll x [Missile,WaveBeam] && (contains x SpaceJumpBoots || bombs x ids)
 
-frostCaveItem :: Difficulty -> Map ItemName Int -> Bool
-frostCaveItem diff x = case diff of 
+frostCaveItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frostCaveItem diff x ids = case diff of 
     Easy -> containsAll x [GrappleBeam, Missile]
     Medium -> containsAll x [GrappleBeam, Missile]
-    Hard -> missile x && (sj x || grapple x)
-    VeryHard -> missile x && (sj x || bombs x || grapple x)
-    Expert -> missile x && (sj x || bombs x || grapple x)
+    Hard -> missile x ids && (sj x ids || grapple x ids)
+    VeryHard -> missile x ids && (sj x ids || bombs x ids || grapple x ids)
+    Expert -> missile x ids && (sj x ids || bombs x ids || grapple x ids)
 
-frostCaveToTunnel :: Difficulty -> Map ItemName Int -> Bool
-frostCaveToTunnel _ x = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x)
+frostCaveToTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frostCaveToTunnel _ x ids = containsAll x [Missile,WaveBeam,MorphBall] && (contains x SpaceJumpBoots || bombs x ids)
 
-frostCaveSw :: Difficulty -> Map ItemName Int -> Bool
-frostCaveSw diff x = case diff of 
+frostCaveSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+frostCaveSw diff x ids = case diff of 
     Easy -> False
     Medium -> False
-    Hard -> sj x
-    VeryHard -> sjOrBombs x 
-    Expert -> sjOrBombs x 
+    Hard -> sj x ids
+    VeryHard -> sjOrBombs x ids 
+    Expert -> sjOrBombs x ids 
 
-transportAccessItemOob :: Difficulty -> Map ItemName Int -> Bool
-transportAccessItemOob diff x = case diff of 
+transportAccessItemOob :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+transportAccessItemOob diff x ids = case diff of 
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x && boost x -- This is annoying but possible with boost
-    Expert -> bombs x && boost x
+    VeryHard -> bombs x ids && boost x ids -- This is annoying but possible with boost
+    Expert -> bombs x ids && boost x ids
 
 -- Mines Predicates
-quarrySave :: Difficulty -> Map ItemName Int -> Bool
-quarrySave diff x = case diff of 
+quarrySave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+quarrySave diff x ids = case diff of 
     Easy -> containsAll x [SpiderBall, MorphBall, WaveBeam]
-    Medium -> wave x && (spider x || sj x)
-    Hard -> wave x && (spider x || sj x)
-    VeryHard -> wave x && (spider x || sj x || bombs x)
-    Expert -> wave x && (spider x || sj x || bombs x)
+    Medium -> wave x ids && (spider x ids || sj x ids)
+    Hard -> wave x ids && (spider x ids || sj x ids)
+    VeryHard -> wave x ids && (spider x ids || sj x ids || bombs x ids)
+    Expert -> wave x ids && (spider x ids || sj x ids || bombs x ids)
 
-quarryItem :: Difficulty -> Map ItemName Int -> Bool
-quarryItem diff x = case diff of 
+quarryItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+quarryItem diff x ids = case diff of 
     Easy -> containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
     Medium -> containsAll x [SpaceJumpBoots, WaveBeam, MorphBall, SpiderBall]
-    Hard -> wave x && (spider x || sj x)
-    VeryHard -> wave x && (spider x || sj x)
-    Expert -> wave x && (spider x || sj x)
+    Hard -> wave x ids && (spider x ids || sj x ids)
+    VeryHard -> wave x ids && (spider x ids || sj x ids)
+    Expert -> wave x ids && (spider x ids || sj x ids)
 
-reachWasteDisposal :: Difficulty -> Map ItemName Int -> Bool
-reachWasteDisposal diff x = case diff of
+reachWasteDisposal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+reachWasteDisposal diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots,WaveBeam,IceBeam,GrappleBeam]
-    Medium -> containsAll x [WaveBeam,IceBeam,GrappleBeam] && sjOrBombs x
-    Hard -> ice x && sjOrBombs x
-    VeryHard ->  ice x && sjOrBombs x
-    Expert -> ice x && sjOrBombs x
+    Medium -> containsAll x [WaveBeam,IceBeam,GrappleBeam] && sjOrBombs x ids
+    Hard -> ice x ids && sjOrBombs x ids
+    VeryHard ->  ice x ids && sjOrBombs x ids
+    Expert -> ice x ids && sjOrBombs x ids
 
-oreProcessingClimb :: Difficulty -> Map ItemName Int -> Bool
-oreProcessingClimb diff x = case diff of
+oreProcessingClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+oreProcessingClimb diff x ids = case diff of
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, IceBeam]
-    Hard -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
-    VeryHard ->  ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
-    Expert -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x)
+    Hard -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x ids)
+    VeryHard ->  ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x ids)
+    Expert -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb] || sj x ids)
 
-oreProcessingTop :: Difficulty -> Map ItemName Int -> Bool
-oreProcessingTop diff x = case diff of
+oreProcessingTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+oreProcessingTop diff x ids = case diff of
     Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb, IceBeam]
-    Hard -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
-    VeryHard ->  ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
-    Expert -> ice x && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x)
+    Hard -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
+    VeryHard ->  ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
+    Expert -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
 
-wasteDisposalTraversal :: Difficulty -> Map ItemName Int -> Bool
-wasteDisposalTraversal _ x = containsAll x [MorphBall, MorphBallBomb, IceBeam]
+wasteDisposalTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+wasteDisposalTraversal _ x ids = containsAll x [MorphBall, MorphBallBomb, IceBeam]
 
-shaftClimb1 :: Difficulty -> Map ItemName Int -> Bool
-shaftClimb1 diff x = case diff of
+shaftClimb1 :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+shaftClimb1 diff x ids = case diff of
     Easy -> containsAll x [MorphBall, SpiderBall, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, IceBeam]
-    Hard -> ice x && (spider x || (bombs x && sj x))
-    VeryHard ->  ice x && (spider x || (bombs x && sj x))
-    Expert -> ice x && (spider x || (bombs x && sj x))
+    Hard -> ice x ids && (spider x ids || (bombs x ids && sj x ids))
+    VeryHard ->  ice x ids && (spider x ids || (bombs x ids && sj x ids))
+    Expert -> ice x ids && (spider x ids || (bombs x ids && sj x ids))
 
-shaftClimb2 :: Difficulty -> Map ItemName Int -> Bool
-shaftClimb2 diff x = case diff of
+shaftClimb2 :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+shaftClimb2 diff x ids = case diff of
     Easy -> containsAll x [MorphBall, SpiderBall, BoostBall, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, BoostBall, IceBeam]
-    Hard -> ice x && boost x && (spider x || sj x)
-    VeryHard ->  ice x && boost x && (spider x || sj x)
-    Expert -> ice x && boost x && (spider x || sj x)
+    Hard -> ice x ids && boost x ids && (spider x ids || sj x ids)
+    VeryHard ->  ice x ids && boost x ids && (spider x ids || sj x ids)
+    Expert -> ice x ids && boost x ids && (spider x ids || sj x ids)
 
-storageDepotABarrier :: Difficulty -> Map ItemName Int -> Bool
-storageDepotABarrier _ x = contains x StorageDepotABarrier
+storageDepotABarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+storageDepotABarrier _ x ids = contains x StorageDepotABarrier
 
-securityAccessBSw:: Difficulty -> Map ItemName Int -> Bool
-securityAccessBSw diff x = case diff of
+securityAccessBSw:: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+securityAccessBSw diff x ids = case diff of
     Easy -> False
     Medium -> False
     Hard -> False
-    VeryHard -> bombs x
-    Expert -> bombs x
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids
 
-maintTunnel :: Difficulty -> Map ItemName Int -> Bool
-maintTunnel _ x = containsAll x [MorphBall, IceBeam, PowerBomb]
+maintTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+maintTunnel _ x ids = containsAll x [MorphBall, IceBeam, PowerBomb]
 
-ppcClimb :: Difficulty -> Map ItemName Int -> Bool
-ppcClimb diff x = case diff of
+ppcClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ppcClimb diff x ids = case diff of
     Easy -> containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
     Medium -> containsAll x [MorphBall, SpiderBall, SpaceJumpBoots, IceBeam]
-    Hard -> ice x && sj x
-    VeryHard -> ice x && sjOrBombs x
-    Expert -> ice x && sjOrBombs x
+    Hard -> ice x ids && sj x ids
+    VeryHard -> ice x ids && sjOrBombs x ids
+    Expert -> ice x ids && sjOrBombs x ids
 
-toMinesElevator :: Difficulty -> Map ItemName Int -> Bool
-toMinesElevator diff x = case diff of
+toMinesElevator :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+toMinesElevator diff x ids = case diff of
     Easy -> containsAll x [GrappleBeam, IceBeam]
-    Medium -> ice x && (grapple x || sj x)
-    Hard -> ice x 
-    VeryHard -> ice x 
-    Expert -> ice x 
+    Medium -> ice x ids && (grapple x ids || sj x ids)
+    Hard -> ice x ids 
+    VeryHard -> ice x ids 
+    Expert -> ice x ids 
 
-centralDynamoClimb :: Difficulty -> Map ItemName Int -> Bool
-centralDynamoClimb diff x = case diff of
-    Easy -> contains x IceBeam && sj x
-    Medium -> contains x IceBeam && sj x
-    Hard -> contains x IceBeam && sj x
-    VeryHard -> contains x IceBeam && sjOrBombs x
-    Expert -> contains x IceBeam && sjOrBombs x
+centralDynamoClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+centralDynamoClimb diff x ids = case diff of
+    Easy -> contains x IceBeam && sj x ids
+    Medium -> contains x IceBeam && sj x ids
+    Hard -> contains x IceBeam && sj x ids
+    VeryHard -> contains x IceBeam && sjOrBombs x ids
+    Expert -> contains x IceBeam && sjOrBombs x ids
 
-mqaItem :: Difficulty -> Map ItemName Int -> Bool
-mqaItem diff x = case diff of
+mqaItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mqaItem diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, PowerBomb]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, PowerBomb]
-    Hard -> sj x
-    VeryHard -> sj x || (bombs x && pb x)
-    Expert -> sj x || (bombs x && pb x)
+    Hard -> sj x ids
+    VeryHard -> sj x ids || (bombs x ids && pb x ids)
+    Expert -> sj x ids || (bombs x ids && pb x ids)
 
-mqaTraversal :: Difficulty -> Map ItemName Int -> Bool
-mqaTraversal diff x = case diff of
+mqaTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mqaTraversal diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, XRayVisor, MorphBall, SpiderBall, IceBeam]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, SpiderBall, IceBeam]
-    Hard -> ice x && sj x && (pb x || spider x)
-    VeryHard -> ice x && sjOrBombs x && (pb x || spider x)
-    Expert -> ice x && sjOrBombs x && (pb x || spider x)
+    Hard -> ice x ids && sj x ids && (pb x ids || spider x ids)
+    VeryHard -> ice x ids && sjOrBombs x ids && (pb x ids || spider x ids)
+    Expert -> ice x ids && sjOrBombs x ids && (pb x ids || spider x ids)
 
-ecaItem :: Difficulty -> Map ItemName Int -> Bool
-ecaItem diff x = case diff of
+ecaItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ecaItem diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb]
-    VeryHard -> (morph x && sj x) || bombs x
-    Expert -> (morph x && sj x) || bombs x
+    VeryHard -> (morph x ids && sj x ids) || bombs x ids
+    Expert -> (morph x ids && sj x ids) || bombs x ids
 
-eliteResearchTopItem :: Difficulty -> Map ItemName Int -> Bool
-eliteResearchTopItem diff x = case diff of
+eliteResearchPirate :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteResearchPirate _ _ = Data.Set.member CentralDynamo
+
+eliteResearchTopItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteResearchTopItem diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall]
-    VeryHard -> sjOrBombs x
-    Expert -> sjOrBombs x
+    VeryHard -> sjOrBombs x ids
+    Expert -> sjOrBombs x ids
 
-eliteResearchDoor :: Difficulty -> Map ItemName Int -> Bool
-eliteResearchDoor diff x = case diff of
+eliteResearchDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteResearchDoor diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
     Medium -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
     Hard -> containsAll x [SpaceJumpBoots, MorphBall, BoostBall, IceBeam]
-    VeryHard -> sjOrBombs x && ice x
-    Expert -> sjOrBombs x && ice x
+    VeryHard -> sjOrBombs x ids && ice x ids
+    Expert -> sjOrBombs x ids && ice x ids
 
-toStorageDepotA :: Difficulty -> Map ItemName Int -> Bool
-toStorageDepotA diff x = case diff of
+toStorageDepotA :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+toStorageDepotA diff x ids = case diff of
     Easy -> containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
     Medium -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
     Hard -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
     VeryHard -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
     Expert -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
 
-climbFungalHallAccess :: Difficulty -> Map ItemName Int -> Bool
-climbFungalHallAccess diff x = case diff of
+climbFungalHallAccess :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+climbFungalHallAccess diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
     Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam]
     Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-    VeryHard -> sjOrBombs x && plasma x
-    Expert -> sjOrBombs x && plasma x
+    VeryHard -> sjOrBombs x ids && plasma x ids
+    Expert -> sjOrBombs x ids && plasma x ids
 
-fungalHallATraversal :: Difficulty -> Map ItemName Int -> Bool
-fungalHallATraversal diff x = case diff of
+fungalHallATraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fungalHallATraversal diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, IceBeam]
     Medium -> containsAll x [SpaceJumpBoots, IceBeam]
     Hard -> containsAll x [SpaceJumpBoots, IceBeam]
-    VeryHard -> sjOrBombs x && ice x
-    Expert -> sjOrBombs x && ice x
+    VeryHard -> sjOrBombs x ids && ice x ids
+    Expert -> sjOrBombs x ids && ice x ids
 
-miningTunnelTraversal :: Difficulty -> Map ItemName Int -> Bool
-miningTunnelTraversal _ x = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+miningTunnelTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+miningTunnelTraversal _ x ids = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
 
 -- TODO Double check e-tank requirements
-miningTunnelItem :: Difficulty -> Map ItemName Int -> Bool
-miningTunnelItem diff x = case diff of
+miningTunnelItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+miningTunnelItem diff x ids = case diff of
     Easy -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
     Medium -> containsAll x [MorphBall, MorphBallBomb, PhazonSuit]
-    Hard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 10 EnergyTank x && boost x))
-    VeryHard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x))
-    Expert -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x))
+    Hard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 10 EnergyTank x && boost x ids))
+    VeryHard -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x ids))
+    Expert -> containsAll x [MorphBall, MorphBallBomb] && (contains x PhazonSuit || (containsCount 6 EnergyTank x && boost x ids))
 
-quarantineAccessBTraversal :: Difficulty -> Map ItemName Int -> Bool
-quarantineAccessBTraversal diff x = case diff of
+quarantineAccessBTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+quarantineAccessBTraversal diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-    Medium -> plasma x
-    Hard -> plasma x
-    VeryHard -> plasma x
-    Expert -> plasma x
+    Medium -> plasma x ids
+    Hard -> plasma x ids
+    VeryHard -> plasma x ids
+    Expert -> plasma x ids
 
-fungalHallBTraversal :: Difficulty -> Map ItemName Int -> Bool
-fungalHallBTraversal diff x = case diff of
+fungalHallBTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+fungalHallBTraversal diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
     Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam]
     Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-    VeryHard -> sjOrBombs x && plasma x
-    Expert -> sjOrBombs x && plasma x
+    VeryHard -> sjOrBombs x ids && plasma x ids
+    Expert -> sjOrBombs x ids && plasma x ids
 
-mqbTraversal :: Difficulty -> Map ItemName Int -> Bool
-mqbTraversal diff x = case diff of
+mqbTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mqbTraversal diff x ids = case diff of
     Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, GrappleBeam]
     Medium -> containsAll x [SpiderBall, MorphBall, GrappleBeam]
-    Hard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sj x
-    VeryHard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x
-    Expert -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x
+    Hard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sj x ids
+    VeryHard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x ids
+    Expert -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x ids
 
-ppcBottomClimb :: Difficulty -> Map ItemName Int -> Bool
-ppcBottomClimb diff x = case diff of
+ppcBottomClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+ppcBottomClimb diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
     Medium -> containsAll x [SpaceJumpBoots, PlasmaBeam, SpiderBall, MorphBall]
     Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-    VeryHard -> sjOrBombs x && plasma x
-    Expert -> sjOrBombs x && plasma x
+    VeryHard -> sjOrBombs x ids && plasma x ids
+    Expert -> sjOrBombs x ids && plasma x ids
 
-eliteQuarters :: Difficulty -> Map ItemName Int -> Bool
-eliteQuarters _ x = contains x XRayVisor
+eliteQuarters :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteQuarters _ x ids = contains x XRayVisor
 
-eliteQuartersPlasma :: Difficulty -> Map ItemName Int -> Bool
-eliteQuartersPlasma diff x = contains x PlasmaBeam && eliteQuarters diff x
+eliteQuartersPlasma :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteQuartersPlasma diff x ids = contains x PlasmaBeam && eliteQuarters diff x ids
 
-mqbBackClimb :: Difficulty -> Map ItemName Int -> Bool
-mqbBackClimb diff x = case diff of
+mqbBackClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mqbBackClimb diff x ids = case diff of
     Easy -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-    Medium -> plasma x && sjOrBombs x
-    Hard -> plasma x && sjOrBombs x
-    VeryHard -> plasma x && sjOrBombs x
-    Expert -> plasma x && sjOrBombs x
+    Medium -> plasma x ids && sjOrBombs x ids
+    Hard -> plasma x ids && sjOrBombs x ids
+    VeryHard -> plasma x ids && sjOrBombs x ids
+    Expert -> plasma x ids && sjOrBombs x ids
 
-mqbSw :: Difficulty -> Map ItemName Int -> Bool
-mqbSw diff x = case diff of
+mqbSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+mqbSw diff x ids = case diff of
     Easy -> False
     Medium -> False
-    Hard -> sj x && bombs x
-    VeryHard -> bombs x
-    Expert -> bombs x
+    Hard -> sj x ids && bombs x ids
+    VeryHard -> bombs x ids
+    Expert -> bombs x ids

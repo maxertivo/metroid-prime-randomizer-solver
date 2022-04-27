@@ -2,6 +2,8 @@ module Node where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.Set (Set)
+import qualified Data.Set as Set
 
 data Id = R RoomId | I ItemId
         deriving  (Read, Eq, Ord, Show)
@@ -9,7 +11,7 @@ data Id = R RoomId | I ItemId
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
         deriving (Show)
 
-data Edge = Edge {canUse :: Map ItemName Int -> Bool, nodeId :: Id}
+data Edge = Edge {canUse :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
 
 instance Show Edge where 
     show (Edge _ nodeId) = show nodeId
@@ -83,8 +85,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger | StorageDepotATrigger
 
-                -- TODO Possible pseudo items: Ruined Fountain Collected, Maze item, opened OP backdoor in mines, Sunchamber, HOTE statue
-                -- Research Lab Hydra barrier
+                -- TODO Possible pseudo items: opened OP backdoor in mines, HOTE statue, Research Lab Hydra barrier
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert

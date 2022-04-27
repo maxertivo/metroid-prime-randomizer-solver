@@ -240,7 +240,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R RRuinedFountainAccess)
                                     ,Edge noReq (R RMeditationFountain)
                                     ,Edge noReq (R RArboretumAccess)]
-            ,Room RRuinedFountain [Edge noReq (I RuinedFountain)] -- For simplicity, you can't escape a ruined fountain warp twice...sorry
+            ,Room RRuinedFountain [Edge (leaveRuinedFountainItem diff) (R RRuinedFountainNonWarp)
+                                    ,Edge noReq (I RuinedFountain)]
             ,Room RMeditationFountain [Edge noReq (R RRuinedFountainNonWarp)
                                     ,Edge noReq (R RMagmaPool)]
             ,Room RMagmaPool [Edge noReq (R RMeditationFountain)
