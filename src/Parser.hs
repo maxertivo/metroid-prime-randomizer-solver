@@ -184,7 +184,7 @@ defaultWarps =
     , (RFurnaceFront, FurnaceInsideFurnace)
     , (RHalloftheElders, HalloftheElders)
     , (RCrossway, Crossway)
-    , (RElderChamber, ElderChamber)
+    , (RHalloftheElders, ElderChamber) -- If non-warps, assume we are back in HotE after collecting this item.
     , (RAntechamber, Antechamber)
     , (DPhendranaShorelines, PhendranaShorelinesBehindIce)
     , (DPhendranaShorelines, PhendranaShorelinesSpiderTrack)

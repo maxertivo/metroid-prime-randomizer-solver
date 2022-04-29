@@ -18,7 +18,7 @@ Boss difficulty is not considered at all.
 
 Floaty jump is not considered, unless it is able to be acquired repeatedly, since a one-time usage trick makes the logic too complex. Tallon Floaty is the only example of floaty that can be required.
 
-Magmoor Traversals without heat protection are allowed, but the e-tank requirements are only approximate.
+Magmoor Traversals without heat protection are allowed, but the e-tank requirements are only approximate. Also, most e-tank requirements assume warps are enabled, so they may not be accurate for non-warps.
 
 # Compiling from source
 First, install GHC on your machine, and make sure the GHC executable is added to your PATH variable if needed. Running the following GHC command from the root of the project will compile the code and place all of the compiled files into a folder called "build":
