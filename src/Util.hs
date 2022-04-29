@@ -9,17 +9,17 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 
 getIndex :: [a] -> Integer -> Maybe a
-getIndex [] i = Nothing
-getIndex (x:rest) 0 = Just x
-getIndex (x:rest) i = getIndex rest (i - 1)
+getIndex [] _ = Nothing
+getIndex (x:_) 0 = Just x
+getIndex (_:rest) i = getIndex rest (i - 1)
     
 -- Apply all functions in a list to the same two args
 eval2 :: [a -> b -> c] -> a -> b -> [c]
 eval2 funcList arg1 arg2 = map (\x -> x arg1 arg2) funcList
 
 getVal :: Maybe a -> String -> a
-getVal maybe msg =
-    case maybe of
+getVal m msg =
+    case m of
         Nothing -> error msg
         Just a -> a
 
@@ -29,8 +29,8 @@ compareElem (a:rest1) (b:rest2)
     | a < b = LT
     | a > b = GT
     | otherwise = compareElem rest1 rest2
-compareElem (a:rest1) [] = GT
-compareElem [] (b:rest2) = LT
+compareElem _ [] = GT
+compareElem [] _ = LT
 
 nonEmpty :: [a] -> Bool
 nonEmpty [] = False
@@ -44,18 +44,18 @@ countOf mainList itemsToCount = f mainList itemsToCount 0
         if check `elem` items
             then f items rest (count + 1)
             else f items rest count
-    f items [] count = count
+    f _ [] count = count
 
 addItem :: ItemName -> Map ItemName Int -> Map ItemName Int
-addItem name map = case Map.lookup name map of
-    Just num -> Map.insert name (num+1) map
-    Nothing -> Map.insert name 1 map
+addItem name graph = case Map.lookup name graph of
+    Just num -> Map.insert name (num+1) graph
+    Nothing -> Map.insert name 1 graph
 
 removeAll :: Map ItemName Int -> [ItemName] -> Map ItemName Int
-removeAll map [] = map
-removeAll map (y:rest) = case Map.lookup y map of
-    Just num -> if num == 1 then Map.delete y map else Map.insert y (num-1) map
-    Nothing -> map
+removeAll graph [] = graph
+removeAll graph (y:rest) = case Map.lookup y graph of
+    Just num -> if num == 1 then removeAll (Map.delete y graph) rest else removeAll (Map.insert y (num-1) graph) rest
+    Nothing -> removeAll graph rest
 
 removeSet :: (Ord a) => [a] -> Set a -> [a]
 removeSet [] _ = []

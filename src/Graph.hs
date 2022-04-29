@@ -3,6 +3,7 @@ module Graph where
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+import Util
 import Node
 import Predicates
 
@@ -40,21 +41,21 @@ createMapKeys node =
         Room room _ -> (R room, node)
 
 replaceElevators :: Map Id Node -> [(RoomId, RoomId)] -> Map Id Node
-replaceElevators graph ((a,b):rest) = let   Just oldNode = Map.lookup (R a) graph;
+replaceElevators graph ((a,b):rest) = let   oldNode = getVal (Map.lookup (R a) graph) "Missing room";
                                             newNode = replaceEdgeRoom oldNode a b
                                         in replaceElevators (Map.insert (R a) newNode graph) rest
 replaceElevators graph [] = graph
 
 replaceEdgeRoom :: Node -> RoomId -> RoomId -> Node
-replaceEdgeRoom (Room id edgeList) original replacement = 
+replaceEdgeRoom (Room rId edgeList) original replacement = 
     let newEdges = f edgeList original replacement
-    in Room id newEdges
+    in Room rId newEdges
     where   f :: [Edge] -> RoomId -> RoomId -> [Edge]
             f [] _ _ = []
-            f ((Edge p nodeId):rest) original replacement =  
+            f ((Edge p nodeId):rest) orig replace =  
                 case nodeId of
-                    (R rId) -> if rId `elem` elevatorRooms then Edge p (R replacement) : f rest original replacement else Edge p (R rId) : f rest original replacement
-                    _ -> Edge p nodeId : f rest original replacement
+                    (R rId) -> if rId `elem` elevatorRooms then Edge p (R replace) : f rest orig replace else Edge p (R rId) : f rest orig replace
+                    _ -> Edge p nodeId : f rest orig replace
 replaceEdgeRoom node _ _  = node
 
 elevatorRooms :: [RoomId]

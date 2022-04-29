@@ -90,7 +90,7 @@ collectFreeItemsHelper graph (item:rest) currState =
         Item itemId itemName warp = item
         newInventory = addItem itemName inventory
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
-        newState = State newInventory (Room roomId edges) (Set.insert itemId collectedItems) 
+        newState = State newInventory newRoom (Set.insert itemId collectedItems) 
     in 
         -- If we can reach our starting location, then the warp is not useful, so collecting the item has no cost
         if isMutuallyAccessible graph warp roomId newInventory collectedItems
@@ -108,16 +108,16 @@ isAccessibleHelper :: Map Id Node -> [RoomId] -> [RoomId] -> RoomId -> Map ItemN
 isAccessibleHelper _ [] _ _ _ _ = False
 isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory itemIds= 
     roomId == destination || case Map.lookup (R roomId) graph of
-                            Nothing -> error ("Missing Room " ++ show roomId)
                             Just (Room _ edges) -> let predicates = map canUse edges;
                                                         nodeIds = map nodeId edges;
                                                         bools = eval2 predicates inventory itemIds;
                                                         roomIds = getRoomIds (checkBools nodeIds bools);
                                                         uncheckedRoomIds = roomIds \\ checkedRooms
                                                 in isAccessibleHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) destination inventory itemIds
+                            _ -> error ("Missing or incorrect Room " ++ show roomId)
 
 getAccessibleItems :: Map Id Node -> State -> [Node]
-getAccessibleItems graph (State inventory (Room roomId edges) collectedItems) = 
+getAccessibleItems graph (State inventory (Room roomId _) collectedItems) = 
     let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
         uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
         maybeItems = mapM (((\ x -> x graph) . Map.lookup) . I) uniqueItemIds
@@ -129,7 +129,6 @@ getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> Map ItemName 
 getAccessibleItemsHelper _ [] _ _ _ = []
 getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems = 
     case Map.lookup (R roomId) graph of
-        Nothing -> error ("Missing Room " ++ show roomId)
         Just (Room _ edges) -> let predicates = map canUse edges;
                                     nodeIds = map nodeId edges;
                                     bools = eval2 predicates inventory collectedItems;
@@ -139,3 +138,4 @@ getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedIte
                                     uncheckedRoomIds = roomIds \\ checkedRooms;
                                     uncollectedItemIds = removeSet itemIds collectedItems;
                                 in uncollectedItemIds ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId:checkedRooms) inventory collectedItems                            
+        _ -> error ("Missing or incorrect Room " ++ show roomId)
