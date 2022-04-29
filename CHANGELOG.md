@@ -1,4 +1,4 @@
-# Revision history for mp-warp-rando-checker
+# Revision history for metroid-prime-randomizer-solver
 
 ## 1.0.0 -- YYYY-mm-dd
 
