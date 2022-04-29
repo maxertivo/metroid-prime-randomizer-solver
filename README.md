@@ -23,4 +23,4 @@ Magmoor Traversals without heat protection are allowed, but the e-tank requireme
 # Compiling from source
 First, install GHC on your machine, and make sure the GHC executable is added to your PATH variable if needed. Running the following GHC command from the root of the project will compile the code and place all of the compiled files into a folder called "build":
 
-ghc app/Main.hs --make -O2 -i"./src":"./app" -hidir "./build" -odir "./build" -o ./build/mp-warp-rando-checker
+ghc app/Main.hs --make -O2 -i"./src" -hidir "./build" -odir "./build" -o ./build/mp-warp-rando-checker
