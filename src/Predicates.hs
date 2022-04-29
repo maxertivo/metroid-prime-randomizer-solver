@@ -16,7 +16,7 @@ blocked :: Map ItemName Int -> Set ItemId -> Bool
 blocked _ _ = False
 
 complete :: Map ItemName Int -> Set ItemId -> Bool
-complete x _ = containsCount 12 Artifact x
+complete x _ = containsCount 12 Artifact x && contains x PhazonSuit && contains x PlasmaBeam
 
 morph :: Map ItemName Int -> Set ItemId -> Bool
 morph x ids = contains x MorphBall
@@ -374,7 +374,13 @@ mainPlazaSw diff x ids =
         Expert -> sj x ids && bombs x ids
 
 ruinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-ruinedFountainItem _ x ids = contains x SpiderBall
+ruinedFountainItem diff x ids = 
+    case diff of
+        Easy -> Data.Set.member SunchamberFlaahgra ids && contains x SpiderBall
+        Medium -> Data.Set.member SunchamberFlaahgra ids && contains x SpiderBall
+        Hard -> (Data.Set.member SunchamberFlaahgra ids || sj x ids) && contains x SpiderBall
+        VeryHard -> (Data.Set.member SunchamberFlaahgra ids || sj x ids) && contains x SpiderBall
+        Expert -> (Data.Set.member SunchamberFlaahgra ids || sj x ids) && contains x SpiderBall
 
 leaveRuinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 leaveRuinedFountainItem _ x ids = Data.Set.member RuinedFountain ids && spider x ids
@@ -1184,7 +1190,7 @@ ecaItem diff x ids =
         Expert -> (morph x ids && sj x ids) || bombs x ids
 
 eliteResearchPirate :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-eliteResearchPirate _ _ = Data.Set.member CentralDynamo
+eliteResearchPirate _ x ids = Data.Set.member CentralDynamo ids && pb x ids
 
 eliteResearchTopItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteResearchTopItem diff x ids =

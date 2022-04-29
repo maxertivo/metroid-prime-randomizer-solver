@@ -34,4 +34,5 @@ checkFile :: String -> Difficulty -> IO Bool
 checkFile filePath diff = do
     fileContents <- readFile filePath
     let graph = buildMap $ buildNodes diff ++ parse fileContents
-    return $ isCompletable graph
+    let graph2 = replaceElevators graph (parseElevators fileContents)
+    return $ isCompletable graph2

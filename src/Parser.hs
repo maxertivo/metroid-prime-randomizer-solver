@@ -7,6 +7,9 @@ import Text.Read
 parse :: String -> [Node]
 parse input = createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePrefixes $ removePunc $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
 
+parseElevators :: String -> [(RoomId, RoomId)]
+parseElevators input = createElevatorTuples $ shortenAreas $ splitElevators $ removePunc $ removeEmpty $ getElevatorLines $ lines input
+
 createItemNodes :: [(String, String, String)] -> [Node]
 createItemNodes ((a, b, c):rest) = Item (readStr a :: ItemId) (readStr b :: ItemName) (getWarp c a) : createItemNodes rest
 createItemNodes [] = []
@@ -65,7 +68,13 @@ addDash [] = []
 
 createTuples :: [String] -> [(String, String, String)]
 createTuples (_:b:c:d:rest) = (b, c, d) : createTuples rest
-createTuples _ = []
+createTuples [] = []
+createTuples _ = error "list length must be divisible by 4"
+
+createElevatorTuples :: [String] -> [(RoomId, RoomId)]
+createElevatorTuples (a:b:rest) = (readStr a :: RoomId, readStr b :: RoomId) : createElevatorTuples rest
+createElevatorTuples [] = []
+createElevatorTuples _ = error "elevators should be in pairs"
 
 removeEmpty :: [String] -> [String]
 removeEmpty ("":rest) = removeEmpty rest
@@ -80,6 +89,9 @@ removeNum xs = [x | x <- xs, x `notElem` "1234567890"]
 
 split :: [String] -> [String]
 split = concatMap (splitOn "- ")
+
+splitElevators :: [String] -> [String]
+splitElevators = concatMap (splitOn "<>")
 
 splitOn :: String -> String -> [String]
 splitOn delim str = splitOnHelper delim str []
@@ -117,6 +129,13 @@ dropElevators (x:rest) =
     if startsWith "Elevators:" x
         then []
         else x : dropElevators rest
+
+getElevatorLines :: [String] ->  [String]
+getElevatorLines [] = []
+getElevatorLines (x:rest) = 
+    if startsWith "Elevators:" x
+        then rest
+        else getElevatorLines rest
 
 lowerString :: String -> String
 lowerString str = [ toLower loweredString | loweredString <- str]

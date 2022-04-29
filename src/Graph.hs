@@ -39,6 +39,30 @@ createMapKeys node =
         Item item _ _ -> (I item, node)
         Room room _ -> (R room, node)
 
+replaceElevators :: Map Id Node -> [(RoomId, RoomId)] -> Map Id Node
+replaceElevators graph ((a,b):rest) = let   Just oldNode = Map.lookup (R a) graph;
+                                            newNode = replaceEdgeRoom oldNode a b
+                                        in replaceElevators (Map.insert (R a) newNode graph) rest
+replaceElevators graph [] = graph
+
+replaceEdgeRoom :: Node -> RoomId -> RoomId -> Node
+replaceEdgeRoom (Room id edgeList) original replacement = 
+    let newEdges = f edgeList original replacement
+    in Room id newEdges
+    where   f :: [Edge] -> RoomId -> RoomId -> [Edge]
+            f [] _ _ = []
+            f ((Edge p nodeId):rest) original replacement =  
+                case nodeId of
+                    (R rId) -> if rId `elem` elevatorRooms then Edge p (R replacement) : f rest original replacement else Edge p (R rId) : f rest original replacement
+                    _ -> Edge p nodeId : f rest original replacement
+replaceEdgeRoom node _ _  = node
+
+elevatorRooms :: [RoomId]
+elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
+    ,DTransporttoMagmoorCavernsWest ,DTransporttoMagmoorCavernsSouth ,OTransporttoChozoRuinsWest ,OTransporttoChozoRuinsEast ,OTransporttoMagmoorCavernsEast 
+    ,OTransporttoChozoRuinsSouth ,OTransporttoPhazonMinesEast,MTransporttoTallonOverworldSouth ,MTransporttoMagmoorCavernsSouth ,CTransporttoChozoRuinsNorth
+    ,CTransporttoPhendranaDriftsNorth ,CTransporttoTallonOverworldWest ,CTransporttoPhazonMinesWest ,CTransporttoPhendranaDriftsSouth]
+
 buildNodes :: Difficulty -> [Node]
 buildNodes diff = [ -- Tallon Overworld Rooms
             Room OLandingSite [Edge noReq (R OCanyonCavern)
@@ -646,7 +670,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MEliteResearch [Edge ice (R MSecurityAccessB)
                                     ,Edge (eliteResearchDoor diff) (R MResearchAccess)
                                     ,Edge (eliteResearchTopItem diff) (I EliteResearchLaser)
-                                    ,Edge pb (I EliteResearchPhazonElite)]
+                                    ,Edge (eliteResearchPirate diff) (I EliteResearchPhazonElite)]
             -- Currently require boosting through wall
             ,Room MResearchAccess [Edge (shaftClimb2 diff) (R MEliteResearch)
                                     ,Edge (oreProcessingClimb diff) (R MOreProcessing)]

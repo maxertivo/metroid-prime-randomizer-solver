@@ -43,7 +43,8 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         State inventory (Room roomId edges) collectedItems = currState
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
         newInventory = addItem itemName inventory
-        newState = State newInventory newRoom (Set.insert itemId collectedItems) 
+        newIds = Set.insert itemId collectedItems
+        newState = State newInventory newRoom newIds
         accessibleItems = getAccessibleItems graph newState
         numAccessibleItems = length accessibleItems
         belowDepthLimit
@@ -66,16 +67,16 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
 -- TODO certain item IDs are progression items
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory = let previousInventory = removeAll inventory newItems 
-                                         y = Data.Set.empty
+                                         ids = Data.Set.empty
                                     in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                                                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit,Artifact] -- These are always an improvement
-                                    || (not (spider previousInventory y) && spider inventory y)
-                                    || (not (bombs previousInventory y) && bombs inventory y)
-                                    || (not (boost previousInventory y) && boost inventory y)
-                                    || (not (supers previousInventory y) && supers inventory y)
-                                    || (not (missile previousInventory y) && missile inventory y)
-                                    || (not (pb previousInventory y) && pb inventory y)
-                                    || (not (heatResist previousInventory y) && heatResist inventory y)
+                                    || (not (spider previousInventory ids) && spider inventory ids)
+                                    || (not (bombs previousInventory ids) && bombs inventory ids)
+                                    || (not (boost previousInventory ids) && boost inventory ids)
+                                    || (not (supers previousInventory ids) && supers inventory ids)
+                                    || (not (missile previousInventory ids) && missile inventory ids)
+                                    || (not (pb previousInventory ids) && pb inventory ids)
+                                    || (not (heatResist previousInventory ids) && heatResist inventory ids)
                                     || listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory)
                                     || listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 

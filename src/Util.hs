@@ -13,10 +13,6 @@ getIndex [] i = Nothing
 getIndex (x:rest) 0 = Just x
 getIndex (x:rest) i = getIndex rest (i - 1)
     
--- Apply all functions in a list to the same arg
-eval :: [a -> b] -> a -> [b]
-eval funcList arg = map (\x -> x arg) funcList
-    
 -- Apply all functions in a list to the same two args
 eval2 :: [a -> b -> c] -> a -> b -> [c]
 eval2 funcList arg1 arg2 = map (\x -> x arg1 arg2) funcList
