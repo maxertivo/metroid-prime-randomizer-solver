@@ -42,7 +42,7 @@ explore nodes items colItems (Item id name warp) =  case Map.lookup (R warp) nod
                             Just warpNode -> explore nodes (addItem name items) (Set.insert id colItems) warpNode
                             Nothing -> throw $ MissingWarp $ R warp
 explore nodes items colItems (Room roomId edges) = do
-    let predicates = map canUse edges
+    let predicates = map predicate edges
         bools = eval2 predicates items colItems
         ids = map nodeId edges
     

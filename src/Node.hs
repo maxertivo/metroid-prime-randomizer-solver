@@ -9,7 +9,7 @@ data Id = R RoomId | I ItemId
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
         deriving (Show)
 
-data Edge = Edge {canUse :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
+data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
 
 instance Show Edge where 
     show (Edge _ nodeId) = show nodeId

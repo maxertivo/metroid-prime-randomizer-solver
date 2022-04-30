@@ -11,7 +11,7 @@ import Predicates
 A graph is represented as a collection of nodes. Specifically, it's a Map of the Node ID to the Node itself.
 
 Note that Rooms and Items are both nodes in this graph, with edges representing the requirements (specified as a function) to move from node to node.
-As such, Items are nodes that force you to traverse to their designated "warp" room.
+Items are nodes that force you to traverse to their designated "warp" room.
 
 We calculate if a seed is completable by constructing a graph representing it and calling isCompletable.
 This function does the following:
@@ -20,15 +20,13 @@ This function does the following:
     3. Tries to find a sequence of at most 5 warps that collects at least one progression item
     4. If no such sequences can be found, we are done and cannot complete the game. Otherwise, repeat steps 1-3.
 
-Predicates:
-The trickiest part of constructing this graph is determining the requirements to move between rooms. If you wish to modify the item/room requirements, see the Predicates.hs file
-
 Graph Construction:
-Much of the graph construction is hard coded. During construction, the difficulty is passed in to any edge predicate the requires it, 
+Much of the graph construction is hard-coded. During construction, the difficulty is passed in to any edge predicate that requires it, 
 thereby eliminating the need to pass in the difficulty when solving the graph.
 
 Non-Warping Items:
 If the item does not warp, it is treated as if it warps to the room containing the item (Or in some cases, an adjacent room that is more appropriate).
+This is mostly useful for non-warp randomizer seeds. 
 --}
 
 buildMap :: [Node] -> Map Id Node

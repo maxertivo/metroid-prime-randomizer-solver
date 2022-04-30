@@ -112,7 +112,7 @@ isAccessibleHelper :: Map Id Node -> [RoomId] -> [RoomId] -> RoomId -> Map ItemN
 isAccessibleHelper _ [] _ _ _ _ = False
 isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory itemIds= 
     roomId == destination || case Map.lookup (R roomId) graph of
-                            Just (Room _ edges) -> let predicates = map canUse edges;
+                            Just (Room _ edges) -> let predicates = map predicate edges;
                                                         nodeIds = map nodeId edges;
                                                         bools = eval2 predicates inventory itemIds;
                                                         roomIds = getRoomIds (checkBools nodeIds bools);
@@ -134,7 +134,7 @@ getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> Map ItemName 
 getAccessibleItemsHelper _ [] _ _ _ = []
 getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems = 
     case Map.lookup (R roomId) graph of
-        Just (Room _ edges) -> let predicates = map canUse edges;
+        Just (Room _ edges) -> let predicates = map predicate edges;
                                     nodeIds = map nodeId edges;
                                     bools = eval2 predicates inventory collectedItems;
                                     reachableNodeIds = checkBools nodeIds bools;
