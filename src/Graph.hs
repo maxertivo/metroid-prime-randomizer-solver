@@ -3,9 +3,9 @@ module Graph where
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-import Util
 import Node
 import Predicates
+import Util
 
 {-- 
 A graph is represented as a collection of nodes. Specifically, it's a Map of the Node ID to the Node itself.
@@ -39,22 +39,27 @@ createMapKeys node =
         Room room _ -> (R room, node)
 
 replaceElevators :: Map Id Node -> [(RoomId, RoomId)] -> Map Id Node
-replaceElevators graph ((a,b):rest) = let   oldNode = getVal (Map.lookup (R a) graph) "Missing room";
-                                            newNode = replaceEdgeRoom oldNode a b
-                                        in replaceElevators (Map.insert (R a) newNode graph) rest
 replaceElevators graph [] = graph
+replaceElevators graph ((a, b):rest) =
+    let oldNode = getVal (Map.lookup (R a) graph) "Missing room"
+        newNode = replaceEdgeRoom oldNode a b
+     in replaceElevators (Map.insert (R a) newNode graph) rest
 
 replaceEdgeRoom :: Node -> RoomId -> RoomId -> Node
-replaceEdgeRoom (Room rId edgeList) original replacement = 
+replaceEdgeRoom (Room rId edgeList) original replacement =
     let newEdges = f edgeList original replacement
-    in Room rId newEdges
-    where   f :: [Edge] -> RoomId -> RoomId -> [Edge]
-            f [] _ _ = []
-            f ((Edge p nodeId):rest) orig replace =  
-                case nodeId of
-                    (R roomId) -> if roomId `elem` elevatorRooms then Edge p (R replace) : f rest orig replace else Edge p (R roomId) : f rest orig replace
-                    _ -> Edge p nodeId : f rest orig replace
-replaceEdgeRoom node _ _  = node
+     in Room rId newEdges
+  where
+    f :: [Edge] -> RoomId -> RoomId -> [Edge]
+    f [] _ _ = []
+    f ((Edge p nodeId):rest) orig replace =
+        case nodeId of
+            (R roomId) ->
+                if roomId `elem` elevatorRooms
+                    then Edge p (R replace) : f rest orig replace
+                    else Edge p (R roomId) : f rest orig replace
+            _ -> Edge p nodeId : f rest orig replace
+replaceEdgeRoom node _ _ = node
 
 elevatorRooms :: [RoomId]
 elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
@@ -765,11 +770,10 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                         ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
                                         ,Edge noReq (I ProcessingCenterAccess)]
             ,Room MMinesFrontSw [Edge bombs (I StorageDepotA)
-                                        ,Edge bombs (R MMainQuarry)
-                                        ,Edge bombs (I SecurityAccessA)] -- TODO: Is this possible?
+                                        ,Edge bombs (R MMainQuarry)]
+                                        --,Edge bombs (I SecurityAccessA)] -- TODO: Is this possible?
             ,Room MMinesBackSw [Edge bombs (R MFungalHallB)
                                         ,Edge bombs (R MPhazonProcessingCenter)
-                                        ,Edge bombs (I FungalHallAccess)
                                         ,Edge bombs (R MMetroidQuarantineB)
                                         ,Edge (longWallcrawl diff) (I FungalHallAccess)]
 

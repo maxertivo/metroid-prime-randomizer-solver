@@ -138,8 +138,8 @@ arbor diff x _ =
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor, PlasmaBeam]
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
         Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-        VeryHard -> contains x PlasmaBeam
-        Expert -> contains x PlasmaBeam
+        VeryHard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+        Expert -> containsAll x [SpaceJumpBoots, PlasmaBeam]
 
 fcsClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 fcsClimb diff x ids =
@@ -199,8 +199,8 @@ cargoFreightLift :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 cargoFreightLift diff x ids =
     case diff of
         Easy -> containsAll x [WaveBeam, GravitySuit, SpaceJumpBoots]
-        Medium -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
-        Hard -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
+        Medium -> contains x WaveBeam && ((bombs x ids && not (contains x GravitySuit)) || containsAll x [GravitySuit, SpaceJumpBoots])
+        Hard -> contains x WaveBeam && ((bombs x ids && not (contains x GravitySuit)) || containsAll x [GravitySuit, SpaceJumpBoots])
         VeryHard -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
         Expert -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
 
@@ -311,7 +311,7 @@ gtcEnter diff x ids =
     case diff of
         Easy -> sj x ids
         Medium -> sj x ids
-        Hard -> sjOrBombs x ids
+        Hard -> sj x ids
         VeryHard -> sjOrBombs x ids
         Expert -> sjOrBombs x ids
 
@@ -372,7 +372,7 @@ mainPlazaSw diff x ids =
         Expert -> sj x ids && bombs x ids
 
 ruinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-ruinedFountainItem diff x ids = 
+ruinedFountainItem diff x ids =
     case diff of
         Easy -> Data.Set.member SunchamberFlaahgra ids && contains x SpiderBall
         Medium -> Data.Set.member SunchamberFlaahgra ids && contains x SpiderBall
@@ -735,7 +735,7 @@ geoCore diff x _ =
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
         Hard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
         VeryHard -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
-        Expert -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, BoostBall, IceBeam]
+        Expert -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, IceBeam]
 
 -- Phendrana Predicates
 iceBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
@@ -943,8 +943,8 @@ toSecurityCave diff x ids =
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, MorphBall]
         Medium -> containsAll x [SpaceJumpBoots, MorphBall]
         Hard -> containsAll x [SpaceJumpBoots, MorphBall]
-        VeryHard -> morph x ids && (sjOrBombs x ids || grapple x ids)
-        Expert -> morph x ids && (sjOrBombs x ids || grapple x ids)
+        VeryHard -> morph x ids && (sj x ids || (bombs x ids && grapple x ids))
+        Expert -> morph x ids && (sj x ids || (bombs x ids && grapple x ids))
 
 phenEdgeLower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 phenEdgeLower diff x ids =
@@ -1272,7 +1272,7 @@ mqbTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 mqbTraversal diff x ids =
     case diff of
         Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, GrappleBeam]
-        Medium -> containsAll x [SpiderBall, MorphBall, GrappleBeam]
+        Medium -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots]
         Hard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sj x ids
         VeryHard -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x ids
         Expert -> containsAll x [SpiderBall, MorphBall, GrappleBeam] || sjOrBombs x ids

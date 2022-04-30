@@ -130,15 +130,15 @@ dropElevators (x:rest) =
         then []
         else x : dropElevators rest
 
-getElevatorLines :: [String] ->  [String]
+getElevatorLines :: [String] -> [String]
 getElevatorLines [] = []
-getElevatorLines (x:rest) = 
+getElevatorLines (x:rest) =
     if startsWith "Elevators:" x
         then rest
         else getElevatorLines rest
 
 lowerString :: String -> String
-lowerString str = [ toLower loweredString | loweredString <- str]
+lowerString str = [toLower loweredString | loweredString <- str]
 
 parseDifficulty :: String -> Difficulty
 parseDifficulty x
