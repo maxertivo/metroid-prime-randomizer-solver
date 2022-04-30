@@ -4,9 +4,7 @@ import Node
 import Util
 
 import Data.Map (Map)
-import qualified Data.Map as Map
 import Data.Set (Set, member)
-import qualified Data.Set as Set
 
 -- Basic Predicates
 noReq :: Map ItemName Int -> Set ItemId -> Bool
@@ -19,28 +17,28 @@ complete :: Map ItemName Int -> Set ItemId -> Bool
 complete x _ = containsCount 12 Artifact x && contains x PhazonSuit && contains x PlasmaBeam
 
 morph :: Map ItemName Int -> Set ItemId -> Bool
-morph x ids = contains x MorphBall
+morph x _ = contains x MorphBall
 
 sj :: Map ItemName Int -> Set ItemId -> Bool
-sj x ids = contains x SpaceJumpBoots
+sj x _ = contains x SpaceJumpBoots
 
 sjOrBombs :: Map ItemName Int -> Set ItemId -> Bool
 sjOrBombs x ids = contains x SpaceJumpBoots || bombs x ids
 
 missile :: Map ItemName Int -> Set ItemId -> Bool
-missile x ids = contains x Missile
+missile x _ = contains x Missile
 
 bombs :: Map ItemName Int -> Set ItemId -> Bool
-bombs x ids = containsAll x [MorphBall, MorphBallBomb]
+bombs x _ = containsAll x [MorphBall, MorphBallBomb]
 
 pb :: Map ItemName Int -> Set ItemId -> Bool
-pb x ids = containsAll x [PowerBomb, MorphBall]
+pb x _ = containsAll x [PowerBomb, MorphBall]
 
 boost :: Map ItemName Int -> Set ItemId -> Bool
-boost x ids = containsAll x [MorphBall, BoostBall]
+boost x _ = containsAll x [MorphBall, BoostBall]
 
 spider :: Map ItemName Int -> Set ItemId -> Bool
-spider x ids = containsAll x [MorphBall, SpiderBall]
+spider x _ = containsAll x [MorphBall, SpiderBall]
 
 waveIce :: Map ItemName Int -> Set ItemId -> Bool
 waveIce x _ = containsAll x [WaveBeam, PlasmaBeam]
@@ -58,41 +56,41 @@ bombsPbs :: Map ItemName Int -> Set ItemId -> Bool
 bombsPbs x _ = containsAll x [MorphBall, MorphBallBomb, PowerBomb]
 
 wave :: Map ItemName Int -> Set ItemId -> Bool
-wave x ids = contains x WaveBeam
+wave x _ = contains x WaveBeam
 
 ice :: Map ItemName Int -> Set ItemId -> Bool
-ice x ids = contains x IceBeam
+ice x _ = contains x IceBeam
 
 plasma :: Map ItemName Int -> Set ItemId -> Bool
-plasma x ids = contains x PlasmaBeam
+plasma x _ = contains x PlasmaBeam
 
 supers :: Map ItemName Int -> Set ItemId -> Bool
-supers x ids = containsAll x [Missile, SuperMissile, ChargeBeam]
+supers x _ = containsAll x [Missile, SuperMissile, ChargeBeam]
 
 gravSpace :: Map ItemName Int -> Set ItemId -> Bool
-gravSpace x ids = containsAll x [GravitySuit, SpaceJumpBoots]
+gravSpace x _ = containsAll x [GravitySuit, SpaceJumpBoots]
 
 wavePb :: Map ItemName Int -> Set ItemId -> Bool
 wavePb x ids = wave x ids && pb x ids
 
 heatResist :: Map ItemName Int -> Set ItemId -> Bool
-heatResist x ids = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
+heatResist x _ = containsAny x [VariaSuit, GravitySuit, PhazonSuit]
 
 floaty :: Map ItemName Int -> Set ItemId -> Bool
-floaty x ids = not $ contains x GravitySuit
+floaty x _ = not $ contains x GravitySuit
 
 -- A bit of an obscure trick, you can use infinite speed in landing site to unload the room
 tallonFloaty :: Map ItemName Int -> Set ItemId -> Bool
 tallonFloaty x ids = boost x ids && floaty x ids
 
 mainQuarryBarrierIce :: Map ItemName Int -> Set ItemId -> Bool
-mainQuarryBarrierIce x ids = containsAll x [MainQuarryBarriers, IceBeam]
+mainQuarryBarrierIce x _ = containsAll x [MainQuarryBarriers, IceBeam]
 
 mainQuarryBarrierWave :: Map ItemName Int -> Set ItemId -> Bool
-mainQuarryBarrierWave x ids = containsAll x [MainQuarryBarriers, WaveBeam]
+mainQuarryBarrierWave x _ = containsAll x [MainQuarryBarriers, WaveBeam]
 
 chozoIceTempleBarrier :: Map ItemName Int -> Set ItemId -> Bool
-chozoIceTempleBarrier x ids = contains x ChozoIceTempleBarrier
+chozoIceTempleBarrier x _ = contains x ChozoIceTempleBarrier
 
 wallcrawl :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 wallcrawl diff x ids =
@@ -126,7 +124,7 @@ tallonCanyonSw diff x ids =
         Expert -> bombs x ids
 
 rootCaveItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-rootCaveItem diff x ids =
+rootCaveItem diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor]
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam]
@@ -135,7 +133,7 @@ rootCaveItem diff x ids =
         Expert -> contains x SpaceJumpBoots
 
 arbor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-arbor diff x ids =
+arbor diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor, PlasmaBeam]
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
@@ -207,7 +205,7 @@ cargoFreightLift diff x ids =
         Expert -> contains x WaveBeam && (bombs x ids || containsAll x [GravitySuit, SpaceJumpBoots])
 
 biohazard :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-biohazard _ x ids = contains x WaveBeam
+biohazard _ x _ = contains x WaveBeam
 
 climbBiohazard :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 climbBiohazard diff x ids =
@@ -255,7 +253,7 @@ hydroTunnel diff x ids =
         Expert -> containsAll x [GravitySuit, MorphBall, MorphBallBomb] || boost x ids
 
 gthClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-gthClimb diff x ids =
+gthClimb diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
         Medium -> containsAll x [SpaceJumpBoots, BoostBall, MorphBall]
@@ -273,7 +271,7 @@ bars diff x ids =
         Expert -> bombs x ids
 
 lifeGroveTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-lifeGroveTunnel diff x ids =
+lifeGroveTunnel diff x _ =
     case diff of
         Easy -> containsAll x [PowerBomb, MorphBall, BoostBall]
         Medium -> containsAll x [PowerBomb, MorphBall, BoostBall]
@@ -282,7 +280,7 @@ lifeGroveTunnel diff x ids =
         Expert -> containsAll x [PowerBomb, MorphBall] && containsAny x [MorphBallBomb, BoostBall]
 
 lifeGroveTunnelItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-lifeGroveTunnelItem diff x ids =
+lifeGroveTunnelItem diff x _ =
     case diff of
         Easy -> containsAll x [PowerBomb, MorphBall, BoostBall, MorphBallBomb]
         Medium -> containsAll x [PowerBomb, MorphBall, BoostBall, MorphBallBomb]
@@ -347,7 +345,7 @@ mainPipe diff x ids =
         Expert -> sj x ids || boost x ids || bombs x ids
 
 mainPlazaGrappleLedge :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-mainPlazaGrappleLedge diff x ids =
+mainPlazaGrappleLedge diff x _ =
     case diff of
         Easy -> contains x GrappleBeam
         Medium -> containsAny x [GrappleBeam, SpaceJumpBoots]
@@ -356,7 +354,7 @@ mainPlazaGrappleLedge diff x ids =
         Expert -> containsAny x [GrappleBeam, SpaceJumpBoots]
 
 mainPlazaLedge :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-mainPlazaLedge diff x ids =
+mainPlazaLedge diff x _ =
     case diff of
         Easy -> False
         Medium -> contains x SpaceJumpBoots
@@ -386,7 +384,7 @@ leaveRuinedFountainItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 leaveRuinedFountainItem _ x ids = Data.Set.member RuinedFountain ids && spider x ids
 
 towerChamber :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-towerChamber diff x ids =
+towerChamber diff x _ =
     case diff of
         Easy -> containsAll x [GravitySuit, SpaceJumpBoots, WaveBeam]
         Medium -> containsAll x [SpaceJumpBoots, WaveBeam]
@@ -404,7 +402,7 @@ rsHalf diff x ids =
         Expert -> contains x MorphBall
 
 tolAccess :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-tolAccess diff x ids =
+tolAccess diff x _ =
     case diff of
         Easy -> containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam]
         Medium -> containsAll x [MorphBall, BoostBall, SpiderBall, WaveBeam] || containsAll x [SpaceJumpBoots, WaveBeam]
@@ -442,13 +440,13 @@ magmaPoolItem diff x ids =
         Expert -> (grapple x ids && pb x ids && heatResist x ids) || (sj x ids && pb x ids) || (boost x ids && (containsCount 5 EnergyTank x || heatResist x ids))
 
 tcItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-tcItem _ x ids = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
+tcItem _ x _ = containsAll x [MorphBall, BoostBall, MorphBallBomb, SpiderBall]
 
 tcTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 tcTunnel _ x ids = boost x ids && bombs x ids
 
 climbSunTower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-climbSunTower _ x ids = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
+climbSunTower _ x _ = containsAll x [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
 
 sunchamberghost :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 sunchamberghost _ _ = Data.Set.member SunchamberFlaahgra
@@ -472,7 +470,7 @@ wateryHallSw diff x ids =
         Expert -> bombs x ids
 
 wateryHallTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-wateryHallTraverse diff x ids = containsAll x [MorphBall, MorphBallBomb, Missile]
+wateryHallTraverse _ x _ = containsAll x [MorphBall, MorphBallBomb, Missile]
 
 wateryHallWater :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 wateryHallWater diff x ids =
@@ -484,7 +482,7 @@ wateryHallWater diff x ids =
         Expert -> True
 
 furnaceTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-furnaceTraverse diff x ids =
+furnaceTraverse diff x _ =
     case diff of
         Easy -> containsAll x [MorphBall, MorphBallBomb, SpiderBall]
         Medium -> containsAll x [MorphBall, MorphBallBomb]
@@ -502,7 +500,7 @@ furnaceItem diff x ids =
         Expert -> containsAll x [MorphBall, MorphBallBomb, SpiderBall] && (containsAll x [PowerBomb, BoostBall] || sj x ids)
 
 crosswayInfiniteSpeed :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-crosswayInfiniteSpeed diff x ids = diff == Expert && containsAll x [MorphBall, BoostBall, Missile]
+crosswayInfiniteSpeed diff x _ = diff == Expert && containsAll x [MorphBall, BoostBall, Missile]
 
 crosswayTraverse :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 crosswayTraverse diff x ids =
@@ -713,13 +711,13 @@ crossNorthCoreTunnel diff x ids =
         Expert -> contains x WaveBeam && (missile x ids || sj x ids)
 
 workstationTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-workstationTunnel diff x ids = containsAll x [IceBeam, PowerBomb, MorphBall]
+workstationTunnel _ x _ = containsAll x [IceBeam, PowerBomb, MorphBall]
 
 workstationItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-workstationItem diff x ids = containsAll x [MorphBall, WaveBeam]
+workstationItem _ x _ = containsAll x [MorphBall, WaveBeam]
 
 workstationWaveDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-workstationWaveDoor diff x ids = sjOrBombs x ids && contains x WaveBeam
+workstationWaveDoor _ x ids = sjOrBombs x ids && contains x WaveBeam
 
 workstationSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 workstationSw diff x ids =
@@ -731,7 +729,7 @@ workstationSw diff x ids =
         Expert -> sj x ids || (ice x ids && bombs x ids)
 
 geoCore :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-geoCore diff x ids =
+geoCore diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, SpiderBall, MorphBall, MorphBallBomb, BoostBall, IceBeam]
@@ -741,7 +739,7 @@ geoCore diff x ids =
 
 -- Phendrana Predicates
 iceBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-iceBarrier _ x ids = containsAny x [Missile, ChargeBeam]
+iceBarrier _ x _ = containsAny x [Missile, ChargeBeam]
 
 shorelinesTower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 shorelinesTower diff x ids =
@@ -762,7 +760,7 @@ shorelinesItem diff x ids =
         Expert -> plasma x ids || (wave x ids && boost x ids && sj x ids && bombs x ids)
 
 iceTempleClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-iceTempleClimb diff x ids =
+iceTempleClimb diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
         Medium -> containsAll x [SpaceJumpBoots, MorphBall, MorphBallBomb, Missile]
@@ -807,7 +805,7 @@ irwDoor diff x ids =
         Expert -> sjOrBombs x ids && wave x ids
 
 irwItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-irwItem diff x ids =
+irwItem diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
         Medium -> containsAll x [SpaceJumpBoots, Missile, PlasmaBeam]
@@ -825,10 +823,10 @@ irwSw diff x ids =
         Expert -> bombs x ids
 
 ruinedCourtyardConduit :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-ruinedCourtyardConduit _ x ids = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
+ruinedCourtyardConduit _ x _ = containsAll x [ChargeBeam, Missile, SuperMissile, WaveBeam]
 
 ruinedCourtyardSave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-ruinedCourtyardSave diff x ids = containsAll x [SpaceJumpBoots, Missile]
+ruinedCourtyardSave _ x _ = containsAll x [SpaceJumpBoots, Missile]
 
 --Might not need bombs if using spider track, but bombs are almost always unrandomized anyway
 ruinedCourtyardClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
@@ -850,7 +848,7 @@ ruinedCourtyardSw diff x ids =
         Expert -> sj x ids
 
 quarantineTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-quarantineTunnel _ x ids = containsAll x [MorphBall, WaveBeam]
+quarantineTunnel _ x _ = containsAll x [MorphBall, WaveBeam]
 
 climbQuarantineCaveEntrance :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 climbQuarantineCaveEntrance diff x ids =
@@ -925,7 +923,7 @@ controlTowerItem diff x ids =
         Expert -> (bombs x ids && plasma x ids && missile x ids) || (sj x ids && missile x ids && morph x ids)
 
 rlaTrack :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-rlaTrack _ x ids = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
+rlaTrack _ x _ = contains x MorphBall && containsAny x [MorphBallBomb, SpaceJumpBoots]
 
 toStorageCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 toStorageCave diff x ids =
@@ -937,7 +935,7 @@ toStorageCave diff x ids =
         Expert -> containsAll x [PlasmaBeam, MorphBall, PowerBomb] && sjOrBombs x ids
 
 fromStorageCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-fromStorageCave _ x ids = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
+fromStorageCave _ x _ = containsAll x [PlasmaBeam, MorphBall, PowerBomb]
 
 toSecurityCave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 toSecurityCave diff x ids =
@@ -1018,7 +1016,7 @@ hunterCaveLower :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 hunterCaveLower _ x ids = contains x Missile && (contains x SpaceJumpBoots || bombs x ids)
 
 frostCaveAccess :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-frostCaveAccess _ x ids = containsAll x [MorphBall, WaveBeam]
+frostCaveAccess _ x _ = containsAll x [MorphBall, WaveBeam]
 
 frostCaveDoor :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 frostCaveDoor _ x ids = containsAll x [Missile, WaveBeam] && (contains x SpaceJumpBoots || bombs x ids)
@@ -1100,7 +1098,7 @@ oreProcessingTop diff x ids =
         Expert -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
 
 wasteDisposalTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-wasteDisposalTraversal _ x ids = containsAll x [MorphBall, MorphBallBomb, IceBeam]
+wasteDisposalTraversal _ x _ = containsAll x [MorphBall, MorphBallBomb, IceBeam]
 
 shaftClimb1 :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 shaftClimb1 diff x ids =
@@ -1121,7 +1119,7 @@ shaftClimb2 diff x ids =
         Expert -> ice x ids && boost x ids && (spider x ids || sj x ids)
 
 storageDepotABarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-storageDepotABarrier _ x ids = contains x StorageDepotABarrier
+storageDepotABarrier _ x _ = contains x StorageDepotABarrier
 
 securityAccessBSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 securityAccessBSw diff x ids =
@@ -1133,7 +1131,7 @@ securityAccessBSw diff x ids =
         Expert -> bombs x ids
 
 maintTunnel :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-maintTunnel _ x ids = containsAll x [MorphBall, IceBeam, PowerBomb]
+maintTunnel _ x _ = containsAll x [MorphBall, IceBeam, PowerBomb]
 
 ppcClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 ppcClimb diff x ids =
@@ -1211,7 +1209,7 @@ eliteResearchDoor diff x ids =
         Expert -> sjOrBombs x ids && ice x ids
 
 toStorageDepotA :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-toStorageDepotA diff x ids =
+toStorageDepotA diff x _ =
     case diff of
         Easy -> containsAll x [WaveBeam, MorphBall, PowerBomb, PlasmaBeam]
         Medium -> containsAll x [MorphBall, PowerBomb, PlasmaBeam]
@@ -1238,7 +1236,7 @@ fungalHallATraversal diff x ids =
         Expert -> sjOrBombs x ids && ice x ids
 
 miningTunnelTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-miningTunnelTraversal _ x ids = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
+miningTunnelTraversal _ x _ = containsAll x [MorphBall, MorphBallBomb, PlasmaBeam]
 
 -- High difficulties require farming for health. Varia isn't considered. This assumes you only need to survive until you warp.
 miningTunnelItem :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
@@ -1289,7 +1287,7 @@ ppcBottomClimb diff x ids =
         Expert -> sjOrBombs x ids && plasma x ids
 
 eliteQuarters :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-eliteQuarters _ x ids = contains x XRayVisor
+eliteQuarters _ x _ = contains x XRayVisor
 
 eliteQuartersPlasma :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuartersPlasma diff x ids = contains x PlasmaBeam && eliteQuarters diff x ids

@@ -54,7 +54,7 @@ replaceEdgeRoom (Room rId edgeList) original replacement =
             f [] _ _ = []
             f ((Edge p nodeId):rest) orig replace =  
                 case nodeId of
-                    (R rId) -> if rId `elem` elevatorRooms then Edge p (R replace) : f rest orig replace else Edge p (R rId) : f rest orig replace
+                    (R roomId) -> if roomId `elem` elevatorRooms then Edge p (R replace) : f rest orig replace else Edge p (R roomId) : f rest orig replace
                     _ -> Edge p nodeId : f rest orig replace
 replaceEdgeRoom node _ _  = node
 
@@ -64,6 +64,7 @@ elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNor
     ,OTransporttoChozoRuinsSouth ,OTransporttoPhazonMinesEast,MTransporttoTallonOverworldSouth ,MTransporttoMagmoorCavernsSouth ,CTransporttoChozoRuinsNorth
     ,CTransporttoPhendranaDriftsNorth ,CTransporttoTallonOverworldWest ,CTransporttoPhazonMinesWest ,CTransporttoPhendranaDriftsSouth]
 
+{-- This creates all rooms and "pseudo-items" to add to the graph --}
 buildNodes :: Difficulty -> [Node]
 buildNodes diff = [ -- Tallon Overworld Rooms
             Room OLandingSite [Edge noReq (R OCanyonCavern)
@@ -364,7 +365,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (hotePlasma diff) (R RElderChamber)
                                     ,Edge (hoteIce diff) (I HalloftheElders)]
             ,Room RElderChamber [Edge noReq (I ElderChamber)
-                                    ,Edge ice (R RHalloftheElders)] -- Need to check if statue is moved?
+                                    ,Edge blocked (R RHalloftheElders)] -- Need to check if statue is moved?
             ,Room RReflectingPoolAccess [Edge noReq (R RHalloftheElders)
                                     ,Edge noReq (R RReflectingPool)]
             ,Room RReflectingPool [Edge noReq (R RReflectingPoolAccess)

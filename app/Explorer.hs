@@ -1,3 +1,10 @@
+{-- 
+    This application was mostly used for debugging in the early stages of development. 
+    If you want to run it, run the following from the root of the project:
+
+    cabal run explorer
+--}
+
 module Main where
 
 import Parser

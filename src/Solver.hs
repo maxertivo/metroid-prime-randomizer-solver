@@ -12,8 +12,9 @@ import Data.Set (Set, toList, fromList, empty)
 import qualified Data.Set as Set
 
 isCompletable :: Map Id Node -> Bool
-isCompletable graph = let Just startingRoom = Map.lookup (R OLandingSite) graph
-                        in isCompletableHelper graph (State Map.empty startingRoom Set.empty)
+isCompletable graph = case Map.lookup (R OLandingSite) graph of
+                            Just startingRoom -> isCompletableHelper graph (State Map.empty startingRoom Set.empty)
+                            Nothing -> error "Missing start room"
 
 isCompletableHelper :: Map Id Node -> State -> Bool
 isCompletableHelper graph currState = 
@@ -25,7 +26,7 @@ isCompletableHelper graph currState =
                                         Just candidate -> isCompletableHelper graph (state candidate)
 
 isComplete :: Map Id Node -> State -> Bool
-isComplete graph (State inventory (Room roomId edges) collectedItems) = 
+isComplete graph (State inventory (Room roomId _) collectedItems) = 
     let artifactTempleItem = getVal (Map.lookup (I ArtifactTemple) graph) "Missing Item ArtifactTemple"
     in complete inventory collectedItems && isAccessible graph roomId OArtifactTemple inventory collectedItems
     -- Either you collected Artifact Temple or you can collect it and return
@@ -38,9 +39,10 @@ getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems 
 
 getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> Maybe CandidateState
 getBestCandidateHelper _ [] _ _ _ = Nothing
+getBestCandidateHelper _ (Room {}:_) _ _ _ = error "invalid argument - list includes room node"
 getBestCandidateHelper graph (item:rest) currState depth newItems = 
     let Item itemId itemName warp = item
-        State inventory (Room roomId edges) collectedItems = currState
+        State inventory _ collectedItems = currState
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
         newInventory = addItem itemName inventory
         newIds = Set.insert itemId collectedItems
@@ -84,16 +86,18 @@ collectFreeItems :: Map Id Node -> State -> State
 collectFreeItems graph state = collectFreeItemsHelper graph (getAccessibleItems graph state) state
 
 collectFreeItemsHelper :: Map Id Node -> [Node] -> State -> State
+collectFreeItemsHelper _ (Room {}:_) _ = error "invalid argument - list includes room node"
+collectFreeItemsHelper _ _ (State _ (Item {}) _) = error "invalid state"
 collectFreeItemsHelper _ [] currState = currState
 collectFreeItemsHelper graph (item:rest) currState = 
-    let (State inventory (Room roomId edges) collectedItems) = currState
+    let (State inventory (Room roomId _) collectedItems) = currState
         Item itemId itemName warp = item
         newInventory = addItem itemName inventory
         newRoom = getVal (Map.lookup (R warp) graph) ("Missing Room " ++ show warp)
         newState = State newInventory newRoom (Set.insert itemId collectedItems) 
     in 
-        -- If we can reach our starting location, then the warp is not useful, so collecting the item has no cost
-        if isMutuallyAccessible graph warp roomId newInventory collectedItems
+        if isMutuallyAccessible graph warp roomId newInventory collectedItems -- Check to make sure the warp is not useful, so that collecting the item has no cost
+            && itemId /= ElderChamber -- This warp is needed to exit if warped to Elder Chamber, so it is delayed until getBestCandidate is called
             then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
         else 
             collectFreeItemsHelper graph rest currState
@@ -117,6 +121,7 @@ isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory itemId
                             _ -> error ("Missing or incorrect Room " ++ show roomId)
 
 getAccessibleItems :: Map Id Node -> State -> [Node]
+getAccessibleItems _ (State _ Item {} _) = error "invalid state"
 getAccessibleItems graph (State inventory (Room roomId _) collectedItems) = 
     let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
         uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
