@@ -18,7 +18,7 @@ In some cases, the solver won't be able to find a solution even though a solutio
 
 Some seeds are techically completable, but can become impossible if the warps are used in the wrong order. The solver will still say such seeds are completable.
 
-Warps to Elder Chamber can cause issues, because the statue blocks the exit. You can collect the item to leave one time, but if you get warped a second time, you are trapped. In rare cases, the solver may collect the Elder Chamber item early and be unable to solve the seed.
+Warps to Elder Chamber can cause issues because the statue blocks the exit. You can collect the item to leave one time, but if you get warped a second time, you are trapped. In rare cases, the solver may collect the Elder Chamber item early and be unable to solve the seed.
 
 Currently, some removable barriers in the game are treated as being one-way (e.g. the barrier in Metroid Quarantine A).
 
