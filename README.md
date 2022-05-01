@@ -42,13 +42,15 @@ First, install GHC on your machine, and make sure the GHC executable is added to
 ghc app/Main.hs --make -O2 -i"./src" -hidir "./build" -odir "./build" -o ./build/metroid-prime-randomizer-solver
 ```
 
-Alternatively, you can use the "build-run.bat" batchfile to compile and run the application with GHC. Or, if you have Haskell Cabal installed, you can compile and run the application using:
+With the above approach, the "build" folder needs to be created ahead of time. As an alternative, you can use the "build-run.bat" batchfile to compile and run the application with GHC. This batchfile will delete the "build" folder if it exists, and then make a new one prior to compilation. 
+
+If you have Haskell Cabal installed, you can compile and run the application using:
 
 ```
 cabal run main
 ```
 
-If you encounter issues compiling with Cabal, it may be due to filepaths that are too long. For this reason, using GHC is probably the best option.
+If you encounter linking issues when compiling with Cabal, it may be due to filepaths that are too long. For this reason, using the "build-run.bat" batchfile is probably the easiest option.
 
 ## Customizing Tricks / Room Requirements
 If you want to modify this code to change room / item requirements, you'll mostly need to edit two files: Predicates.hs, and Graph.hs. Have fun.

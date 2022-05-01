@@ -1344,7 +1344,7 @@ eliteQuartersPlasma :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuartersPlasma diff x ids = contains x PlasmaBeam && eliteQuarters diff x ids
 
 eliteQuartersTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-eliteQuartersTop diff x ids = contains x PlasmaBeam && member EliteQuarters ids
+eliteQuartersTop _ x ids = contains x PlasmaBeam && member EliteQuarters ids
 
 mqbBackClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 mqbBackClimb diff x ids =
