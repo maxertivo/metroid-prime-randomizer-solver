@@ -72,7 +72,6 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
                                then minMaybe recurseItemList recurseDeeper
                                else recurseItemList
 
--- TODO certain item IDs are progression items
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
     let previousInventory = removeAll inventory newItems

@@ -152,9 +152,9 @@ arbor diff x _ =
     case diff of
         Easy -> containsAll x [SpaceJumpBoots, GrappleBeam, XRayVisor, PlasmaBeam]
         Medium -> containsAll x [SpaceJumpBoots, GrappleBeam, PlasmaBeam]
-        Hard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-        VeryHard -> containsAll x [SpaceJumpBoots, PlasmaBeam]
-        Expert -> containsAll x [SpaceJumpBoots, PlasmaBeam]
+        Hard -> containsAll x [SpaceJumpBoots] -- You can wallcrawl around the plasma door
+        VeryHard -> containsAll x [SpaceJumpBoots]
+        Expert -> containsAll x [SpaceJumpBoots]
 
 fcsClimb :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 fcsClimb diff x ids =
