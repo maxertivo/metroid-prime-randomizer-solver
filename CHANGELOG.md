@@ -1,5 +1,5 @@
 # Revision history for metroid-prime-randomizer-solver
 
-## 1.0.0 -- YYYY-mm-dd
+## 1.0.0 -- 2022-04-30
 
-* First version. Released on an unsuspecting world.
+* Initial Release. 
