@@ -169,7 +169,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Central Dynamo without Space Jump
     * Climb Metroid Quarantine A without Space Jump
     * Reach Elite Control Access item using Bombs
-    * Get Elite Research Lazer item without Boost Ball
+    * Get Elite Research Laser item without Boost Ball
     * Climb Eliter Research without Space Jump
     * Climb Fungal Hall Access without Space Jump
     * Traverse Fungal Hall A without Space Jump

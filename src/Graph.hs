@@ -295,9 +295,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room RSunchamberLobby [Edge missile (R RArboretum)
                                     ,Edge noReq (R RSunchamberAccess)]
             ,Room RSunchamberAccess [Edge noReq (R RSunchamberLobby)
-                                    ,Edge noReq (R RSunchamber)]
-            -- The door vines are not considered here. Instead the ghost item has more requirements
-            ,Room RSunchamber [Edge noReq (R RSunchamberAccess)
+                                    ,Edge noVines (R RSunchamber)]
+            ,Room RSunchamber [Edge noVines (R RSunchamberAccess)
                                     ,Edge noReq (R RSunTowerAccess)
                                     ,Edge bombs (I SunchamberFlaahgra)
                                     ,Edge (sunchamberghost diff) (I SunchamberGhosts)]
@@ -368,7 +367,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (hotePlasma diff) (R RElderChamber)
                                     ,Edge (hoteIce diff) (I HalloftheElders)]
             ,Room RElderChamber [Edge noReq (I ElderChamber)
-                                    ,Edge blocked (R RHalloftheElders)] -- Need to check if statue is moved?
+                                    ,Edge blocked (R RHalloftheElders)] -- Statue blocks the way if you get warped here
             ,Room RReflectingPoolAccess [Edge noReq (R RHalloftheElders)
                                     ,Edge noReq (R RReflectingPool)]
             ,Room RReflectingPool [Edge noReq (R RReflectingPoolAccess)
@@ -559,6 +558,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DHydraLabEntryway [Edge wave (R DResearchEntrance)
                                     ,Edge wave (R DResearchLabHydra)]
             ,Room DResearchLabHydra [Edge wave (R DHydraLabEntryway)
+                                    ,Edge noReq (R DResearchLabHydraBack)
+                                    ,Edge noReq (I ResearchLabHydraTrigger)]
+            ,Room DResearchLabHydraBack [Edge researchLabHydraBarrier (R DResearchLabHydra)
                                     ,Edge wave (R DObservatoryAccess)
                                     ,Edge supers (I ResearchLabHydra)]
             ,Room DObservatoryAccess [Edge wave (R DResearchLabHydra)
@@ -667,7 +669,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (toStorageDepotA diff) (R MStorageDepotA)
                                     ,Edge wave (R MSecurityAccessB)
                                     ,Edge pb (I StorageDepotATrigger)]
-            ,Room MStorageDepotA [Edge (storageDepotABarrier diff) (R MMineSecurityStation) -- For simplicity, it's blocked for now.
+            ,Room MStorageDepotA [Edge (storageDepotABarrier diff) (R MMineSecurityStation)
                                     ,Edge noReq (I StorageDepotA)]
             ,Room MSecurityAccessB [Edge wave (R MMineSecurityStation)
                                     ,Edge (securityAccessBSw diff) (R MMinesFrontSw)
@@ -676,14 +678,15 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (eliteResearchDoor diff) (R MResearchAccess)
                                     ,Edge (eliteResearchTopItem diff) (I EliteResearchLaser)
                                     ,Edge (eliteResearchPirate diff) (I EliteResearchPhazonElite)]
-            -- Currently require boosting through wall
+            -- Currently require boosting through wall even if you can laser it
             ,Room MResearchAccess [Edge (shaftClimb2 diff) (R MEliteResearch)
                                     ,Edge (oreProcessingClimb diff) (R MOreProcessing)]
             ,Room MOreProcessing [Edge ice (R MResearchAccess)
                                     ,Edge ice (R MElevatorAccessA)
                                     ,Edge (oreProcessingTop diff) (R MWasteDisposal)
                                     ,Edge (oreProcessingTop diff) (R MStorageDepotB)]
-            ,Room MWasteDisposal [Edge ice (R MOreProcessing) -- TODO You can easily get to Storage Depot B from here
+            ,Room MWasteDisposal [Edge ice (R MOreProcessing)
+                                    ,Edge (oreProcessingCrossTop diff) (R MStorageDepotB) -- You can easily get to Storage Depot B by standing on the small ledge
                                     ,Edge (wasteDisposalTraversal diff) (R MMainQuarry)]
             ,Room MStorageDepotB [Edge ice (R MOreProcessing)
                                     ,Edge noReq (I StorageDepotB)]
@@ -696,7 +699,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (ecaItem diff) (I EliteControlAccess)]
             ,Room MEliteControl [Edge wave (R MEliteControlAccess)
                                     ,Edge ice (R MMaintenanceTunnel)
-                                    ,Edge ice (R MVentilationShaft)]
+                                    ,Edge ice (R MVentilationShaft)
+                                    ,Edge noReq (I EliteControlTrigger)]
             ,Room MMaintenanceTunnel [Edge ice (R MEliteControl)
                                     ,Edge (maintTunnel diff) (R MPhazonProcessingCenter)]
             ,Room MPhazonProcessingCenter [Edge (maintTunnel diff) (R MMaintenanceTunnel)
@@ -708,7 +712,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MTransporttoMagmoorCavernsSouth [Edge (toMinesElevator diff) (R MTransportAccess)
                                     ,Edge noReq (R CTransporttoPhazonMinesWest)]
             -- Warp is at the top
-            ,Room MVentilationShaft [Edge blocked (R MEliteControl) -- Again not dealing with the barrier
+            ,Room MVentilationShaft [Edge eliteControlBarrier (R MEliteControl)
                                     ,Edge ice (R MOmegaResearch)
                                     ,Edge pb (I VentilationShaft)]
             ,Room MOmegaResearch [Edge ice (R MVentilationShaft)
@@ -725,10 +729,10 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MSaveStationMinesB [Edge ice (R MCentralDynamo)]
             ,Room MQuarantineAccessA [Edge (maintTunnel diff) (R MCentralDynamo)
                                     ,Edge wave (R MMetroidQuarantineA)]
-            -- Again, considering the barrier to be one-way
             ,Room MMetroidQuarantineA [Edge wave (R MQuarantineAccessA)
-                                    ,Edge noReq (R MMetroidQuarantineABack)]
-            ,Room MMetroidQuarantineABack [Edge blocked (R MMetroidQuarantineA)
+                                    ,Edge noReq (R MMetroidQuarantineABack)
+                                    ,Edge noReq (I MetroidQuarantineATrigger)]
+            ,Room MMetroidQuarantineABack [Edge mqaBarrier (R MMetroidQuarantineA)
                                         ,Edge (mqaTraversal diff) (R MElevatorAccessB)
                                         ,Edge (mqaItem diff) (I MetroidQuarantineA)]
             ,Room MElevatorAccessB [Edge ice (R MMetroidQuarantineABack)
@@ -754,8 +758,9 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                         ,Edge (quarantineAccessBTraversal diff) (R MMetroidQuarantineB)]
             -- These rooms are treated as though the barrier is one-way (Warp is on the mushroom side)
             ,Room MMetroidQuarantineB [Edge (quarantineAccessBTraversal diff) (R MQuarantineAccessB)
-                                        ,Edge (mqbTraversal diff) (R MMetroidQuarantineBBack)]
-            ,Room MMetroidQuarantineBBack [Edge blocked (R MMetroidQuarantineB)
+                                        ,Edge (mqbTraversal diff) (R MMetroidQuarantineBBack)
+                                        ,Edge noReq (I MetroidQuarantineBTrigger)]
+            ,Room MMetroidQuarantineBBack [Edge mqbBarrier (R MMetroidQuarantineB)
                                         ,Edge plasma (R MSaveStationMinesC)
                                         ,Edge (mqbBackClimb diff) (R MEliteQuartersAccess)
                                         ,Edge (mqbSw diff) (R MMinesBackSw)
@@ -782,4 +787,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
             ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
             ,Item StorageDepotATrigger StorageDepotABarrier MMineSecurityStation
+            ,Item ResearchLabHydraTrigger ResearchLabHydraBarrier DResearchLabHydra
+            ,Item EliteControlTrigger EliteControlBarrier MEliteControl
+            ,Item MetroidQuarantineATrigger MetroidQuarantineABarrier MMetroidQuarantineA
+            ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB
             ]

@@ -83,6 +83,9 @@ floaty x _ = not $ contains x GravitySuit
 tallonFloaty :: Map ItemName Int -> Set ItemId -> Bool
 tallonFloaty x ids = boost x ids && floaty x ids
 
+noVines :: Map ItemName Int -> Set ItemId -> Bool
+noVines _ ids = not (member SunchamberFlaahgra ids) || member SunchamberGhosts ids
+
 mainQuarryBarrierIce :: Map ItemName Int -> Set ItemId -> Bool
 mainQuarryBarrierIce x _ = containsAll x [MainQuarryBarriers, IceBeam]
 
@@ -91,6 +94,18 @@ mainQuarryBarrierWave x _ = containsAll x [MainQuarryBarriers, WaveBeam]
 
 chozoIceTempleBarrier :: Map ItemName Int -> Set ItemId -> Bool
 chozoIceTempleBarrier x _ = contains x ChozoIceTempleBarrier
+
+researchLabHydraBarrier :: Map ItemName Int -> Set ItemId -> Bool
+researchLabHydraBarrier x _ = contains x ResearchLabHydraBarrier
+
+eliteControlBarrier :: Map ItemName Int -> Set ItemId -> Bool
+eliteControlBarrier x _ = contains x EliteControlBarrier
+
+mqaBarrier :: Map ItemName Int -> Set ItemId -> Bool 
+mqaBarrier x _ = contains x MetroidQuarantineABarrier
+
+mqbBarrier :: Map ItemName Int -> Set ItemId -> Bool
+mqbBarrier x _ = contains x MetroidQuarantineBBarrier
 
 wallcrawl :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 wallcrawl diff x ids =
@@ -526,8 +541,8 @@ hoteWave diff x ids =
         Easy -> containsAll x [MorphBall, SpiderBall, MorphBallBomb, WaveBeam]
         Medium -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x ids || sj x ids)
         Hard -> containsAll x [MorphBall, MorphBallBomb, WaveBeam] && (spider x ids || sj x ids)
-        VeryHard -> containsAll x [MorphBall, MorphBallBomb, WaveBeam]
-        Expert -> containsAll x [MorphBall, MorphBallBomb, WaveBeam]
+        VeryHard -> containsAll x [MorphBall, MorphBallBomb] -- We don't need to even use the wave slot using an HBJ
+        Expert -> containsAll x [MorphBall, MorphBallBomb]
 
 hoteIce :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 hoteIce diff x ids =
@@ -1096,6 +1111,15 @@ oreProcessingTop diff x ids =
         Hard -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
         VeryHard -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
         Expert -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
+
+oreProcessingCrossTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+oreProcessingCrossTop diff x ids =
+    case diff of
+        Easy -> containsAll x [GrappleBeam, IceBeam]
+        Medium -> contains x IceBeam
+        Hard -> contains x IceBeam
+        VeryHard -> contains x IceBeam
+        Expert -> contains x IceBeam
 
 wasteDisposalTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 wasteDisposalTraversal _ x _ = containsAll x [MorphBall, MorphBallBomb, IceBeam]

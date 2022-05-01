@@ -18,7 +18,8 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
                 | VariaSuit | SpiderBall | BoostBall | PowerBomb | ChargeBeam | SuperMissile | XRayVisor | GrappleBeam
                 | ThermalVisor | Missile | EnergyTank | Wavebuster | IceSpreader | Flamethrower | Artifact
 
-                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier | StorageDepotABarrier
+                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier | StorageDepotABarrier 
+                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -51,7 +52,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | DTransporttoMagmoorCavernsWest | DShorelineEntrance | DPhendranaShorelines | DSaveStationB | DIceRuinsAccess | DIceRuinsEast | DPlazaWalkway 
                 | DRuinsEntryway | DIceRuinsWest | DCanyonEntryway | DPhendranaCanyon | DTempleEntryway | DChozoIceTemple | DChapelTunnel | DChapeloftheElders 
                 | DCourtyardEntryway | DRuinedCourtyard | DSaveStationA | DSpecimenStorage | DResearchEntrance | DMapStation | DHydraLabEntryway | DResearchLabHydra 
-                | DObservatoryAccess | DObservatory | DSaveStationD | DWestTowerEntrance | DWestTower | DControlTower | DEastTower | DAetherLabEntryway 
+                | DResearchLabHydraBack | DObservatoryAccess | DObservatory | DSaveStationD | DWestTowerEntrance | DWestTower | DControlTower | DEastTower | DAetherLabEntryway 
                 | DResearchLabAether | DResearchCoreAccess | DResearchCore | DQuarantineAccess | DNorthQuarantineTunnel | DQuarantineCave | DQuarantineMonitor 
                 | DSouthQuarantineTunnel | DTransporttoMagmoorCavernsSouth | DTransportAccess | DFrozenPike | DPikeAccess | DFrostCaveAccess | DFrostCave 
                 | DSaveStationC | DUpperEdgeTunnel | DPhendranasEdge | DStorageCave | DSecurityCave | DLowerEdgeTunnel | DHunterCave | DLakeTunnel 
@@ -83,6 +84,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger | StorageDepotATrigger
+                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
 
                 -- TODO Possible pseudo items: opened OP backdoor in mines, HOTE statue, Research Lab Hydra barrier
                 deriving  (Read, Eq, Ord, Show, Enum)
