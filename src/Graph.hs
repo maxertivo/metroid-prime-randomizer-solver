@@ -209,7 +209,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (mainPipe diff) (I MainPlazaHalfPipe)
                                     ,Edge (mainPlazaGrappleLedge diff) (I MainPlazaGrappleLedge)
                                     ,Edge supers (I MainPlazaTree)]
-            --Created new room to hold the main plaza lEdge (item diff), and allow one-way traversal through Vault
+            --Created new room to hold the main plaza ledge item, and allow one-way traversal through Vault
             ,Room RMainPlazaLedge [Edge noReq (R RMainPlaza)
                                     ,Edge noReq (I MainPlazaLockedDoor)] 
             ,Room RPlazaAccess [Edge noReq (R RVault)
@@ -408,7 +408,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (pitTunnel diff) (R CTriclopsPit)]
             ,Room CTriclopsPit [Edge (pitTunnelReverse diff) (R CPitTunnel)
                                     ,Edge (storageCavern diff) (R CStorageCavern)
-                                    ,Edge (heatResistOr8Etanks diff) (R CMonitorTunnel) -- This has a high requirement to deter this path to get to phendrana
+                                    ,Edge (heatResistOr8Etanks diff) (R CMonitorTunnel) -- This has a high requirement to discourage this path to get to phendrana
                                     ,Edge (triclopsPitItem diff) (I TriclopsPit)]
             ,Room CStorageCavern [Edge (vmr2Tank diff) (R CTriclopsPit)
                                     ,Edge noReq (I StorageCavern)]
@@ -680,19 +680,26 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (eliteResearchPirate diff) (I EliteResearchPhazonElite)]
             -- Currently require boosting through wall even if you can laser it
             ,Room MResearchAccess [Edge (shaftClimb2 diff) (R MEliteResearch)
-                                    ,Edge (oreProcessingClimb diff) (R MOreProcessing)]
-            -- Spawn point is next to the pb rocks
-            -- TODO Can use grapple to reach top from spawn
-            ,Room MOreProcessing [Edge ice (R MResearchAccess)
-                                    ,Edge ice (R MElevatorAccessA)
+                                    ,Edge ice (R MOreProcessingBottom)]
+            ,Room MOreProcessingBottom [Edge ice (R MResearchAccess)
+                                    ,Edge (oreProcessingClimb diff) (R MElevatorAccessA)
                                     ,Edge (oreProcessingTop diff) (R MWasteDisposal)
                                     ,Edge (oreProcessingTop diff) (R MStorageDepotB)]
-            ,Room MWasteDisposal [Edge ice (R MOreProcessing)
-                                    ,Edge (oreProcessingCrossTop diff) (R MStorageDepotB) -- You can easily get to Storage Depot B by standing on the small ledge
+            -- Spawn point is next to the pb rocks
+            ,Room MOreProcessing [Edge noReq (R MOreProcessingBottom)
+                                    ,Edge (dashFromPbRocks diff) (R MElevatorAccessA)
+                                    ,Edge (oreProcessingTopFromRocks diff) (R MOreProcessingTop)]
+            -- This fake room is considered to be at the top on the waste disposal side
+            ,Room MOreProcessingTop[Edge noReq (R MOreProcessing)
+                                    ,Edge ice (R MWasteDisposal)
+                                    ,Edge (oreProcessingCrossTop diff) (R MStorageDepotB)]
+            ,Room MWasteDisposal [Edge ice (R MOreProcessingTop)
                                     ,Edge (wasteDisposalTraversal diff) (R MMainQuarry)]
-            ,Room MStorageDepotB [Edge ice (R MOreProcessing)
+            ,Room MStorageDepotB [Edge (oreProcessingCrossTop diff) (R MOreProcessingTop)
+                                    ,Edge ice (R MOreProcessing)
                                     ,Edge noReq (I StorageDepotB)]
             ,Room MElevatorAccessA [Edge ice (R MOreProcessing)
+                                    ,Edge (oreProcessingTopFromEaa diff) (R MOreProcessingTop)
                                     ,Edge ice (R MElevatorA)]
             ,Room MElevatorA [Edge (shaftClimb1 diff) (R MElevatorAccessA)
                                     ,Edge ice (R MEliteControlAccess)]

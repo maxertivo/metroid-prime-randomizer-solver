@@ -167,6 +167,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Go out of bounds in Frost Cave using Bombs and wallcrawl to Gravity Chamber, Transport Access, Security Cave or Storage Cave. The Transport Access item can be collected from out of bounds using Boost Ball
     * Go out of bounds in Security Access B using Bombs and wallcrawl to Storage Depot A
     * Climb Phazon Processing Center without Space Jump
+    * Dash across the gap next to the power bomb rocks in Ore Processing without Space Jump, if needed so that you can use Grapple to get to the top.
     * Climb Central Dynamo without Space Jump
     * Climb Metroid Quarantine A without Space Jump
     * Reach Elite Control Access item using Bombs

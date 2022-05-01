@@ -1120,6 +1120,33 @@ oreProcessingCrossTop diff x _ =
         Hard -> contains x IceBeam
         VeryHard -> contains x IceBeam
         Expert -> contains x IceBeam
+    
+oreProcessingTopFromRocks :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+oreProcessingTopFromRocks diff x _ =
+    case diff of
+        Easy -> False
+        Medium -> False
+        Hard -> contains x SpaceJumpBoots
+        VeryHard -> containsAny x [SpaceJumpBoots, GrappleBeam]
+        Expert -> containsAny x [SpaceJumpBoots, GrappleBeam]
+
+oreProcessingTopFromEaa :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+oreProcessingTopFromEaa diff x ids =
+    case diff of
+        Easy -> False
+        Medium -> containsAll x [IceBeam, GrappleBeam]
+        Hard -> ice x ids && containsAny x [SpaceJumpBoots, GrappleBeam]
+        VeryHard -> ice x ids && containsAny x [SpaceJumpBoots, GrappleBeam]
+        Expert -> ice x ids && containsAny x [SpaceJumpBoots, GrappleBeam]
+
+dashFromPbRocks :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+dashFromPbRocks diff x _ =
+    case diff of
+        Easy -> False
+        Medium -> False
+        Hard -> containsAll x [SpaceJumpBoots,IceBeam]
+        VeryHard -> contains x IceBeam
+        Expert -> contains x IceBeam
 
 wasteDisposalTraversal :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 wasteDisposalTraversal _ x _ = containsAll x [MorphBall, MorphBallBomb, IceBeam]
