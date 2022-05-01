@@ -681,6 +681,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             -- Currently require boosting through wall even if you can laser it
             ,Room MResearchAccess [Edge (shaftClimb2 diff) (R MEliteResearch)
                                     ,Edge (oreProcessingClimb diff) (R MOreProcessing)]
+            -- Spawn point is next to the pb rocks
+            -- TODO Can use grapple to reach top from spawn
             ,Room MOreProcessing [Edge ice (R MResearchAccess)
                                     ,Edge ice (R MElevatorAccessA)
                                     ,Edge (oreProcessingTop diff) (R MWasteDisposal)
@@ -704,7 +706,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MMaintenanceTunnel [Edge ice (R MEliteControl)
                                     ,Edge (maintTunnel diff) (R MPhazonProcessingCenter)]
             ,Room MPhazonProcessingCenter [Edge (maintTunnel diff) (R MMaintenanceTunnel)
-                                    ,Edge blocked (R MProcessingCenterAccess) -- Not going to deal with this door
+                                    ,Edge blocked (R MProcessingCenterAccess) -- Not going to deal with this door as it's rarely useful
                                     ,Edge (ppcClimb diff) (R MTransportAccess)
                                     ,Edge pb (I PhazonProcessingCenter)]
             ,Room MTransportAccess [Edge ice (R MPhazonProcessingCenter)
@@ -756,7 +758,6 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                         ,Edge (wallcrawl diff) (R MMinesBackSw)] 
             ,Room MQuarantineAccessB [Edge plasma (R MFungalHallB)
                                         ,Edge (quarantineAccessBTraversal diff) (R MMetroidQuarantineB)]
-            -- These rooms are treated as though the barrier is one-way (Warp is on the mushroom side)
             ,Room MMetroidQuarantineB [Edge (quarantineAccessBTraversal diff) (R MQuarantineAccessB)
                                         ,Edge (mqbTraversal diff) (R MMetroidQuarantineBBack)
                                         ,Edge noReq (I MetroidQuarantineBTrigger)]
@@ -769,7 +770,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MEliteQuartersAccess [Edge plasma (R MMetroidQuarantineBBack)
                                         ,Edge plasma (R MEliteQuarters)]
             ,Room MEliteQuarters [Edge (eliteQuartersPlasma diff) (R MEliteQuartersAccess)
-                                        ,Edge (eliteQuartersPlasma diff) (R MProcessingCenterAccess)
+                                        ,Edge (eliteQuartersTop diff) (R MProcessingCenterAccess)
                                         ,Edge (eliteQuarters diff) (I EliteQuarters)]
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
                                         ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
