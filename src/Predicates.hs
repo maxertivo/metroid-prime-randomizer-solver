@@ -1113,7 +1113,7 @@ oreProcessingTop diff x ids =
         Expert -> ice x ids && (containsAll x [MorphBall, SpiderBall, MorphBallBomb, PowerBomb] || sj x ids)
 
 oreProcessingCrossTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-oreProcessingCrossTop diff x ids =
+oreProcessingCrossTop diff x _ =
     case diff of
         Easy -> containsAll x [GrappleBeam, IceBeam]
         Medium -> contains x IceBeam
