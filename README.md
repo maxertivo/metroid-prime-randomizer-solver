@@ -12,7 +12,7 @@ metroid-prime-randomizer-solver -d [Difficulty] -l [Log Directory]
 
 Difficulty can either be the full difficulty name (easy,medium,hard,veryhard,expert) or the single-letter abbreviation (e,m,h,v,x).
 
-The log directory can be either a folder containing all of your logs, or a single log file. Windows-style filepaths (i.e. filepaths with backslash instead of slash) should work. When providing a single log file, the file must end with the .txt file extension. Note that the checker will attempt to parse everything in the directory, so the directory must contain log files only.
+The log directory can be either a folder containing all of the logs, or a single log file. Windows-style filepaths (i.e. filepaths with backslash instead of slash) should work. When providing a single log file, the file must end with the .txt file extension. Note that the checker will attempt to parse everything in the directory, so the directory must contain log files only.
 
 The application can also be run without providing any arguments, and it will prompt for any arguments that are not provided.
 
