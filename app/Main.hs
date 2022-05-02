@@ -6,13 +6,19 @@ import Node
 import Parser
 import Solver
 import System.Directory
+import System.Environment
 
 main :: IO ()
 main = do
-    putStrLn "Enter Directory or File to check: "
-    directory <- getLine
-    putStrLn "Enter Difficulty ([e]asy, [m]edium, [h]ard, [v]eryHard, e[x]pert):"
-    difficultyString <- getLine
+    args <- getArgs
+    difficultyString <-
+        case parseArg args "-d" of
+            Just dif -> return dif
+            Nothing -> putStrLn "Enter Difficulty ([e]asy, [m]edium, [h]ard, [v]eryHard, e[x]pert):" >> getLine
+    directory <-
+        case parseArg args "-l" of
+            Just dir -> return dir
+            Nothing -> putStrLn "Enter Directory or File to check: " >> getLine
     let difficulty = parseDifficulty difficultyString
     if ".txt" `isSuffixOf` directory
         then do

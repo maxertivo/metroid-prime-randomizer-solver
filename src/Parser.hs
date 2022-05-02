@@ -149,6 +149,11 @@ parseDifficulty x
     | lowerString x == "x" || lowerString x == "expert" = Expert
     | otherwise = error "Invalid difficulty"
 
+parseArg :: [String] -> String -> Maybe String
+parseArg [] _ = Nothing
+parseArg [_] _ = Nothing 
+parseArg (first:second:rest) flag = if first == flag then Just second else parseArg (second:rest) flag
+
 defaultWarps :: [(RoomId, ItemId)]
 defaultWarps =
     [ (RMainPlaza, MainPlazaHalfPipe)
