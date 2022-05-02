@@ -14,7 +14,7 @@ blocked :: Map ItemName Int -> Set ItemId -> Bool
 blocked _ _ = False
 
 complete :: Map ItemName Int -> Set ItemId -> Bool
-complete x _ = containsCount 12 Artifact x && contains x PhazonSuit && contains x PlasmaBeam
+complete x _ = containsCount 12 Artifact x && contains x PhazonSuit && containsAll x [WaveBeam, IceBeam, PlasmaBeam]
 
 morph :: Map ItemName Int -> Set ItemId -> Bool
 morph x _ = contains x MorphBall
