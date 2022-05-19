@@ -388,6 +388,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (crosswayInfiniteSpeed diff) (I ElderChamber)
                                     ,Edge (longWallcrawl diff) (R RChozoFrontSw)]
             ,Room RChozoFrontSw [Edge bombs (I TrainingChamber)
+                                    ,Edge bombs (I MainPlazaGrappleLedge)
                                     ,Edge bombs (I TrainingChamberAccess)
                                     ,Edge bombs (I TowerofLight)]
             
@@ -742,53 +743,53 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge noReq (R MMetroidQuarantineABack)
                                     ,Edge noReq (I MetroidQuarantineATrigger)]
             ,Room MMetroidQuarantineABack [Edge mqaBarrier (R MMetroidQuarantineA)
-                                        ,Edge (mqaTraversal diff) (R MElevatorAccessB)
-                                        ,Edge (mqaItem diff) (I MetroidQuarantineA)]
+                                    ,Edge (mqaTraversal diff) (R MElevatorAccessB)
+                                    ,Edge (mqaItem diff) (I MetroidQuarantineA)]
             ,Room MElevatorAccessB [Edge ice (R MMetroidQuarantineABack)
-                                        ,Edge plasma (R MElevatorB)]
+                                    ,Edge plasma (R MElevatorB)]
             ,Room MElevatorB [Edge plasma (R MFungalHallAccess)
-                                        ,Edge plasma (R MElevatorAccessB)]
+                                    ,Edge plasma (R MElevatorAccessB)]
             ,Room MFungalHallAccess [Edge plasma (R MElevatorB)
-                                        ,Edge plasma (R MFungalHallA)
-                                        ,Edge morph (I FungalHallAccess)]
+                                    ,Edge plasma (R MFungalHallA)
+                                    ,Edge morph (I FungalHallAccess)]
             ,Room MFungalHallA [Edge (climbFungalHallAccess diff) (R MFungalHallAccess)
-                                        ,Edge (fungalHallATraversal diff) (R MPhazonMiningTunnel)]
+                                    ,Edge (fungalHallATraversal diff) (R MPhazonMiningTunnel)]
             ,Room MPhazonMiningTunnel [Edge plasma (R MFungalHallA)
-                                        ,Edge (miningTunnelTraversal diff) (R MFungalHallB)
-                                        ,Edge (miningTunnelItem diff) (I PhazonMiningTunnel)]
+                                    ,Edge (miningTunnelTraversal diff) (R MFungalHallB)
+                                    ,Edge (miningTunnelItem diff) (I PhazonMiningTunnel)]
             ,Room MFungalHallB [Edge (miningTunnelTraversal diff) (R MPhazonMiningTunnel)
-                                        ,Edge (fungalHallBTraversal diff) (R MMissileStationMinesInbounds)
-                                        ,Edge (fungalHallBTraversal diff) (R MQuarantineAccessB)
-                                        ,Edge bombs (I FungalHallB)]
+                                    ,Edge (fungalHallBTraversal diff) (R MMissileStationMinesInbounds)
+                                    ,Edge (fungalHallBTraversal diff) (R MQuarantineAccessB)
+                                    ,Edge bombs (I FungalHallB)]
             ,Room MMissileStationMinesInbounds [Edge plasma (R MFungalHallB)]
             ,Room MMissileStationMines [Edge morph (R MMissileStationMinesInbounds) -- You get warped out of bounds and need morph
-                                        ,Edge (wallcrawl diff) (R MMinesBackSw)] 
+                                    ,Edge (wallcrawl diff) (R MMinesBackSw)] 
             ,Room MQuarantineAccessB [Edge plasma (R MFungalHallB)
-                                        ,Edge (quarantineAccessBTraversal diff) (R MMetroidQuarantineB)]
+                                    ,Edge (quarantineAccessBTraversal diff) (R MMetroidQuarantineB)]
             ,Room MMetroidQuarantineB [Edge (quarantineAccessBTraversal diff) (R MQuarantineAccessB)
-                                        ,Edge (mqbTraversal diff) (R MMetroidQuarantineBBack)
-                                        ,Edge noReq (I MetroidQuarantineBTrigger)]
+                                    ,Edge (mqbTraversal diff) (R MMetroidQuarantineBBack)
+                                    ,Edge noReq (I MetroidQuarantineBTrigger)]
             ,Room MMetroidQuarantineBBack [Edge mqbBarrier (R MMetroidQuarantineB)
-                                        ,Edge plasma (R MSaveStationMinesC)
-                                        ,Edge (mqbBackClimb diff) (R MEliteQuartersAccess)
-                                        ,Edge (mqbSw diff) (R MMinesBackSw)
-                                        ,Edge supers (I MetroidQuarantineB)]
+                                    ,Edge plasma (R MSaveStationMinesC)
+                                    ,Edge (mqbBackClimb diff) (R MEliteQuartersAccess)
+                                    ,Edge (mqbSw diff) (R MMinesBackSw)
+                                    ,Edge supers (I MetroidQuarantineB)]
             ,Room MSaveStationMinesC [Edge plasma (R MMetroidQuarantineBBack)]
             ,Room MEliteQuartersAccess [Edge plasma (R MMetroidQuarantineBBack)
-                                        ,Edge plasma (R MEliteQuarters)]
+                                    ,Edge plasma (R MEliteQuarters)]
             ,Room MEliteQuarters [Edge (eliteQuartersPlasma diff) (R MEliteQuartersAccess)
-                                        ,Edge (eliteQuartersTop diff) (R MProcessingCenterAccess)
-                                        ,Edge (eliteQuarters diff) (I EliteQuarters)]
+                                    ,Edge (eliteQuartersTop diff) (R MProcessingCenterAccess)
+                                    ,Edge (eliteQuarters diff) (I EliteQuarters)]
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
-                                        ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
-                                        ,Edge noReq (I ProcessingCenterAccess)]
+                                    ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
+                                    ,Edge noReq (I ProcessingCenterAccess)]
             ,Room MMinesFrontSw [Edge bombs (I StorageDepotA)
-                                        ,Edge bombs (R MMainQuarry)]
-                                        --,Edge bombs (I SecurityAccessA)] -- TODO: Is this possible?
+                                    ,Edge bombs (R MMainQuarry)]
+                                    --,Edge ice (I SecurityAccessA)] -- This is possible but you need Ice Beam anyway
             ,Room MMinesBackSw [Edge bombs (R MFungalHallB)
-                                        ,Edge bombs (R MPhazonProcessingCenter)
-                                        ,Edge bombs (R MMetroidQuarantineB)
-                                        ,Edge (longWallcrawl diff) (I FungalHallAccess)]
+                                    ,Edge bombs (R MPhazonProcessingCenter)
+                                    ,Edge bombs (R MMetroidQuarantineB)
+                                    ,Edge (longWallcrawl diff) (I FungalHallAccess)]
 
             -- Pseudo-items
             ,Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB

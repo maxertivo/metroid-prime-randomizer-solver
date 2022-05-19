@@ -1054,8 +1054,8 @@ frostCaveSw diff x ids =
         Easy -> False
         Medium -> False
         Hard -> sj x ids
-        VeryHard -> sjOrBombs x ids
-        Expert -> sjOrBombs x ids
+        VeryHard -> sj x ids || (ice x ids && wave x ids && bombs x ids)
+        Expert -> sj x ids || (ice x ids && wave x ids && bombs x ids)
 
 transportAccessItemOob :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 transportAccessItemOob diff x ids =
