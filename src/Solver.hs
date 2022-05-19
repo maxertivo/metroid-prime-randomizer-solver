@@ -82,7 +82,6 @@ containsUpgrade newItems inventory =
         (not (bombs previousInventory ids) && bombs inventory ids) ||
         (not (boost previousInventory ids) && boost inventory ids) ||
         (not (supers previousInventory ids) && supers inventory ids) ||
-        (not (missile previousInventory ids) && missile inventory ids) ||
         (not (pb previousInventory ids) && pb inventory ids) ||
         (not (heatResist previousInventory ids) && heatResist inventory ids) ||
         listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory) || 
