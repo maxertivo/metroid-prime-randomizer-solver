@@ -41,7 +41,7 @@ spider :: Map ItemName Int -> Set ItemId -> Bool
 spider x _ = containsAll x [MorphBall, SpiderBall]
 
 waveIce :: Map ItemName Int -> Set ItemId -> Bool
-waveIce x _ = containsAll x [WaveBeam, PlasmaBeam]
+waveIce x _ = containsAll x [WaveBeam, IceBeam]
 
 grapple :: Map ItemName Int -> Set ItemId -> Bool
 grapple x _ = contains x GrappleBeam
@@ -81,7 +81,7 @@ floaty x _ = not $ contains x GravitySuit
 
 -- A bit of an obscure trick, you can use infinite speed in landing site to unload the room
 tallonFloaty :: Map ItemName Int -> Set ItemId -> Bool
-tallonFloaty x ids = boost x ids && floaty x ids
+tallonFloaty x ids = boost x ids && bombs x ids && floaty x ids
 
 noVines :: Map ItemName Int -> Set ItemId -> Bool
 noVines _ ids = not (member SunchamberFlaahgra ids) || member SunchamberGhosts ids
