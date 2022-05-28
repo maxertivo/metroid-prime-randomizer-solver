@@ -254,7 +254,7 @@ lgUnderWater diff x ids =
     case diff of
         Easy -> containsAll x [MorphBall, MorphBallBomb, BoostBall, PowerBomb, SpaceJumpBoots]
         Medium -> containsAll x [MorphBall, MorphBallBomb, BoostBall, PowerBomb]
-        Hard -> containsAll x [MorphBall, BoostBall, PowerBomb] && sjOrBombs x ids
+        Hard -> containsAll x [MorphBall, MorphBallBomb, BoostBall, PowerBomb]
         VeryHard -> pb x ids && sjOrBombs x ids
         Expert -> pb x ids && sjOrBombs x ids
 
