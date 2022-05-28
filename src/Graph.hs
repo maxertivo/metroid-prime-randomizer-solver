@@ -112,7 +112,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (fcsItem diff) (I FrigateCrashSite)]
             ,Room OOvergrownCavern [Edge ice (R OFrigateCrashSite)
                                     ,Edge ice (R OTransportTunnelC)
-                                    ,Edge noReq (I OvergrownCavern)]
+                                    ,Edge morph (I OvergrownCavern)]
             ,Room OTransportTunnelC [Edge ice (R OOvergrownCavern)
                                     ,Edge ice (R OTransporttoChozoRuinsEast)]
             ,Room OTransporttoChozoRuinsEast [Edge noReq (R RTransporttoTallonOverworldEast)
@@ -326,7 +326,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room RDynamo [Edge missile (R RDynamoAccess)
                                     ,Edge missile (I DynamoLower)
                                     ,Edge spider (I DynamoSpiderTrack)]
-            ,Room RSaveStation2 [Edge noReq (R RGatheringHall)]
+            ,Room RSaveStation2 [Edge missile (R RGatheringHall)]
             ,Room REastAtrium [Edge noReq (R RGatheringHall)
                                     ,Edge noReq (R REnergyCoreAccess)]
             ,Room REnergyCoreAccess [Edge noReq (R REastAtrium)
