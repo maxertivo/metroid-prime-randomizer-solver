@@ -73,6 +73,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Cargo Freight Lift to Deck Gamma with Bombs and no Gravity Suit
     * Climb Biohazard Containment with Space Jump and no Gravity Suit or with Bombs and Gravity Suit
     * Traverse Biotech with Space Jump and no Gravity Suit or with Bombs and Gravity Suit
+    * Climb Great Tree Hall spider track with Spider Ball and Bombs
     * Get Life Grove Underwater item with Bombs instead of Space Jump
     * Get Main Plaza Grapple Ledge by jumping to it with Space Jump
     * Get Main Plaza Locked Door item with Space Jump
@@ -83,7 +84,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Activate the bomb slot in Hall of the Elders with Space Jump and no Spider Ball
     * Climb Reflecting Pool with Space Jump
     * Cross Twin Fires Tunnel going toward the Tallon Elevator with Space Jump or Bombs
-    * Escape Quarantine Cave using Space Jump and Grapple
+    * Escape Quarantine Cave using Grapple
     * Collect the Observatory item from the top of Observatory using Space Jump
     * Get to Storage Cave and Security Cave without Grapple
     * Get out of various water in Phendrana without Gravity Suit
@@ -92,7 +93,8 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Cross Transport Access without Grapple
     * Cross Metroid Quarantine A without X-Ray
     * Get to Flamethrower Room without killing the Wave Pirates
-    * Cross Fungal Hall A without Grapple
+    * Cross Fungal Hall A using either Grapple or Space Jump
+    * Cross Fungal Hall B using either Grapple or Space Jump
     * Cross Quarantine Access B without Space Jump
     * Cross Metroid Quarantine B without Grapple
 * Hard
@@ -105,9 +107,10 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Frigate Crash Site without Space Jump (using Bombs)
     * Climb Reactor Core using Bombs if you have Gravity Suit
     * Climb Biohazard Containment with Bombs only
-    * Cross Biotech with only Wave. Cross the other way with Space Jump or Bombs.
+    * Cross Biotech with only Wave. Cross the other way with Space Jump or Bombs
     * Great Tree Hall bars skip both ways
-    * Go out of bounds in Life Grove using Space Jump and wallcrawl to Great Tree Hall.
+    * Climb Great Tree Hall spider track using Space Jump
+    * Go out of bounds in Life Grove using Space Jump and wallcrawl to Great Tree Hall
     * Go out of bounds in Main Plaza using Space Jump and wallcrawl to Training Chamber, Training Chamber Access, or Tower of Light
     * Collect Ruined Fountain without killing Flaahgra
     * Collect Tower Chamber without Gravity Suit or Space Jump
@@ -150,7 +153,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Frigate Crash Site without Space Jump using Bombs
     * Go around the non-powered door in crashed frigate by going out of bounds using a UBJ
     * Climb Cargo Freight Lift to Deck Gamma with Gravity Suit and Bombs
-    * Collect Life Grove Underwater item without Boost Ball
+    * Collect Life Grove Underwater item without Boost Ball, either using Bombs inbounds or going out of bounds with Space Jump
     * Cross Life Grove Tunnel and collect item without Boost using Bombs
     * Reach Great Tree Chamber from the top of Great Tree Hall without Space Jump
     * Go out of bounds in Great Tree Chamber using Bombs and wallcrawl to Life Grove or to Connection Elevator to Deck Beta to reach crashed frigate.
@@ -191,7 +194,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Eliter Research without Space Jump
     * Climb Fungal Hall Access without Space Jump
     * Traverse Fungal Hall A without Space Jump
-    * Get Mining Tunnel item with fewer E-Tanks. You may need to farm energy from the adjacent rooms
+    * Get Mining Tunnel item with fewer E-Tanks (you may need to farm energy from the adjacent rooms)
     * Traverse Fungal Hall B using only Bombs
     * Traverse Metroid Quarantine B using only Bombs
     * Go out of bounds in Metroid Quarantine B without Space Jump and wallcrawl to Phazon Processing Center or Fungal Hall B
@@ -199,6 +202,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Obtain Tallon Floaty using Infinite Speed in Landing Site. This may require you to float for an hour with lightshow. Then use Tallon Floaty to reach the inside of crashed frigate without ice beam from out of bounds
     * Go out of bounds in Tallon Canyon using Bombs only, and then wallcrawl to Root Cave or Arbor Chamber
     * Climb Great Tree Hall without Space Jump
+    * Bypass the gate in Sun Tower using bombs
     * Go out of bounds in Burning Trail using Bombs only, and wallcrawl across all of Magmoor (including to the mines elevator) if necessary
     * Go out of bounds in Magmoor Workstation using Ice Beam and Bombs, and wallcrawl across all of Magmoor if necessary
     * May require inbounds Geothermal Core without boost if you get warped there without Wave Beam, but you have Ice Beam
