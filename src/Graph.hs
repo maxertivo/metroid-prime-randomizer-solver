@@ -784,8 +784,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
                                     ,Edge noReq (I ProcessingCenterAccess)]
             ,Room MMinesFrontSw [Edge bombs (I StorageDepotA)
-                                    ,Edge bombs (R MMainQuarry)]
-                                    --,Edge ice (I SecurityAccessA)] -- This is possible but you need Ice Beam anyway
+                                    ,Edge ice (R MMainQuarry)
+                                    ,Edge ice (I SecurityAccessA)]
             ,Room MMinesBackSw [Edge bombs (R MFungalHallB)
                                     ,Edge bombs (R MPhazonProcessingCenter)
                                     ,Edge bombs (R MMetroidQuarantineB)
