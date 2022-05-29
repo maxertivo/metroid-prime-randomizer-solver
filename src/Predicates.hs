@@ -317,8 +317,8 @@ gthSpiderTrack diff x ids =
     case diff of
         Easy -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, IceBeam]
         Medium -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, IceBeam]
-        Hard -> containsAll x [SpiderBall, MorphBall, SpaceJumpBoots, IceBeam]
-        VeryHard -> spider x ids && sjOrBombs x ids && ice x ids
+        Hard -> ((spider x ids && bombs x ids) || sj x ids) && ice x ids
+        VeryHard -> ((spider x ids && bombs x ids) || sj x ids) && ice x ids
         Expert -> sjOrBombs x ids && ice x ids
 
 gtcEnter :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
