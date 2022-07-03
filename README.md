@@ -10,7 +10,9 @@ If you have not used the Randomizer before, Rekameohs's Script can help with the
 metroid-prime-randomizer-solver -d [Difficulty] -l [Log Directory]
 ```
 
-Difficulty can either be the full difficulty name (easy, medium, hard, veryhard, expert) or the single-letter abbreviation (e, m, h, v, x).
+Difficulty can either be the full difficulty name (easy, medium, hard, veryhard, expert, all) or the single-letter abbreviation (e, m, h, v, x, a).
+
+If you provide the "all" option for difficulty, the checker will find the easiest difficulty level for which the seed is completable (or print "False" if not completable). Note that this is considerably slower, since each seed my be checked multiple times.
 
 The log directory can either be a folder containing all of the logs, or a single log file. Windows-style filepaths (i.e. filepaths with backslash instead of slash) should work. When providing a single log file, the file must end with the .txt file extension. When providing a directory containing log files, the solver will attempt to parse everything in the directory, so the directory must contain log files only.
 
@@ -164,6 +166,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Collect Magma Pool with Infinite Speed without heat resistance if you have enough E-Tanks
     * Go out of bounds at Gathering Hall or Watery Hall using bombs and wallcrawl to Reflecting Pool
     * Bomb jump up the Crossway half-pipe
+    * Obtain Crossway item without spider or space jump, using Supers, Boost Ball and Bombs
     * Reach the bomb slot in Hall of the Elders using Bombs and without Spider Ball or Space Jump
     * Climb Reflecting Pool using Bombs
     * Stricter Varialess requirements in Magmoor

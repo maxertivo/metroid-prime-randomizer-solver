@@ -90,4 +90,6 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 deriving  (Read, Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert
-                deriving (Read ,Eq, Ord, Show, Enum)
+                deriving (Read ,Eq, Ord, Show, Enum, Bounded)
+
+data DifficultyArg = Arg Difficulty | All

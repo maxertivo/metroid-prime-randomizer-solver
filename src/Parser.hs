@@ -140,13 +140,14 @@ getElevatorLines (x:rest) =
 lowerString :: String -> String
 lowerString str = [toLower loweredString | loweredString <- str]
 
-parseDifficulty :: String -> Difficulty
+parseDifficulty :: String -> DifficultyArg
 parseDifficulty x
-    | lowerString x == "e" || lowerString x == "easy" = Easy
-    | lowerString x == "m" || lowerString x == "medium" = Medium
-    | lowerString x == "h" || lowerString x == "hard" = Hard
-    | lowerString x == "v" || lowerString x == "veryhard" = VeryHard
-    | lowerString x == "x" || lowerString x == "expert" = Expert
+    | lowerString x == "e" || lowerString x == "easy" = Arg Easy
+    | lowerString x == "m" || lowerString x == "medium" = Arg Medium
+    | lowerString x == "h" || lowerString x == "hard" = Arg Hard
+    | lowerString x == "v" || lowerString x == "veryhard" = Arg VeryHard
+    | lowerString x == "x" || lowerString x == "expert" = Arg Expert
+    | lowerString x == "a" || lowerString x == "all" = All
     | otherwise = error "Invalid difficulty"
 
 parseArg :: [String] -> String -> Maybe String

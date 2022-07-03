@@ -14,7 +14,7 @@ main = do
     difficultyString <-
         case parseArg args "-d" of
             Just dif -> return dif
-            Nothing -> putStrLn "Enter Difficulty ([e]asy, [m]edium, [h]ard, [v]eryHard, e[x]pert):" >> getLine
+            Nothing -> putStrLn "Enter Difficulty ([e]asy, [m]edium, [h]ard, [v]eryHard, e[x]pert, [a]ll):" >> getLine
     directory <-
         case parseArg args "-l" of
             Just dir -> return dir
@@ -22,23 +22,35 @@ main = do
     let difficulty = parseDifficulty difficultyString
     if ".txt" `isSuffixOf` directory
         then do
-            checkFile directory difficulty >>= print
+            fileContents <- readFile directory
+            putStrLn $ checkFile fileContents difficulty
         else do
             filePaths <- getDirectoryContents directory
             checkAllFiles directory filePaths difficulty
 
-checkAllFiles :: String -> [String] -> Difficulty -> IO ()
+checkAllFiles :: String -> [String] -> DifficultyArg -> IO ()
 checkAllFiles _ [] _ = return ()
 checkAllFiles directory ("..":rest) diff = checkAllFiles directory rest diff
 checkAllFiles directory (".":rest) diff = checkAllFiles directory rest diff
 checkAllFiles directory (fileName:rest) diff = do
+    fileContents <- readFile (directory ++ "/" ++ fileName)
     putStr $ fileName ++ ": "
-    checkFile (directory ++ "/" ++ fileName) diff >>= print
+    putStrLn $ checkFile fileContents diff
     checkAllFiles directory rest diff
 
-checkFile :: String -> Difficulty -> IO Bool
-checkFile filePath diff = do
-    fileContents <- readFile filePath
+checkFile :: String -> DifficultyArg -> String
+checkFile fileContents All = checkAllDifficulties fileContents (reverse [Easy .. Expert])
+checkFile fileContents (Arg difficulty) = show $ isLogCompletable fileContents difficulty
+
+checkAllDifficulties :: String -> [Difficulty] -> String
+checkAllDifficulties _ [] = "False"
+checkAllDifficulties fileContents [diff] = if isLogCompletable fileContents diff then "Easy" else "Medium"
+checkAllDifficulties fileContents (Expert:xs) = if isLogCompletable fileContents Expert then checkAllDifficulties fileContents xs else "False"
+checkAllDifficulties fileContents (diff1:diff2:xs) = if isLogCompletable fileContents diff2 then checkAllDifficulties fileContents (diff2 : xs) else show diff1
+
+isLogCompletable :: String -> Difficulty -> Bool
+isLogCompletable fileContents diff =
     let graph = buildMap $ buildNodes diff ++ parse fileContents
-    let graph2 = replaceElevators graph (parseElevators fileContents)
-    return $ isCompletable graph2
+        graph2 = replaceElevators graph (parseElevators fileContents)
+    in  isCompletable graph2
+
