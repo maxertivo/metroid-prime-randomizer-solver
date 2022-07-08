@@ -39,14 +39,16 @@ checkAllFiles directory (fileName:rest) diff = do
     checkAllFiles directory rest diff
 
 checkFile :: String -> DifficultyArg -> String
-checkFile fileContents All = checkAllDifficulties fileContents (reverse [Easy .. Expert])
+checkFile fileContents All = maybe "False" show (checkAllDifficulties fileContents)
 checkFile fileContents (Arg difficulty) = show $ isLogCompletable fileContents difficulty
 
-checkAllDifficulties :: String -> [Difficulty] -> String
-checkAllDifficulties _ [] = "False"
-checkAllDifficulties fileContents [diff] = if isLogCompletable fileContents diff then "Easy" else "Medium"
-checkAllDifficulties fileContents (Expert:xs) = if isLogCompletable fileContents Expert then checkAllDifficulties fileContents xs else "False"
-checkAllDifficulties fileContents (diff1:diff2:xs) = if isLogCompletable fileContents diff2 then checkAllDifficulties fileContents (diff2 : xs) else show diff1
+checkAllDifficulties :: String  -> Maybe Difficulty
+checkAllDifficulties fileContents = if isLogCompletable fileContents Expert then checkAllDifficulties' fileContents (reverse [Easy .. Expert]) else Nothing
+    where   
+        checkAllDifficulties' :: String -> [Difficulty] -> Maybe Difficulty
+        checkAllDifficulties' logContents [diff] = if isLogCompletable logContents diff then Just Easy else Just Medium
+        checkAllDifficulties' logContents (diff1:diff2:xs) = if isLogCompletable logContents diff2 then checkAllDifficulties' logContents (diff2 : xs) else Just diff1
+        checkAllDifficulties' _ _ = Nothing
 
 isLogCompletable :: String -> Difficulty -> Bool
 isLogCompletable fileContents diff =
