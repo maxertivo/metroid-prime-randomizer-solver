@@ -42,17 +42,25 @@ checkFile :: String -> DifficultyArg -> String
 checkFile fileContents All = maybe "False" show (checkAllDifficulties fileContents)
 checkFile fileContents (Arg difficulty) = show $ isLogCompletable fileContents difficulty
 
-checkAllDifficulties :: String  -> Maybe Difficulty
-checkAllDifficulties fileContents = if isLogCompletable fileContents Expert then checkAllDifficulties' fileContents (reverse [Easy .. Expert]) else Nothing
-    where   
-        checkAllDifficulties' :: String -> [Difficulty] -> Maybe Difficulty
-        checkAllDifficulties' logContents [diff] = if isLogCompletable logContents diff then Just Easy else Just Medium
-        checkAllDifficulties' logContents (diff1:diff2:xs) = if isLogCompletable logContents diff2 then checkAllDifficulties' logContents (diff2 : xs) else Just diff1
-        checkAllDifficulties' _ _ = Nothing
+checkAllDifficulties :: String -> Maybe Difficulty
+checkAllDifficulties fileContents =
+    if isLogCompletable fileContents Expert
+        then checkAllDifficulties' fileContents (reverse [Easy .. Expert])
+        else Nothing
+  where
+    checkAllDifficulties' :: String -> [Difficulty] -> Maybe Difficulty
+    checkAllDifficulties' logContents [Easy] =
+        if isLogCompletable logContents Easy
+            then Just Easy
+            else Just Medium
+    checkAllDifficulties' logContents (diff1:diff2:xs) =
+        if isLogCompletable logContents diff2
+            then checkAllDifficulties' logContents (diff2 : xs)
+            else Just diff1
+    checkAllDifficulties' _ _ = Nothing
 
 isLogCompletable :: String -> Difficulty -> Bool
 isLogCompletable fileContents diff =
     let graph = buildMap $ buildNodes diff ++ parse fileContents
         graph2 = replaceElevators graph (parseElevators fileContents)
-    in  isCompletable graph2
-
+     in isCompletable graph2
