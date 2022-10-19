@@ -58,15 +58,15 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         startCanAccessWarp = isAccessible graph OLandingSite warp newInventory collectedItems
      in if warpCanAccessStart && startCanAccessWarp
             then if containsUpgrade (itemName : newItems) newInventory
-                      then minMaybe candidate recurseItemList
-                      else recurseItemList
+                      then minMaybe candidate recurseItemList   -- We have a candidate and can end this warp chain
+                      else recurseItemList                      -- Not a valid candidate
             else if warpCanAccessStart && containsUpgrade (itemName : newItems) newInventory
                      then if belowDepthLimit
-                               then minMaybe candidate (minMaybe recurseItemList recurseDeeper)
-                               else minMaybe candidate recurseItemList
+                               then minMaybe candidate (minMaybe recurseItemList recurseDeeper) -- We have a candidate, but we can't return here, so continue this warp chain
+                               else minMaybe candidate recurseItemList                          -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
                      else if belowDepthLimit
-                               then minMaybe recurseItemList recurseDeeper
-                               else recurseItemList
+                               then minMaybe recurseItemList recurseDeeper  -- Not a valid candidate, but we can't return here, so continue this the warp chain
+                               else recurseItemList                         -- Not a valid candidate, and the chain is too long, so end it here
 
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
@@ -96,7 +96,9 @@ collectFreeItemsHelper graph (item:rest) currState =
         newState = State newInventory warp (Set.insert itemId collectedItems)
      in if isMutuallyAccessible graph warp roomId newInventory collectedItems -- Check to make sure the warp is not useful, so that collecting the item has no cost
             && itemId /= ElderChamber -- This warp is needed to exit if warped to Elder Chamber, so it is delayed until getBestCandidate is called
-            then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState
+            then if itemName `elem` [Missile, EnergyTank, Artifact] 
+                    then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState -- Recalculate accessible items since we got an upgrade
+                    else collectFreeItemsHelper graph rest newState -- We got a non-upgrade item, and it warped us somewhere mutually accessible, so we don't need to calculate accessible items again
             else collectFreeItemsHelper graph rest currState
 
 isMutuallyAccessible :: Map Id Node -> RoomId -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
