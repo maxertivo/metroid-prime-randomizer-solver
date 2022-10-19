@@ -9,6 +9,15 @@ data Id = R RoomId | I ItemId
 data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
         deriving (Show)
 
+instance Eq Node where 
+    p == q = case p of
+                Room roomId1 _ -> case q of
+                                        Room roomId2 _ -> roomId1 == roomId2
+                                        Item {} -> False
+                Item itemId1 _ _ -> case q of
+                                        Room {} -> False
+                                        Item itemId2 _ _ -> itemId1 == itemId2
+
 data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
 
 instance Show Edge where 

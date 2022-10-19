@@ -46,6 +46,7 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
         accessibleItems = getAccessibleItems graph newState
+        accessibleItemsInaccessibleFromStart = getAccessibleItems graph newState \\ getAccessibleItems graph (State newInventory OLandingSite newIds)
         numAccessibleItems = length accessibleItems
         belowDepthLimit
             | numAccessibleItems > 8 = depth <= 2
@@ -53,6 +54,7 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
             | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
         recurseItemList = getBestCandidateHelper graph rest currState depth newItems
         recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth + 1) (itemName : newItems)
+        recurseDeeperLimitSearch = getBestCandidateHelper graph accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
         candidate = Just (CandidateState newState depth (itemName : newItems))
         warpCanAccessStart = isAccessible graph warp OLandingSite newInventory collectedItems
         startCanAccessWarp = isAccessible graph OLandingSite warp newInventory collectedItems
@@ -62,8 +64,10 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
                       else recurseItemList                      -- Not a valid candidate
             else if warpCanAccessStart && containsUpgrade (itemName : newItems) newInventory
                      then if belowDepthLimit
-                               then minMaybe candidate (minMaybe recurseItemList recurseDeeper) -- We have a candidate, but we can't return here, so continue this warp chain
-                               else minMaybe candidate recurseItemList                          -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
+                               -- We have a candidate, but we can't return here, so continue this warp chain while only checking items we can't reach from start
+                               then minMaybe candidate (minMaybe recurseItemList recurseDeeperLimitSearch)
+                               -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
+                               else minMaybe candidate recurseItemList
                      else if belowDepthLimit
                                then minMaybe recurseItemList recurseDeeper  -- Not a valid candidate, but we can't return here, so continue this the warp chain
                                else recurseItemList                         -- Not a valid candidate, and the chain is too long, so end it here
