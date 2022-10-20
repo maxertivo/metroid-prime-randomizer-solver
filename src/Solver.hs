@@ -10,6 +10,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Set (Set, empty, fromList, toList)
 import qualified Data.Set as Set
+import Graph
 
 isCompletable :: Map Id Node -> Bool
 isCompletable graph =
@@ -34,12 +35,16 @@ isComplete graph (State inventory roomId collectedItems) =
 
 -- Try some warp chains and return the best state we could reach
 getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
-getBestCandidate graph state = getBestCandidateHelper graph (getAccessibleItems graph state) state 1 []
+getBestCandidate graph state = 
+    let candidates = getAllCandidates graph (getAccessibleItems graph state) state 1 []
+     in case sort candidates of
+        [] -> Nothing
+        (best:rest) -> Just best
 
-getBestCandidateHelper :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> Maybe CandidateState
-getBestCandidateHelper _ [] _ _ _ = Nothing
-getBestCandidateHelper _ (Room {}:_) _ _ _ = error "invalid argument - list includes room node"
-getBestCandidateHelper graph (item:rest) currState depth newItems =
+getAllCandidates :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> [CandidateState]
+getAllCandidates _ [] _ _ _ = []
+getAllCandidates _ (Room {}:_) _ _ _ = error "invalid argument - list includes room node"
+getAllCandidates graph (item:rest) currState depth newItems =
     let Item itemId itemName warp = item
         State inventory _ collectedItems = currState
         newInventory = addItem itemName inventory
@@ -52,38 +57,39 @@ getBestCandidateHelper graph (item:rest) currState depth newItems =
             | numAccessibleItems > 8 = depth <= 2
             | numAccessibleItems > 2 = depth <= 5
             | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
-        recurseItemList = getBestCandidateHelper graph rest currState depth newItems
-        recurseDeeper = getBestCandidateHelper graph accessibleItems newState (depth + 1) (itemName : newItems)
-        recurseDeeperLimitSearch = getBestCandidateHelper graph accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
-        candidate = Just (CandidateState newState depth (itemName : newItems))
-        warpCanAccessStart = isAccessible graph warp OLandingSite newInventory collectedItems
-        startCanAccessWarp = isAccessible graph OLandingSite warp newInventory collectedItems
+        recurseItemList = getAllCandidates graph rest currState depth newItems
+        recurseDeeper = getAllCandidates graph accessibleItems newState (depth + 1) (itemName : newItems)
+        recurseDeeperLimitSearch = getAllCandidates graph accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
+        candidate = CandidateState newState depth (itemName : newItems)
+        warpCanAccessStart = isAccessible graph warp OLandingSite newInventory newIds
+        startCanAccessWarp = isAccessible graph OLandingSite warp newInventory newIds
      in if warpCanAccessStart && startCanAccessWarp
             then if containsUpgrade (itemName : newItems) newInventory
-                      then minMaybe candidate recurseItemList   -- We have a candidate and can end this warp chain
-                      else recurseItemList                      -- Not a valid candidate
+                      then candidate : recurseItemList   -- We have a candidate and can end this warp chain
+                      else recurseItemList               -- Not a valid candidate
             else if warpCanAccessStart && containsUpgrade (itemName : newItems) newInventory
                      then if belowDepthLimit
                                -- We have a candidate, but we can't return here, so continue this warp chain while only checking items we can't reach from start
-                               then minMaybe candidate (minMaybe recurseItemList recurseDeeperLimitSearch)
+                               then candidate : (recurseItemList ++ recurseDeeperLimitSearch)
                                -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
-                               else minMaybe candidate recurseItemList
+                               else candidate : recurseItemList
                      else if belowDepthLimit
-                               then minMaybe recurseItemList recurseDeeper  -- Not a valid candidate, but we can't return here, so continue this the warp chain
-                               else recurseItemList                         -- Not a valid candidate, and the chain is too long, so end it here
+                               then recurseItemList ++ recurseDeeper  -- Not a valid candidate, but we can't return here, so continue this the warp chain
+                               else recurseItemList                   -- Not a valid candidate, and the chain is too long, so end it here
 
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
     let previousInventory = removeAll inventory newItems
-        ids = Data.Set.empty
-    in listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
+        empty = Data.Set.empty
+    in  listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit,Artifact] || -- These items are always an improvement
-        (not (spider previousInventory ids) && spider inventory ids) ||
-        (not (bombs previousInventory ids) && bombs inventory ids) ||
-        (not (boost previousInventory ids) && boost inventory ids) ||
-        (not (supers previousInventory ids) && supers inventory ids) ||
-        (not (pb previousInventory ids) && pb inventory ids) ||
-        (not (heatResist previousInventory ids) && heatResist inventory ids) ||
+        listContainsAny newItems pseudoItemNames ||
+        (not (spider previousInventory empty) && spider inventory empty) ||
+        (not (bombs previousInventory empty) && bombs inventory empty) ||
+        (not (boost previousInventory empty) && boost inventory empty) ||
+        (not (supers previousInventory empty) && supers inventory empty) ||
+        (not (pb previousInventory empty) && pb inventory empty) ||
+        (not (heatResist previousInventory empty) && heatResist inventory empty) ||
         listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory) || 
         listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 
@@ -97,8 +103,9 @@ collectFreeItemsHelper graph (item:rest) currState =
     let (State inventory roomId collectedItems) = currState
         Item itemId itemName warp = item
         newInventory = addItem itemName inventory
-        newState = State newInventory warp (Set.insert itemId collectedItems)
-     in if isMutuallyAccessible graph warp roomId newInventory collectedItems -- Check to make sure the warp is not useful, so that collecting the item has no cost
+        newIds = Set.insert itemId collectedItems
+        newState = State newInventory warp newIds
+     in if isMutuallyAccessible graph warp roomId newInventory newIds -- Check to make sure the warp is not useful, so that collecting the item has no cost
             && itemId /= ElderChamber -- This warp is needed to exit if warped to Elder Chamber, so it is delayed until getBestCandidate is called
             then if itemName `elem` [Missile, EnergyTank, Artifact] 
                     then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState -- Recalculate accessible items since we got an upgrade

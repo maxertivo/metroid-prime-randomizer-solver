@@ -67,6 +67,19 @@ elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNor
     ,OTransporttoChozoRuinsSouth ,OTransporttoPhazonMinesEast,MTransporttoTallonOverworldSouth ,MTransporttoMagmoorCavernsSouth ,CTransporttoChozoRuinsNorth
     ,CTransporttoPhendranaDriftsNorth ,CTransporttoTallonOverworldWest ,CTransporttoPhazonMinesWest ,CTransporttoPhendranaDriftsSouth]
 
+pseudoItems :: [Node]
+pseudoItems = [Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
+            ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
+            ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
+            ,Item StorageDepotATrigger StorageDepotABarrier MMineSecurityStation
+            ,Item ResearchLabHydraTrigger ResearchLabHydraBarrier DResearchLabHydra
+            ,Item EliteControlTrigger EliteControlBarrier MEliteControl
+            ,Item MetroidQuarantineATrigger MetroidQuarantineABarrier MMetroidQuarantineA
+            ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB]
+
+pseudoItemNames :: [ItemName]
+pseudoItemNames = map itemName pseudoItems
+
 {-- This creates all rooms and "pseudo-items" to add to the graph --}
 buildNodes :: Difficulty -> [Node]
 buildNodes diff = [ -- Tallon Overworld Rooms
@@ -790,14 +803,4 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (R MPhazonProcessingCenter)
                                     ,Edge bombs (R MMetroidQuarantineB)
                                     ,Edge (longWallcrawl diff) (I FungalHallAccess)]
-
-            -- Pseudo-items
-            ,Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
-            ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
-            ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
-            ,Item StorageDepotATrigger StorageDepotABarrier MMineSecurityStation
-            ,Item ResearchLabHydraTrigger ResearchLabHydraBarrier DResearchLabHydra
-            ,Item EliteControlTrigger EliteControlBarrier MEliteControl
-            ,Item MetroidQuarantineATrigger MetroidQuarantineABarrier MMetroidQuarantineA
-            ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB
-            ]
+            ] ++ pseudoItems
