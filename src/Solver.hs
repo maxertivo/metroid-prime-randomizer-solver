@@ -39,7 +39,7 @@ getBestCandidate graph state =
     let candidates = getAllCandidates graph (getAccessibleItems graph state) state 1 []
      in case sort candidates of
         [] -> Nothing
-        (best:rest) -> Just best
+        (best:_) -> Just best
 
 getAllCandidates :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> [CandidateState]
 getAllCandidates _ [] _ _ _ = []
@@ -80,16 +80,16 @@ getAllCandidates graph (item:rest) currState depth newItems =
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
     let previousInventory = removeAll inventory newItems
-        empty = Data.Set.empty
+        emptySet = Data.Set.empty
     in  listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam
                             ,ChargeBeam,XRayVisor,PhazonSuit,GravitySuit,Artifact] || -- These items are always an improvement
         listContainsAny newItems pseudoItemNames ||
-        (not (spider previousInventory empty) && spider inventory empty) ||
-        (not (bombs previousInventory empty) && bombs inventory empty) ||
-        (not (boost previousInventory empty) && boost inventory empty) ||
-        (not (supers previousInventory empty) && supers inventory empty) ||
-        (not (pb previousInventory empty) && pb inventory empty) ||
-        (not (heatResist previousInventory empty) && heatResist inventory empty) ||
+        (not (spider previousInventory emptySet) && spider inventory emptySet) ||
+        (not (bombs previousInventory emptySet) && bombs inventory emptySet) ||
+        (not (boost previousInventory emptySet) && boost inventory emptySet) ||
+        (not (supers previousInventory emptySet) && supers inventory emptySet) ||
+        (not (pb previousInventory emptySet) && pb inventory emptySet) ||
+        (not (heatResist previousInventory emptySet) && heatResist inventory emptySet) ||
         listContains newItems EnergyTank && not (containsCount 6 EnergyTank previousInventory) || 
         listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 
