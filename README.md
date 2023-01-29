@@ -107,6 +107,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Cross Frigate Crash Site water without Morph
     * Get Frigate Crash Site item without any items
     * Climb Frigate Crash Site with Space Jump
+    * Climb Main Ventillation Shaft Section C using a series of DBJs
     * Climb Reactor Core using Bombs if you have Gravity Suit
     * Climb Biohazard Containment with Bombs only
     * Cross Biotech with only Wave. Cross the other way with Space Jump or Bombs
