@@ -106,7 +106,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Bypass the Arbor Chamber plasma door using Space Jump to get out of bounds
     * Cross Frigate Crash Site water without Morph
     * Get Frigate Crash Site item without any items
-    * Climb Frigate Crash Site without Space Jump (using Bombs)
+    * Climb Frigate Crash Site with Space Jump
     * Climb Reactor Core using Bombs if you have Gravity Suit
     * Climb Biohazard Containment with Bombs only
     * Cross Biotech with only Wave. Cross the other way with Space Jump or Bombs
