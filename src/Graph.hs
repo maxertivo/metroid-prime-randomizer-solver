@@ -493,11 +493,13 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room DPhendranaShorelines [Edge (iceBarrier diff) (R DShorelineEntrance)
                                     ,Edge noReq (R DSaveStationB)
                                     ,Edge noReq (R DIceRuinsAccess)
-                                    ,Edge (climbShorelines diff)  (R DPlazaWalkway)
-                                    ,Edge (climbShorelines diff) (R DRuinsEntryway)
+                                    ,Edge (climbShorelines diff)  (R DPhendranaShorelinesUpper)
                                     ,Edge (climbShorelines diff) (R DTempleEntryway)
                                     ,Edge plasma (I PhendranaShorelinesBehindIce)
                                     ,Edge (shorelinesTower diff) (I PhendranaShorelinesSpiderTrack)]
+            ,Room DPhendranaShorelinesUpper [Edge noReq (R DPlazaWalkway)
+                                    ,Edge noReq (R DRuinsEntryway)
+                                    ,Edge noReq (R DPhendranaShorelines)]
             ,Room DSaveStationB [Edge noReq (R DPhendranaShorelines)]
             ,Room DTempleEntryway [Edge noReq (R DPhendranaShorelines)
                                     ,Edge (iceBarrier diff) (R DChozoIceTemple)]
@@ -516,8 +518,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (ireSpiderTrack diff) (I IceRuinsEastSpiderTrack)
                                     ,Edge plasma (I IceRuinsEastBehindIce)]
             ,Room DPlazaWalkway [Edge noReq (R DIceRuinsEast)
-                                    ,Edge noReq (R DPhendranaShorelines)]
-            ,Room DRuinsEntryway [Edge noReq (R DPhendranaShorelines)
+                                    ,Edge noReq (R DPhendranaShorelinesUpper)]
+            ,Room DRuinsEntryway [Edge noReq (R DPhendranaShorelinesUpper)
                                     ,Edge noReq (R DIceRuinsWest)]
             ,Room DIceRuinsWest [Edge noReq (R DRuinsEntryway)
                                     ,Edge missile (R DCanyonEntryway)
