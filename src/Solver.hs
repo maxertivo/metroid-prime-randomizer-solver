@@ -74,8 +74,10 @@ getAllCandidates graph (item:rest) currState depth newItems =
                                -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
                                else candidate : recurseItemList
                      else if belowDepthLimit
-                               then recurseItemList ++ recurseDeeper  -- Not a valid candidate, but we can't return here, so continue this the warp chain
-                               else recurseItemList                   -- Not a valid candidate, and the chain is too long, so end it here
+                               -- Not a valid candidate, but we can't return here, so continue this the warp chain
+                               then recurseItemList ++ (if warpCanAccessStart then recurseDeeperLimitSearch else recurseDeeper)  
+                               -- Not a valid candidate, and the chain is too long, so end it here
+                               else recurseItemList                             
 
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
