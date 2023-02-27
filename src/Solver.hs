@@ -107,9 +107,9 @@ collectFreeItemsHelper graph (item:rest) currState =
         newState = State newInventory warp newIds
      in if isMutuallyAccessible graph warp roomId newInventory newIds -- Check to make sure the warp is not useful, so that collecting the item has no cost
             && itemId /= ElderChamber -- This warp is needed to exit if warped to Elder Chamber, so it is delayed until getBestCandidate is called
-            then if itemName `elem` [Missile, EnergyTank, Artifact] 
-                    then collectFreeItemsHelper graph (getAccessibleItems graph newState) newState -- Recalculate accessible items since we got an upgrade
-                    else collectFreeItemsHelper graph rest newState -- We got a non-upgrade item, and it warped us somewhere mutually accessible, so we don't need to calculate accessible items again
+            then if itemName `elem` [Missile, EnergyTank, Artifact] && missile inventory collectedItems
+                    then collectFreeItemsHelper graph rest newState -- We got a non-upgrade item, and it warped us somewhere mutually accessible, so we don't need to calculate accessible items again
+                    else collectFreeItemsHelper graph (getAccessibleItems graph newState) newState -- Recalculate accessible items since we got an upgrade
             else collectFreeItemsHelper graph rest currState
 
 isMutuallyAccessible :: Map Id Node -> RoomId -> RoomId -> Map ItemName Int -> Set ItemId -> Bool

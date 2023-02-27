@@ -398,6 +398,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room RTransporttoTallonOverworldEast [Edge bombs (R RSaveStation3)
                                     ,Edge noReq (R OTransporttoChozoRuinsEast)]
             ,Room RChozoBackSw [Edge bombs (R RReflectingPool)
+                                    ,Edge bombs (I HalloftheElders)
                                     ,Edge (crosswayInfiniteSpeed diff) (I ElderChamber)
                                     ,Edge (longWallcrawl diff) (R RChozoFrontSw)]
             ,Room RChozoFrontSw [Edge bombs (I TrainingChamber)

@@ -120,7 +120,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb Tower of Light without Missiles using Space Jump
     * Dash across Magma Pool with Space Jump
     * Collect Magma Pool with Infinite Speed if you have heat resistance
-    * Go out of bounds at Gathering Hall or Watery Hall using Space Jump and wallcrawl to Reflecting Pool
+    * Go out of bounds at Gathering Hall or Watery Hall using Space Jump and wallcrawl to Hall of the Elders item, or Reflecting Pool
     * Collect Watery Hall Water item without any items
     * Collect Furnace Spider Track item without Power Bombs or Boost Ball if you have Space Jump
     * Collect Crossway item using Space Jump and Morph Ball only
@@ -165,7 +165,7 @@ If you want to modify this code to change room / item requirements, you'll mostl
     * Climb to Ruined Shrine upper door with no items
     * Climb Tower of Light without Space Jump if you have enough missiles
     * Collect Magma Pool with Infinite Speed without heat resistance if you have enough E-Tanks
-    * Go out of bounds at Gathering Hall or Watery Hall using bombs and wallcrawl to Reflecting Pool
+    * Go out of bounds at Gathering Hall or Watery Hall using bombs and wallcrawl to Hall of the Elders item, or Reflecting Pool
     * Bomb jump up the Crossway half-pipe
     * Obtain Crossway item without spider or space jump, using Supers, Boost Ball and Bombs
     * Reach the bomb slot in Hall of the Elders using Bombs and without Spider Ball or Space Jump
