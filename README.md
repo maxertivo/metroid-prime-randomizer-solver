@@ -31,8 +31,6 @@ In some cases, the solver won't be able to find a solution even though a solutio
 
 Some seeds are techically completable, but can become impossible if the warps are used in the wrong order. The solver will still say such seeds are completable.
 
-Warps to Elder Chamber can cause issues because the statue blocks the exit. You can collect the item to leave one time, but if you get warped there a second time, you are trapped. In rare cases, the solver may collect the Elder Chamber item early and be unable to solve the seed.
-
 Boss difficulty is not considered at all.
 
 Floaty jump is not considered, unless it is able to be acquired repeatedly, since a one-time usage trick makes the logic too complex. Tallon Floaty is the only example of floaty that can be required (and only on Expert difficulty).
