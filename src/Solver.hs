@@ -36,48 +36,54 @@ isComplete graph (State inventory roomId collectedItems) =
 -- Try some warp chains and return the best state we could reach
 getBestCandidate :: Map Id Node -> State -> Maybe CandidateState
 getBestCandidate graph state = 
-    let candidates = getAllCandidates graph (getAccessibleItems graph state) state 1 []
+    let potentialCandidates = getPotentialCandidates 0 state [] $ getAccessibleItems graph state
+        candidates = getAllCandidates graph potentialCandidates
      in case sort candidates of
         [] -> Nothing
         (best:_) -> Just best
 
-getAllCandidates :: Map Id Node -> [Node] -> State -> Int -> [ItemName] -> [CandidateState]
-getAllCandidates _ [] _ _ _ = []
-getAllCandidates _ (Room {}:_) _ _ _ = error "invalid argument - list includes room node"
-getAllCandidates graph (item:rest) currState depth newItems =
-    let Item itemId itemName warp = item
-        State inventory _ collectedItems = currState
-        newInventory = addItem itemName inventory
-        newIds = Set.insert itemId collectedItems
-        newState = State newInventory warp newIds
+-- Checks each potential candidate given to see if it is a candidate and if it leads to other potential candidates
+getAllCandidates :: Map Id Node -> [CandidateState] -> [CandidateState]
+getAllCandidates _ [] = []
+getAllCandidates graph (potentialCandidate:remainingCandidates) =
+    let CandidateState newState newDepth items = potentialCandidate
+        itemName:rest = items
+        State inventory room collectedItems = newState
         accessibleItems = getAccessibleItems graph newState
-        accessibleItemsInaccessibleFromStart = getAccessibleItems graph newState \\ getAccessibleItems graph (State newInventory OLandingSite newIds)
+        accessibleItemsInaccessibleFromStart = getAccessibleItems graph newState \\ getAccessibleItems graph (State inventory OLandingSite collectedItems)
         numAccessibleItems = length accessibleItems
         belowDepthLimit
-            | numAccessibleItems > 8 = depth <= 2
-            | numAccessibleItems > 2 = depth <= 5
+            | numAccessibleItems > 8 = newDepth <= 2
+            | numAccessibleItems > 2 = newDepth <= 5
             | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
-        recurseItemList = getAllCandidates graph rest currState depth newItems
-        recurseDeeper = getAllCandidates graph accessibleItems newState (depth + 1) (itemName : newItems)
-        recurseDeeperLimitSearch = getAllCandidates graph accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
-        candidate = CandidateState newState depth (itemName : newItems)
-        warpCanAccessStart = isAccessible graph warp OLandingSite newInventory newIds
-        startCanAccessWarp = isAccessible graph OLandingSite warp newInventory newIds
-     in if warpCanAccessStart && startCanAccessWarp
-            then if containsUpgrade (itemName : newItems) newInventory
-                      then candidate : recurseItemList   -- We have a candidate and can end this warp chain
-                      else recurseItemList               -- Not a valid candidate
-            else if warpCanAccessStart && containsUpgrade (itemName : newItems) newInventory
+        potentialCandidates = getPotentialCandidates newDepth newState items accessibleItems
+        potentialCandidatesLimitSearch = getPotentialCandidates newDepth newState items accessibleItemsInaccessibleFromStart 
+        canAccessStart = isAccessible graph room OLandingSite inventory collectedItems
+        canReturnFromStart = isAccessible graph OLandingSite room inventory collectedItems
+     in if canAccessStart && canReturnFromStart
+            then if containsUpgrade items inventory
+                      then potentialCandidate : getAllCandidates graph remainingCandidates   -- We have a candidate and can end this warp chain
+                      else getAllCandidates graph remainingCandidates               -- Not a valid candidate
+            else if canAccessStart && containsUpgrade items inventory
                      then if belowDepthLimit
                                -- We have a candidate, but we can't return here, so continue this warp chain while only checking items we can't reach from start
-                               then candidate : (recurseItemList ++ recurseDeeperLimitSearch)
+                               then potentialCandidate : getAllCandidates graph (potentialCandidatesLimitSearch ++ remainingCandidates)
                                -- We have a candidate, but we can't return here, but also the chain is too long so end it anyway
-                               else candidate : recurseItemList
+                               else potentialCandidate : getAllCandidates graph remainingCandidates
                      else if belowDepthLimit
                                -- Not a valid candidate, but we can't return here, so continue this the warp chain
-                               then recurseItemList ++ (if warpCanAccessStart then recurseDeeperLimitSearch else recurseDeeper)  
+                               then getAllCandidates graph ((if canAccessStart then potentialCandidatesLimitSearch else potentialCandidates) ++ remainingCandidates)
                                -- Not a valid candidate, and the chain is too long, so end it here
-                               else recurseItemList                             
+                               else getAllCandidates graph remainingCandidates                             
+
+-- For each accessible item, create a CandidateState that collected that item
+getPotentialCandidates :: Int -> State  -> [ItemName] -> [Node] -> [CandidateState]
+getPotentialCandidates _ _ _ (Room {}:_) = error "invalid argument - list includes room node"
+getPotentialCandidates _ _ _ [] = []
+getPotentialCandidates depth state newItemNames (Item itemId itemName warp : rest) = 
+    let State inventory room itemIds = state
+        candidate = CandidateState (State (addItem itemName inventory) warp (Set.insert itemId itemIds)) (depth + 1) (itemName : newItemNames)
+    in candidate : getPotentialCandidates depth state newItemNames rest
 
 containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
 containsUpgrade newItems inventory =
