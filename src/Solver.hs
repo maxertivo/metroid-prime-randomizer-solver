@@ -136,16 +136,16 @@ isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory itemId
 
 getAccessibleItems :: Map Id Node -> State -> [Node]
 getAccessibleItems graph (State inventory roomId collectedItems) =
-    let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems
+    let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems []
         uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
         maybeItems = mapM (((\x -> x graph) . Map.lookup) . I) uniqueItemIds
      in case maybeItems of
             Nothing -> error "Missing Item"
             Just items -> items
 
-getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> Map ItemName Int -> Set ItemId -> [ItemId]
-getAccessibleItemsHelper _ [] _ _ _ = []
-getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems =
+getAccessibleItemsHelper :: Map Id Node -> [RoomId] -> [RoomId] -> Map ItemName Int -> Set ItemId -> [ItemId] -> [ItemId]
+getAccessibleItemsHelper _ [] _ _ _ result = result
+getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedItems result =
     case Map.lookup (R roomId) graph of
         Just (Room _ edges) ->
             let predicates = map predicate edges
@@ -156,5 +156,5 @@ getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedIte
                 itemIds = getItemIds reachableNodeIds
                 uncheckedRoomIds = roomIds \\ checkedRooms
                 uncollectedItemIds = removeSet itemIds collectedItems
-             in uncollectedItemIds ++ getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId : checkedRooms) inventory collectedItems
+             in getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId : checkedRooms) inventory collectedItems (uncollectedItemIds ++ result)
         _ -> error ("Missing or incorrect Room " ++ show roomId)
