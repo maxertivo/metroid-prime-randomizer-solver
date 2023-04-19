@@ -51,7 +51,7 @@ getAllCandidates graph (item:rest) currState depth newItems =
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
         accessibleItems = getAccessibleItems graph newState
-        accessibleItemsInaccessibleFromStart = getAccessibleItems graph newState \\ getAccessibleItems graph (State newInventory OLandingSite newIds)
+        accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems graph (State newInventory OLandingSite newIds)) accessibleItems
         numAccessibleItems = length accessibleItems
         belowDepthLimit
             | numAccessibleItems > 8 = depth <= 2
@@ -130,14 +130,14 @@ isAccessibleHelper graph (roomId:rest) checkedRooms destination inventory itemId
                 nodeIds = map nodeId edges
                 bools = eval2 predicates inventory itemIds
                 roomIds = getRoomIds (checkBools nodeIds bools)
-                uncheckedRoomIds = roomIds \\ checkedRooms
+                uncheckedRoomIds = filter (`notElem` checkedRooms) roomIds 
              in isAccessibleHelper graph (uncheckedRoomIds ++ rest) (roomId : checkedRooms) destination inventory itemIds
         _ -> error ("Missing or incorrect Room " ++ show roomId)
 
 getAccessibleItems :: Map Id Node -> State -> [Node]
 getAccessibleItems graph (State inventory roomId collectedItems) =
     let itemIds = getAccessibleItemsHelper graph [roomId] [] inventory collectedItems []
-        uniqueItemIds = Data.Set.toList (Data.Set.fromList itemIds) -- Remove duplicates
+        uniqueItemIds = nub itemIds -- Remove duplicates
         maybeItems = mapM (((\x -> x graph) . Map.lookup) . I) uniqueItemIds
      in case maybeItems of
             Nothing -> error "Missing Item"
@@ -154,7 +154,7 @@ getAccessibleItemsHelper graph (roomId:rest) checkedRooms inventory collectedIte
                 reachableNodeIds = checkBools nodeIds bools
                 roomIds = getRoomIds reachableNodeIds
                 itemIds = getItemIds reachableNodeIds
-                uncheckedRoomIds = roomIds \\ checkedRooms
+                uncheckedRoomIds = filter (`notElem` checkedRooms) roomIds 
                 uncollectedItemIds = removeSet itemIds collectedItems
              in getAccessibleItemsHelper graph (uncheckedRoomIds ++ rest) (roomId : checkedRooms) inventory collectedItems (uncollectedItemIds ++ result)
         _ -> error ("Missing or incorrect Room " ++ show roomId)
