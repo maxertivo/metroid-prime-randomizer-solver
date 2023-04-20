@@ -8,7 +8,7 @@ import Util
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Set (Set, empty, fromList, toList)
+import Data.Set (Set, empty)
 import qualified Data.Set as Set
 import Graph
 
