@@ -380,7 +380,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (hotePlasma diff) (R RElderChamber)
                                     ,Edge (hoteIce diff) (I HalloftheElders)]
             ,Room RElderChamber [Edge noReq (I ElderChamber)
-                                    ,Edge blocked (R RHalloftheElders)] -- Statue blocks the way if you get warped here
+                                    ,Edge (elderChamberExit diff) (R RHalloftheElders)]
             ,Room RReflectingPoolAccess [Edge noReq (R RHalloftheElders)
                                     ,Edge noReq (R RReflectingPool)]
             ,Room RReflectingPool [Edge noReq (R RReflectingPoolAccess)

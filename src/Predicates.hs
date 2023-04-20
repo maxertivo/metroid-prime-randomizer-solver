@@ -14,7 +14,7 @@ blocked :: Map ItemName Int -> Set ItemId -> Bool
 blocked _ _ = False
 
 complete :: Map ItemName Int -> Set ItemId -> Bool
-complete inv _ = containsCount 12 Artifact inv && contains inv PhazonSuit && containsAll inv [WaveBeam, IceBeam, PlasmaBeam]
+complete inv _ = containsCount 12 Artifact inv && containsAll inv [WaveBeam, IceBeam, PlasmaBeam, PhazonSuit]
 
 morph :: Map ItemName Int -> Set ItemId -> Bool
 morph inv _ = contains inv MorphBall
@@ -567,6 +567,10 @@ hotePlasma diff inv ids =
         Hard -> containsAll inv [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam] && (spider inv ids || sj inv ids)
         VeryHard -> containsAll inv [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam]
         Expert -> containsAll inv [MorphBall, MorphBallBomb, IceBeam, PlasmaBeam]
+
+-- You can get into the statue's hands to escape
+elderChamberExit :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+elderChamberExit _ inv _ = containsAll inv [IceBeam, MorphBall, MorphBallBomb]
 
 reflectPoolSave :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 reflectPoolSave diff inv ids = reflectPoolAntechamber diff inv ids && contains inv Missile
