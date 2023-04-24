@@ -31,11 +31,11 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let roomGraph = buildMap roomId $ buildNodes Expert
-        roomGraph2 = replaceElevators roomGraph (parseElevators fileContents)
-        itemGraph = buildMap itemId $ parse fileContents ++ pseudoItems
-    case Map.lookup OLandingSite roomGraph2 of
-        Just node -> explore roomGraph2 itemGraph Map.empty Set.empty node
+    let roomMap = buildMap roomId $ buildNodes Expert
+        roomMap2 = replaceElevators roomMap (parseElevators fileContents)
+        itemMap = buildMap itemId $ parse fileContents ++ pseudoItems
+    case Map.lookup OLandingSite roomMap2 of
+        Just node -> explore roomMap2 itemMap Map.empty Set.empty node
         Nothing -> return ()
 
 explore :: Map RoomId Room -> Map ItemId Item -> Map ItemName Int -> Set ItemId -> Room -> IO ()

@@ -37,9 +37,9 @@ isComplete roomMap itemMap (State inventory roomId collectedItems) =
 getBestCandidate :: Map RoomId Room -> Map ItemId Item -> State -> Maybe CandidateState
 getBestCandidate roomMap itemMap state = 
     let candidates = getAllCandidates roomMap itemMap (getAccessibleItems roomMap itemMap state) state 1 []
-     in case sort candidates of
+     in case candidates of
         [] -> Nothing
-        (best:_) -> Just best
+        _ -> Just $ minimum candidates
 
 getAllCandidates :: Map RoomId Room -> Map ItemId Item -> [Item] -> State -> Int -> [ItemName] -> [CandidateState]
 getAllCandidates _ _ [] _ _ _ = []
