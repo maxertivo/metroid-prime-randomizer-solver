@@ -31,18 +31,15 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let graph = buildMap $ buildNodes Expert ++ parse fileContents
-        graph2 = replaceElevators graph (parseElevators fileContents)
-    case Map.lookup (R OLandingSite) graph2 of
-        Just node -> explore graph2 Map.empty Set.empty node
+    let roomGraph = buildMap roomId $ buildNodes Expert
+        roomGraph2 = replaceElevators roomGraph (parseElevators fileContents)
+        itemGraph = buildMap itemId $ parse fileContents ++ pseudoItems
+    case Map.lookup OLandingSite roomGraph2 of
+        Just node -> explore roomGraph2 itemGraph Map.empty Set.empty node
         Nothing -> return ()
 
-explore :: Map Id Node -> Map ItemName Int -> Set ItemId -> Node -> IO ()
-explore nodes items colItems (Item id name warp) =
-    case Map.lookup (R warp) nodes of
-        Just warpNode -> explore nodes (addItem name items) (Set.insert id colItems) warpNode
-        Nothing -> throw $ MissingWarp $ R warp
-explore nodes items colItems (Room roomId edges) = do
+explore :: Map RoomId Room -> Map ItemId Item -> Map ItemName Int -> Set ItemId -> Room -> IO ()
+explore roomMap itemMap items colItems (Room roomId edges) = do
     let predicates = map predicate edges
         bools = eval2 predicates items colItems
         ids = map nodeId edges
@@ -53,12 +50,15 @@ explore nodes items colItems (Room roomId edges) = do
     command <- getLine
     let index = (read command :: Integer) - 1
         allowed = fromMaybe False (getIndex bools index)
-        newNode = getIndex ids index >>= (`Map.lookup` nodes)
+        nodeId = getIndex ids index
     if allowed
-        then case newNode of
-                 Nothing -> throw MissingNode
-                 Just a -> explore nodes items colItems a
-        else explore nodes items colItems (Room roomId edges)
+        then case nodeId of
+                 Nothing -> error "Missing id"
+                 Just (R roomId) -> explore roomMap itemMap items colItems (getVal (Map.lookup roomId roomMap) "Missing room")
+                 Just (I itemId) -> case Map.lookup itemId itemMap of
+                                Nothing -> error "Missing item"
+                                Just (Item id name warp) -> explore roomMap itemMap (addItem name items) (Set.insert id colItems) (getVal (Map.lookup warp roomMap) "Missing room")
+        else explore roomMap itemMap items colItems (Room roomId edges)
 
 printEdges :: [Id] -> [Bool] -> IO ()
 printEdges = printEdgesHelper 1

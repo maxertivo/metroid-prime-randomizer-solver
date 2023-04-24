@@ -6,17 +6,14 @@ import Data.Set (Set)
 data Id = R RoomId | I ItemId
         deriving  (Read, Eq, Ord, Show)
 
-data Node = Room {roomId :: RoomId, edges :: [Edge]} | Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
+data Room = Room {roomId :: RoomId, edges :: [Edge]} 
         deriving (Show)
 
-instance Eq Node where 
-    p == q = case p of
-                Room roomId1 _ -> case q of
-                                        Room roomId2 _ -> roomId1 == roomId2
-                                        Item {} -> False
-                Item itemId1 _ _ -> case q of
-                                        Room {} -> False
-                                        Item itemId2 _ _ -> itemId1 == itemId2
+data Item =  Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
+        deriving (Show)
+
+instance Eq Item where
+    Item id1 _ _ == Item id2 _ _ = id1 == id2
 
 data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
 
@@ -29,7 +26,7 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
 
                 | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier | StorageDepotABarrier 
                 | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier
-                deriving  (Read, Eq, Ord, Show, Enum)
+                deriving  (Read, Eq, Ord, Show)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
 data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove | OTallonCanyon | ORootTunnel 
@@ -75,7 +72,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
                 | MMetroidQuarantineBBack | MMissileStationMinesInbounds | MOreProcessingBottom | MOreProcessingTop | MMinesFrontSw | MMinesBackSw
-                deriving  (Read, Eq, Ord, Show, Enum)
+                deriving  (Read, Eq, Ord, Show)
 
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -96,7 +93,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
 
                 -- TODO Possible pseudo item: opened OP backdoor in mines
-                deriving  (Read, Eq, Ord, Show, Enum)
+                deriving  (Read, Eq, Ord, Show)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert
                 deriving (Read ,Eq, Ord, Show, Enum, Bounded)

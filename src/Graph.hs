@@ -29,23 +29,17 @@ If the item does not warp, it is treated as if it warps to the room containing t
 This is mostly useful for non-warp randomizer seeds. 
 --}
 
-buildMap :: [Node] -> Map Id Node
-buildMap nodes = Map.fromList (map createMapKeys nodes)
+buildMap :: (Ord b) => (a -> b) -> [a] -> Map b a
+buildMap idFunc vals = Map.fromList (map (\x -> (idFunc x, x)) vals)
 
-createMapKeys :: Node -> (Id, Node)
-createMapKeys node =
-    case node of
-        Item item _ _ -> (I item, node)
-        Room room _ -> (R room, node)
-
-replaceElevators :: Map Id Node -> [(RoomId, RoomId)] -> Map Id Node
+replaceElevators :: Map RoomId Room -> [(RoomId, RoomId)] -> Map RoomId Room
 replaceElevators graph [] = graph
 replaceElevators graph ((a, b):rest) =
-    let oldNode = getVal (Map.lookup (R a) graph) "Missing room"
+    let oldNode = getVal (Map.lookup a graph) "Missing room"
         newNode = replaceEdgeRoom oldNode a b
-     in replaceElevators (Map.insert (R a) newNode graph) rest
+     in replaceElevators (Map.insert a newNode graph) rest
 
-replaceEdgeRoom :: Node -> RoomId -> RoomId -> Node
+replaceEdgeRoom :: Room -> RoomId -> RoomId -> Room
 replaceEdgeRoom (Room rId edgeList) original replacement =
     let newEdges = f edgeList original replacement
      in Room rId newEdges
@@ -59,7 +53,6 @@ replaceEdgeRoom (Room rId edgeList) original replacement =
                     then Edge p (R replace) : f rest orig replace
                     else Edge p (R roomId) : f rest orig replace
             _ -> Edge p nodeId : f rest orig replace
-replaceEdgeRoom node _ _ = node
 
 elevatorRooms :: [RoomId]
 elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
@@ -67,7 +60,7 @@ elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNor
     ,OTransporttoChozoRuinsSouth ,OTransporttoPhazonMinesEast,MTransporttoTallonOverworldSouth ,MTransporttoMagmoorCavernsSouth ,CTransporttoChozoRuinsNorth
     ,CTransporttoPhendranaDriftsNorth ,CTransporttoTallonOverworldWest ,CTransporttoPhazonMinesWest ,CTransporttoPhendranaDriftsSouth]
 
-pseudoItems :: [Node]
+pseudoItems :: [Item]
 pseudoItems = [Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
             ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
             ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
@@ -81,7 +74,7 @@ pseudoItemNames :: [ItemName]
 pseudoItemNames = map itemName pseudoItems
 
 {-- This creates all rooms and "pseudo-items" to add to the graph --}
-buildNodes :: Difficulty -> [Node]
+buildNodes :: Difficulty -> [Room]
 buildNodes diff = [ -- Tallon Overworld Rooms
             Room OLandingSite [Edge noReq (R OCanyonCavern)
                                     ,Edge noReq (R OWaterfallCavern)
@@ -806,4 +799,4 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge bombs (R MPhazonProcessingCenter)
                                     ,Edge bombs (R MMetroidQuarantineB)
                                     ,Edge (longWallcrawl diff) (I FungalHallAccess)]
-            ] ++ pseudoItems
+            ]

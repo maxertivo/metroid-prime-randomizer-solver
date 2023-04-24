@@ -4,13 +4,13 @@ import Data.Char
 import Node
 import Text.Read
 
-parse :: String -> [Node]
+parse :: String -> [Item]
 parse input = createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePrefixes $ removePunc $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
 
 parseElevators :: String -> [(RoomId, RoomId)]
 parseElevators input = createElevatorTuples $ shortenAreas $ splitElevators $ removePunc $ removeEmpty $ getElevatorLines $ lines input
 
-createItemNodes :: [(String, String, String)] -> [Node]
+createItemNodes :: [(String, String, String)] -> [Item]
 createItemNodes ((a, b, c):rest) = Item (readStr a :: ItemId) (readStr b :: ItemName) (getWarp c a) : createItemNodes rest
 createItemNodes [] = []
 
@@ -35,12 +35,11 @@ readStr str =
 
 handleExpansions :: [String] -> [String]
 handleExpansions (a:b:c:d:rest) =
-    case removeNum c of
-        "MissileExpansion" -> a : b : "Missile" : d : handleExpansions rest
-        "MissileLauncher" -> a : b : "Missile" : d : handleExpansions rest
-        "PowerBombExpansion" -> a : b : "PowerBomb" : d : handleExpansions rest
-        "EnergyTank" -> a : b : "EnergyTank" : d : handleExpansions rest
-        'A':'r':'t':'i':'f':'a':'c':'t':_ -> a : b : "Artifact" : d : handleExpansions rest
+    case c of
+        'M' : 'i' : 's' : _ -> a : b : "Missile" : d : handleExpansions rest
+        'P' : 'o' : 'w' : _ -> a : b : "PowerBomb" : d : handleExpansions rest
+        'E' : 'n' : 'e' : _ -> a : b : "EnergyTank" : d : handleExpansions rest
+        'A' : 'r' : 't' : _ -> a : b : "Artifact" : d : handleExpansions rest
         _ -> a : b : c : d : handleExpansions rest
 handleExpansions [] = []
 handleExpansions x = error $ show x
@@ -83,9 +82,6 @@ removeEmpty [] = []
 
 removePunc :: [String] -> [String]
 removePunc = map (\xs -> [x | x <- xs, x `notElem` " '()\"-.|"])
-
-removeNum :: String -> String
-removeNum xs = [x | x <- xs, x `notElem` "1234567890"]
 
 split :: [String] -> [String]
 split = concatMap (splitOn "- ")
