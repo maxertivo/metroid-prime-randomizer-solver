@@ -62,13 +62,16 @@ elevatorRooms = [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNor
 
 pseudoItems :: [Item]
 pseudoItems = [Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationShaftSectionB
-            ,Item MainQuarryBarrierTriggers MainQuarryBarriers MMainQuarry
+            ,Item MainQuarryBarrierTrigger MainQuarryBarrier MMainQuarry
+            ,Item MainQuarrySaveTrigger MainQuarrySaveUnlocked MSaveStationMinesA
             ,Item ChozoIceTempleTrigger ChozoIceTempleBarrier DChozoIceTemple
             ,Item StorageDepotATrigger StorageDepotABarrier MMineSecurityStation
             ,Item ResearchLabHydraTrigger ResearchLabHydraBarrier DResearchLabHydra
             ,Item EliteControlTrigger EliteControlBarrier MEliteControl
             ,Item MetroidQuarantineATrigger MetroidQuarantineABarrier MMetroidQuarantineA
-            ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB]
+            ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB
+            ,Item OmegaPirateTopTrigger OmegaPirateTopBarrier MProcessingCenterAccess
+            ,Item OmegaPirateEntranceTrigger OmegaPirateEntranceBarrier MEliteQuartersAccess]
 
 pseudoItemNames :: [ItemName]
 pseudoItemNames = map itemName pseudoItems
@@ -669,7 +672,8 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (quarrySave diff) (R MSaveStationMinesA)
                                     ,Edge (reachWasteDisposal diff) (R MWasteDisposal)
                                     ,Edge ice (R MSecurityAccessA)
-                                    ,Edge (quarrySave diff) (I MainQuarryBarrierTriggers)
+                                    ,Edge noReq (I MainQuarryBarrierTrigger)
+                                    ,Edge (quarrySave diff) (I MainQuarrySaveTrigger)
                                     ,Edge (quarryItem diff) (I MainQuarry)]
             ,Room MSaveStationMinesA [Edge mainQuarryBarrierWave (R MMainQuarry)]
             ,Room MSecurityAccessA [Edge mainQuarryBarrierIce (R MMainQuarry)
@@ -700,7 +704,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge (dashFromPbRocks diff) (R MElevatorAccessA)
                                     ,Edge (oreProcessingTopFromRocks diff) (R MOreProcessingTop)]
             -- This fake room is considered to be at the top on the waste disposal side
-            ,Room MOreProcessingTop[Edge noReq (R MOreProcessing)
+            ,Room MOreProcessingTop [Edge noReq (R MOreProcessing)
                                     ,Edge ice (R MWasteDisposal)
                                     ,Edge (oreProcessingCrossTop diff) (R MStorageDepotB)]
             ,Room MWasteDisposal [Edge ice (R MOreProcessingTop)
@@ -723,7 +727,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MMaintenanceTunnel [Edge ice (R MEliteControl)
                                     ,Edge (maintTunnel diff) (R MPhazonProcessingCenter)]
             ,Room MPhazonProcessingCenter [Edge (maintTunnel diff) (R MMaintenanceTunnel)
-                                    ,Edge blocked (R MProcessingCenterAccess) -- Not going to deal with this door as it's rarely useful
+                                    ,Edge (omegaPirateTopBarrier diff) (R MProcessingCenterAccess)
                                     ,Edge (ppcClimb diff) (R MTransportAccess)
                                     ,Edge pb (I PhazonProcessingCenter)]
             ,Room MTransportAccess [Edge ice (R MPhazonProcessingCenter)
@@ -785,12 +789,14 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,Edge supers (I MetroidQuarantineB)]
             ,Room MSaveStationMinesC [Edge plasma (R MMetroidQuarantineBBack)]
             ,Room MEliteQuartersAccess [Edge plasma (R MMetroidQuarantineBBack)
-                                    ,Edge plasma (R MEliteQuarters)]
-            ,Room MEliteQuarters [Edge (eliteQuartersPlasma diff) (R MEliteQuartersAccess)
+                                    ,Edge plasma (R MEliteQuarters)
+                                    ,Edge plasma (I EliteControlTrigger)]
+            ,Room MEliteQuarters [Edge (eliteQuartersExit diff) (R MEliteQuartersAccess)
                                     ,Edge (eliteQuartersTop diff) (R MProcessingCenterAccess)
                                     ,Edge (eliteQuarters diff) (I EliteQuarters)]
             ,Room MProcessingCenterAccess [Edge plasma (R MEliteQuarters)
                                     ,Edge (ppcBottomClimb diff) (R MPhazonProcessingCenter)
+                                    ,Edge noReq (I OmegaPirateTopTrigger)
                                     ,Edge noReq (I ProcessingCenterAccess)]
             ,Room MMinesFrontSw [Edge bombs (I StorageDepotA)
                                     ,Edge ice (R MMainQuarry)

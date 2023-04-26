@@ -21,11 +21,12 @@ instance Show Edge where
     show (Edge _ nodeId) = show nodeId
 
 data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | SpaceJumpBoots | PhazonSuit | GravitySuit 
-                | VariaSuit | SpiderBall | BoostBall | PowerBomb | ChargeBeam | SuperMissile | XRayVisor | GrappleBeam
-                | ThermalVisor | Missile | EnergyTank | Wavebuster | IceSpreader | Flamethrower | Artifact
+                | VariaSuit | SpiderBall | BoostBall  | GrappleBeam | PowerBomb | ChargeBeam | SuperMissile | XRayVisor
+                | Missile | EnergyTank | ThermalVisor | Wavebuster | IceSpreader | Flamethrower | Artifact
 
-                | FrigatePowerDoor | MainQuarryBarriers | ChozoIceTempleBarrier | StorageDepotABarrier 
-                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier
+                | FrigatePowerDoor | MainQuarryBarrier | MainQuarrySaveUnlocked | ChozoIceTempleBarrier | StorageDepotABarrier 
+                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier | OmegaPirateTopBarrier
+                | OmegaPirateEntranceBarrier
                 deriving  (Read, Eq, Ord, Show)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
@@ -89,10 +90,10 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | MetroidQuarantineA | FungalHallB | PhazonMiningTunnel | FungalHallAccess | LavaLake | TriclopsPit | StorageCavern | TransportTunnelA 
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
-                | FrigatePowerDoorTrigger | MainQuarryBarrierTriggers | ChozoIceTempleTrigger | StorageDepotATrigger
-                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
+                | FrigatePowerDoorTrigger | MainQuarryBarrierTrigger | MainQuarrySaveTrigger | ChozoIceTempleTrigger | StorageDepotATrigger
+                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger | OmegaPirateTopTrigger
+                | OmegaPirateEntranceTrigger
 
-                -- TODO Possible pseudo item: opened OP backdoor in mines
                 deriving  (Read, Eq, Ord, Show)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert

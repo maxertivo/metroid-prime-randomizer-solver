@@ -87,10 +87,10 @@ noVines :: Map ItemName Int -> Set ItemId -> Bool
 noVines _ ids = not (member SunchamberFlaahgra ids) || member SunchamberGhosts ids
 
 mainQuarryBarrierIce :: Map ItemName Int -> Set ItemId -> Bool
-mainQuarryBarrierIce inv _ = containsAll inv [MainQuarryBarriers, IceBeam]
+mainQuarryBarrierIce inv _ = containsAll inv [MainQuarryBarrier, IceBeam]
 
 mainQuarryBarrierWave :: Map ItemName Int -> Set ItemId -> Bool
-mainQuarryBarrierWave inv _ = containsAll inv [MainQuarryBarriers, WaveBeam]
+mainQuarryBarrierWave inv _ = containsAll inv [MainQuarrySaveUnlocked, WaveBeam]
 
 chozoIceTempleBarrier :: Map ItemName Int -> Set ItemId -> Bool
 chozoIceTempleBarrier inv _ = contains inv ChozoIceTempleBarrier
@@ -1348,11 +1348,14 @@ ppcBottomClimb diff inv ids =
         VeryHard -> sjOrBombs inv ids && plasma inv ids
         Expert -> sjOrBombs inv ids && plasma inv ids
 
+omegaPirateTopBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+omegaPirateTopBarrier _ inv ids = contains inv PlasmaBeam && member OmegaPirateTopTrigger ids
+
 eliteQuarters :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuarters _ inv _ = contains inv XRayVisor
 
-eliteQuartersPlasma :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-eliteQuartersPlasma diff inv ids = contains inv PlasmaBeam && eliteQuarters diff inv ids
+eliteQuartersExit :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
+eliteQuartersExit _ inv ids = contains inv PlasmaBeam && member OmegaPirateEntranceTrigger ids
 
 eliteQuartersTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuartersTop _ inv ids = contains inv PlasmaBeam && member EliteQuarters ids

@@ -72,3 +72,8 @@ printEdgesHelper count (id:ids) (bool:bools) = do
     setSGR [Reset]
     printEdgesHelper (count + 1) ids bools
 printEdgesHelper _ _ _ = return ()
+
+getIndex :: [a] -> Integer -> Maybe a
+getIndex [] _ = Nothing
+getIndex (x:_) 0 = Just x
+getIndex (_:rest) i = getIndex rest (i - 1)

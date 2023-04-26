@@ -8,11 +8,6 @@ import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
 
-getIndex :: [a] -> Integer -> Maybe a
-getIndex [] _ = Nothing
-getIndex (x:_) 0 = Just x
-getIndex (_:rest) i = getIndex rest (i - 1)
-
 -- Apply all functions in a list to the same two args
 eval2 :: [a -> b -> c] -> a -> b -> [c]
 eval2 funcList arg1 arg2 = map (\x -> x arg1 arg2) funcList
@@ -25,12 +20,12 @@ getVal m msg =
 
 compareElem :: (Ord a) => [a] -> [a] -> Ordering
 compareElem [] [] = EQ
+compareElem _ [] = GT
+compareElem [] _ = LT
 compareElem (a:rest1) (b:rest2)
     | a < b = LT
     | a > b = GT
     | otherwise = compareElem rest1 rest2
-compareElem _ [] = GT
-compareElem [] _ = LT
 
 nonEmpty :: [a] -> Bool
 nonEmpty [] = False
@@ -76,36 +71,33 @@ minMaybe (Just x) Nothing = Just x
 minMaybe (Just x) (Just y) = Just (min x y)
 
 -- Helper functions for Predicates
-containsCount :: Int -> ItemName -> Map ItemName Int -> Bool
+containsCount :: (Ord a) => Int -> a -> Map a Int -> Bool
 containsCount num element graph
     | num < 0 = False
     | num == 0 = True
     | otherwise = num <= fromMaybe 0 (Map.lookup element graph)
 
-contains :: Map ItemName Int -> ItemName -> Bool
-contains graph item =
-    case Map.lookup item graph of
-        Just _ -> True
-        Nothing -> False
+contains :: (Ord a) => Map a b -> a -> Bool
+contains m x = Map.member x m
 
-containsAll :: Map ItemName Int -> [ItemName] -> Bool
+containsAll :: (Ord a) => Map a b -> [a] -> Bool
 containsAll _ [] = True
 containsAll graph (x:rest) = contains graph x && containsAll graph rest
 
-containsAny :: Map ItemName Int -> [ItemName] -> Bool
+containsAny :: (Ord a) => Map a b -> [a] -> Bool
 containsAny _ [] = False
 containsAny graph (x:rest) = contains graph x || containsAny graph rest
 
-listContains :: [ItemName] -> ItemName -> Bool
+listContains :: (Eq a) => [a] -> a -> Bool
 listContains items item = item `Prelude.elem` items
 
-listContainsAll :: [ItemName] -> [ItemName] -> Bool
+listContainsAll :: (Eq a) =>  [a] -> [a] -> Bool
 listContainsAll [] [] = True
 listContainsAll _ [] = True
 listContainsAll [] _ = False
 listContainsAll items (x:rest) = listContains items x && listContainsAll items rest
 
-listContainsAny :: [ItemName] -> [ItemName] -> Bool
+listContainsAny :: (Eq a) =>  [a] -> [a] -> Bool
 listContainsAny [] [] = False
 listContainsAny _ [] = False
 listContainsAny [] _ = False
