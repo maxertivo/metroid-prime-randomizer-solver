@@ -125,12 +125,12 @@ isAccessibleHelper _ [] _ _ _ = False
 isAccessibleHelper roomMap (roomId:rest) destination inventory itemIds =
     roomId == destination ||
     case Map.lookup roomId roomMap of
-        Just (Room _ edges) ->
+        Just (Room _ edges _) ->
             let predicates = map predicate edges
-                nodeIds = map nodeId edges
+                roomIds = map room edges
                 bools = eval2 predicates inventory itemIds
-                roomIds = getRoomIds (checkBools nodeIds bools)
-             in isAccessibleHelper (Map.delete roomId roomMap) (roomIds ++ rest) destination inventory itemIds
+                reachableRoomIds = checkBools roomIds bools
+             in isAccessibleHelper (Map.delete roomId roomMap) (reachableRoomIds ++ rest) destination inventory itemIds
         Nothing -> isAccessibleHelper roomMap rest destination inventory itemIds
 
 getAccessibleItems :: Map RoomId Room -> Map ItemId Item -> State -> [Item]
@@ -146,13 +146,15 @@ getAccessibleItemsHelper :: Map RoomId Room -> [RoomId] -> Map ItemName Int -> S
 getAccessibleItemsHelper _ [] _ _ result = result
 getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
     case Map.lookup roomId roomMap of
-        Just (Room _ edges) ->
+        Just (Room _ edges itemEdges) ->
             let predicates = map predicate edges
-                nodeIds = map nodeId edges
+                itemPredicates = map itemPredicate itemEdges
+                roomIds = map room edges
+                itemIds = map item itemEdges
                 bools = eval2 predicates inventory collectedItems
-                reachableNodeIds = checkBools nodeIds bools
-                roomIds = getRoomIds reachableNodeIds
-                itemIds = getItemIds reachableNodeIds
-                uncollectedItemIds = removeSet itemIds collectedItems
-             in getAccessibleItemsHelper (Map.delete roomId roomMap) (roomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
+                itemBools = eval2 itemPredicates inventory collectedItems
+                reachableRoomIds = checkBools roomIds bools
+                reachableItemIds = checkBools itemIds itemBools
+                uncollectedItemIds = removeSet reachableItemIds collectedItems
+             in getAccessibleItemsHelper (Map.delete roomId roomMap) (reachableRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
         Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result

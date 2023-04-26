@@ -3,10 +3,7 @@ module Node where
 import Data.Map (Map)
 import Data.Set (Set)
 
-data Id = R RoomId | I ItemId
-        deriving  (Read, Eq, Ord, Show)
-
-data Room = Room {roomId :: RoomId, edges :: [Edge]} 
+data Room = Room {roomId :: RoomId, roomEdges :: [Edge], itemEdges :: [IEdge]} 
         deriving (Show)
 
 data Item =  Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
@@ -15,10 +12,14 @@ data Item =  Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
 instance Eq Item where
     Item id1 _ _ == Item id2 _ _ = id1 == id2
 
-data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
+data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, room :: RoomId}
+data IEdge = IEdge {itemPredicate :: Map ItemName Int -> Set ItemId -> Bool, item :: ItemId}
 
 instance Show Edge where 
     show (Edge _ nodeId) = show nodeId
+
+instance Show IEdge where 
+    show (IEdge _ nodeId) = show nodeId
 
 data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | SpaceJumpBoots | PhazonSuit | GravitySuit 
                 | VariaSuit | SpiderBall | BoostBall  | GrappleBeam | PowerBomb | ChargeBeam | SuperMissile | XRayVisor

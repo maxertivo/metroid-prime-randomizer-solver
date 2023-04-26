@@ -103,19 +103,9 @@ listContainsAny _ [] = False
 listContainsAny [] _ = False
 listContainsAny items (x:rest) = listContains items x || listContainsAny items rest
 
-checkBools :: [Id] -> [Bool] -> [Id]
+checkBools :: [a] -> [Bool] -> [a]
 checkBools (i:rest1) (bool:rest2) =
     if bool
         then i : checkBools rest1 rest2
         else checkBools rest1 rest2
 checkBools _ _ = []
-
-getRoomIds :: [Id] -> [RoomId]
-getRoomIds ((R roomId):rest) = roomId : getRoomIds rest
-getRoomIds (_:rest) = getRoomIds rest
-getRoomIds [] = []
-
-getItemIds :: [Id] -> [ItemId]
-getItemIds ((I itemId):rest) = itemId : getItemIds rest
-getItemIds (_:rest) = getItemIds rest
-getItemIds [] = []
