@@ -788,7 +788,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MSaveStationMinesC [Edge plasma MMetroidQuarantineBBack] []
             ,Room MEliteQuartersAccess [Edge plasma MMetroidQuarantineBBack
                                     ,Edge plasma MEliteQuarters]
-                                    [IEdge plasma EliteControlTrigger]
+                                    [IEdge plasma OmegaPirateEntranceTrigger]
             ,Room MEliteQuarters [Edge (eliteQuartersExit diff) MEliteQuartersAccess
                                     ,Edge (eliteQuartersTop diff) MProcessingCenterAccess]
                                     [IEdge (eliteQuarters diff) EliteQuarters]

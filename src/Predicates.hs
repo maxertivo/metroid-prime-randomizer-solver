@@ -99,7 +99,7 @@ researchLabHydraBarrier :: Map ItemName Int -> Set ItemId -> Bool
 researchLabHydraBarrier inv _ = contains inv ResearchLabHydraBarrier
 
 eliteControlBarrier :: Map ItemName Int -> Set ItemId -> Bool
-eliteControlBarrier inv _ = contains inv EliteControlBarrier
+eliteControlBarrier inv _ = containsAll inv [IceBeam, EliteControlBarrier]
 
 mqaBarrier :: Map ItemName Int -> Set ItemId -> Bool 
 mqaBarrier inv _ = contains inv MetroidQuarantineABarrier
