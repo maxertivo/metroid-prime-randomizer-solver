@@ -13,6 +13,7 @@ instance Eq Item where
     Item id1 _ _ == Item id2 _ _ = id1 == id2
 
 data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, room :: RoomId}
+
 data IEdge = IEdge {itemPredicate :: Map ItemName Int -> Set ItemId -> Bool, item :: ItemId}
 
 instance Show Edge where 
