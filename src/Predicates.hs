@@ -469,8 +469,14 @@ climbSunTower diff inv _ =
         VeryHard -> containsAll inv [MorphBall, SpiderBall, MorphBallBomb, Missile, SuperMissile, ChargeBeam]
         Expert -> containsAll inv [MorphBall, SpiderBall, MorphBallBomb] -- Sesshoumaru bomb jump
 
+-- This predicate requires the ability to hit the Sun Tower trigger and climb back. In rare cases, it is too strict.
 sunchamberghost :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-sunchamberghost _ _ = Data.Set.member SunchamberFlaahgra
+sunchamberghost diff inv ids = case diff of
+        Easy -> spider inv ids && Data.Set.member SunchamberFlaahgra ids
+        Medium -> spider inv ids && Data.Set.member SunchamberFlaahgra ids
+        Hard -> (bombs inv ids || spider inv ids) && Data.Set.member SunchamberFlaahgra ids
+        VeryHard -> (bombs inv ids || spider inv ids) && Data.Set.member SunchamberFlaahgra ids
+        Expert -> (bombs inv ids || spider inv ids) && Data.Set.member SunchamberFlaahgra ids
 
 gatheringHallSw :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 gatheringHallSw diff inv ids =
@@ -1349,13 +1355,13 @@ ppcBottomClimb diff inv ids =
         Expert -> sjOrBombs inv ids && plasma inv ids
 
 omegaPirateTopBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-omegaPirateTopBarrier _ inv ids = contains inv PlasmaBeam && member OmegaPirateTopTrigger ids
+omegaPirateTopBarrier _ inv _ = containsAll inv [PlasmaBeam,OmegaPirateTopBarrier]
 
 eliteQuarters :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuarters _ inv _ = contains inv XRayVisor
 
 eliteQuartersExit :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-eliteQuartersExit _ inv ids = contains inv PlasmaBeam && member OmegaPirateEntranceTrigger ids
+eliteQuartersExit _ inv _ = containsAll inv [PlasmaBeam, OmegaPirateEntranceBarrier]
 
 eliteQuartersTop :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuartersTop _ inv ids = contains inv PlasmaBeam && member EliteQuarters ids

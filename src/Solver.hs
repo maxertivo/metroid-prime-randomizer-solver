@@ -91,8 +91,8 @@ containsUpgrade newItems inventory =
         (not (supers previousInventory emptySet) && supers inventory emptySet) ||
         (not (pb previousInventory emptySet) && pb inventory emptySet) ||
         (not (heatResist previousInventory emptySet) && heatResist inventory emptySet) ||
-        (not (contains inventory PhazonSuit) && listContains newItems EnergyTank && not (containsCount 10 EnergyTank previousInventory)) 
-      --  listContains newItems Missile && not (containsCount 8 Missile previousInventory)
+        (not (contains inventory PhazonSuit) && listContains newItems EnergyTank && not (containsCount 10 EnergyTank previousInventory)) || 
+        listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 
 collectFreeItems :: Map RoomId Room -> Map ItemId Item -> State -> State
 collectFreeItems roomMap itemMap state = collectFreeItemsHelper roomMap itemMap (getAccessibleItems roomMap itemMap state) state
