@@ -61,7 +61,7 @@ checkAllDifficulties fileContents =
 
 isLogCompletable :: String -> Difficulty -> Bool
 isLogCompletable fileContents diff =
-    let roomMap = buildMap roomId $ buildNodes diff
+    let roomMap = buildRoomMap $ buildNodes diff
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        itemMap = buildMap itemId $ parse fileContents ++ pseudoItems
+        itemMap = buildItemMap $ parse fileContents ++ pseudoItems
      in isCompletable roomMap2 itemMap

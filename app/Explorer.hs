@@ -31,9 +31,9 @@ instance Exception GraphException
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let roomMap = buildMap roomId $ buildNodes Expert
+    let roomMap = buildRoomMap buildNodes Expert
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        itemMap = buildMap itemId $ parse fileContents ++ pseudoItems
+        itemMap = buildItemMap parse fileContents ++ pseudoItems
     case Map.lookup OLandingSite roomMap2 of
         Just node -> explore roomMap2 itemMap Map.empty Set.empty node
         Nothing -> return ()

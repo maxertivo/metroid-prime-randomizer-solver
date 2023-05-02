@@ -18,28 +18,19 @@ getVal m msg =
         Nothing -> error msg
         Just a -> a
 
-compareElem :: (Ord a) => [a] -> [a] -> Ordering
-compareElem [] [] = EQ
-compareElem _ [] = GT
-compareElem [] _ = LT
-compareElem (a:rest1) (b:rest2)
-    | a < b = LT
-    | a > b = GT
-    | otherwise = compareElem rest1 rest2
-
 nonEmpty :: [a] -> Bool
 nonEmpty [] = False
 nonEmpty _ = True
 
-countOf :: (Eq a) => [a] -> [a] -> Int
-countOf mainList itemsToCount = f mainList itemsToCount 0
+countOf :: [ItemName] -> [ItemName] -> Int
+countOf mainList itemsToCount = countOf' mainList itemsToCount 0
   where
-    f :: (Eq a) => [a] -> [a] -> Int -> Int
-    f items (check:rest) count =
+    countOf' :: [ItemName] -> [ItemName] -> Int -> Int
+    countOf' items (check:rest) count =
         if check `elem` items
-            then f items rest (count + 1)
-            else f items rest count
-    f _ [] count = count
+            then countOf' items rest (count + 1)
+            else countOf' items rest count
+    countOf' _ [] count = count
 
 addItem :: ItemName -> Map ItemName Int -> Map ItemName Int
 addItem name graph =
@@ -57,47 +48,41 @@ removeAll graph (y:rest) =
                 else removeAll (Map.insert y (num - 1) graph) rest
         Nothing -> removeAll graph rest
 
-removeSet :: (Ord a) => [a] -> Set a -> [a]
+removeSet :: [ItemId] -> Set ItemId -> [ItemId]
 removeSet [] _ = []
 removeSet (x:rest) set =
     if Set.member x set
         then removeSet rest set
         else x : removeSet rest set
 
-minMaybe :: (Ord a) => Maybe a -> Maybe a -> Maybe a
-minMaybe Nothing Nothing = Nothing
-minMaybe Nothing (Just y) = Just y
-minMaybe (Just x) Nothing = Just x
-minMaybe (Just x) (Just y) = Just (min x y)
-
 -- Helper functions for Predicates
-containsCount :: (Ord a) => Int -> a -> Map a Int -> Bool
+containsCount :: Int -> ItemName -> Map ItemName Int -> Bool
 containsCount num element graph
     | num < 0 = False
     | num == 0 = True
     | otherwise = num <= fromMaybe 0 (Map.lookup element graph)
 
-contains :: (Ord a) => Map a b -> a -> Bool
+contains :: Map ItemName Int -> ItemName -> Bool
 contains m x = Map.member x m
 
-containsAll :: (Ord a) => Map a b -> [a] -> Bool
+containsAll :: Map ItemName Int -> [ItemName] -> Bool
 containsAll _ [] = True
 containsAll graph (x:rest) = contains graph x && containsAll graph rest
 
-containsAny :: (Ord a) => Map a b -> [a] -> Bool
+containsAny :: Map ItemName Int -> [ItemName] -> Bool
 containsAny _ [] = False
 containsAny graph (x:rest) = contains graph x || containsAny graph rest
 
-listContains :: (Eq a) => [a] -> a -> Bool
+listContains :: [ItemName] -> ItemName -> Bool
 listContains items item = item `Prelude.elem` items
 
-listContainsAll :: (Eq a) =>  [a] -> [a] -> Bool
+listContainsAll :: [ItemName] -> [ItemName] -> Bool
 listContainsAll [] [] = True
 listContainsAll _ [] = True
 listContainsAll [] _ = False
 listContainsAll items (x:rest) = listContains items x && listContainsAll items rest
 
-listContainsAny :: (Eq a) =>  [a] -> [a] -> Bool
+listContainsAny :: [ItemName] -> [ItemName] -> Bool
 listContainsAny [] [] = False
 listContainsAny _ [] = False
 listContainsAny [] _ = False

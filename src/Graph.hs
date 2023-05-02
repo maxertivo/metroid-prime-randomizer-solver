@@ -29,8 +29,11 @@ If the item does not warp, it is treated as if it warps to the room containing t
 This is mostly useful for non-warp randomizer seeds. 
 --}
 
-buildMap :: (Ord b) => (a -> b) -> [a] -> Map b a
-buildMap idFunc vals = Map.fromList (map (\x -> (idFunc x, x)) vals)
+buildItemMap :: [Item] -> Map ItemId Item
+buildItemMap items = Map.fromList (map (\x -> (itemId x, x)) items)
+
+buildRoomMap :: [Room] -> Map RoomId Room
+buildRoomMap rooms = Map.fromList (map (\x -> (roomId x, x)) rooms)
 
 replaceElevators :: Map RoomId Room -> [(RoomId, RoomId)] -> Map RoomId Room
 replaceElevators graph [] = graph

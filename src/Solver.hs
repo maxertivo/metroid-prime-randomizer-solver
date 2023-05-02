@@ -1,4 +1,4 @@
-module Solver where
+module Solver (isCompletable) where
 
 import Node
 import Predicates
@@ -52,10 +52,7 @@ getAllCandidates roomMap itemMap (item:rest) currState depth newItems =
         accessibleItems = getAccessibleItems roomMap itemMap newState
         accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems roomMap itemMap (State newInventory OLandingSite newIds)) accessibleItems
         numAccessibleItems = length accessibleItems
-        belowDepthLimit
-            | numAccessibleItems > 8 = depth <= 2
-            | numAccessibleItems > 2 = depth <= 5
-            | otherwise = True -- If there's only one or two items reachable, we can continue the chain until that is no longer the case
+        belowDepthLimit = numAccessibleItems <= 4 || depth <= 2
         recurseItemList = getAllCandidates roomMap itemMap rest currState depth newItems
         recurseDeeper = getAllCandidates roomMap itemMap accessibleItems newState (depth + 1) (itemName : newItems)
         recurseDeeperLimitSearch = getAllCandidates roomMap itemMap accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)

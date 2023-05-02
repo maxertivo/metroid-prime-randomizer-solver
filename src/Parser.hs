@@ -1,8 +1,7 @@
-module Parser where
+module Parser (parse, parseElevators, parseArg, parseDifficulty) where
 
 import Data.Char
 import Node
-import Text.Read
 
 parse :: String -> [Item]
 parse input = createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePrefixes $ removePunc $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
@@ -11,14 +10,14 @@ parseElevators :: String -> [(RoomId, RoomId)]
 parseElevators input = createElevatorTuples $ shortenAreas $ splitElevators $ removePunc $ removeEmpty $ getElevatorLines $ lines input
 
 createItemNodes :: [(String, String, String)] -> [Item]
-createItemNodes ((a, b, c):rest) = Item (readStr a :: ItemId) (readStr b :: ItemName) (getWarp c a) : createItemNodes rest
+createItemNodes ((a, b, c):rest) = Item (read a :: ItemId) (read b :: ItemName) (getWarp c a) : createItemNodes rest
 createItemNodes [] = []
 
 getWarp :: String -> String -> RoomId
 getWarp warp item
-    | warp == "" = getDefaultWarp (readStr item :: ItemId) defaultWarps
+    | warp == "" = getDefaultWarp (read item :: ItemId) defaultWarps
     | warp == "OSavestation" = OSaveStation -- There is a typo in early versions of the randomizer
-    | otherwise = readStr warp :: RoomId
+    | otherwise = read warp :: RoomId
 
 getDefaultWarp :: ItemId -> [(RoomId, ItemId)] -> RoomId
 getDefaultWarp itemId ((room, item):rest) =
@@ -26,12 +25,6 @@ getDefaultWarp itemId ((room, item):rest) =
         then room
         else getDefaultWarp itemId rest
 getDefaultWarp itemId [] = error $ "Couldn't find default warp for itemId: " ++ show itemId
-
-readStr :: Read a => String -> a
-readStr str =
-    case readMaybe str of
-        Just result -> result
-        Nothing -> error $ "Cannot read string: " ++ str
 
 handleExpansions :: [String] -> [String]
 handleExpansions (a:b:c:d:rest) =
@@ -71,7 +64,7 @@ createTuples [] = []
 createTuples _ = error "list length must be divisible by 4"
 
 createElevatorTuples :: [String] -> [(RoomId, RoomId)]
-createElevatorTuples (a:b:rest) = (readStr a :: RoomId, readStr b :: RoomId) : createElevatorTuples rest
+createElevatorTuples (a:b:rest) = (read a :: RoomId, read b :: RoomId) : createElevatorTuples rest
 createElevatorTuples [] = []
 createElevatorTuples _ = error "elevators should be in pairs"
 
