@@ -1354,9 +1354,6 @@ ppcBottomClimb diff inv ids =
         VeryHard -> sjOrBombs inv ids && plasma inv ids
         Expert -> sjOrBombs inv ids && plasma inv ids
 
-omegaPirateTopBarrier :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
-omegaPirateTopBarrier _ inv _ = containsAll inv [PlasmaBeam,OmegaPirateTopBarrier]
-
 eliteQuarters :: Difficulty -> Map ItemName Int -> Set ItemId -> Bool
 eliteQuarters _ inv _ = contains inv XRayVisor
 

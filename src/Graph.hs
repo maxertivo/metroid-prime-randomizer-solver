@@ -67,7 +67,6 @@ pseudoItems = [Item FrigatePowerDoorTrigger FrigatePowerDoor OMainVentilationSha
             ,Item EliteControlTrigger EliteControlBarrier MEliteControl
             ,Item MetroidQuarantineATrigger MetroidQuarantineABarrier MMetroidQuarantineA
             ,Item MetroidQuarantineBTrigger MetroidQuarantineBBarrier MMetroidQuarantineB
-            ,Item OmegaPirateTopTrigger OmegaPirateTopBarrier MProcessingCenterAccess
             ,Item OmegaPirateEntranceTrigger OmegaPirateEntranceBarrier MEliteQuartersAccess]
 
 pseudoItemNames :: [ItemName]
@@ -725,7 +724,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,Room MMaintenanceTunnel [Edge ice MEliteControl
                                     ,Edge (maintTunnel diff) MPhazonProcessingCenter] []
             ,Room MPhazonProcessingCenter [Edge (maintTunnel diff) MMaintenanceTunnel
-                                    ,Edge (omegaPirateTopBarrier diff) MProcessingCenterAccess
+                                    ,Edge blocked MProcessingCenterAccess -- This barrier is considered to be one-way
                                     ,Edge (ppcClimb diff) MTransportAccess]
                                     [IEdge pb PhazonProcessingCenter]
             ,Room MTransportAccess [Edge ice MPhazonProcessingCenter
@@ -794,8 +793,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     [IEdge (eliteQuarters diff) EliteQuarters]
             ,Room MProcessingCenterAccess [Edge plasma MEliteQuarters
                                     ,Edge (ppcBottomClimb diff) MPhazonProcessingCenter]
-                                    [IEdge noReq OmegaPirateTopTrigger
-                                    ,IEdge noReq ProcessingCenterAccess]
+                                    [IEdge noReq ProcessingCenterAccess]
             ,Room MMinesFrontSw [Edge ice MMainQuarry]
                                     [IEdge bombs StorageDepotA
                                     ,IEdge ice SecurityAccessA]

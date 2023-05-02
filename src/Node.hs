@@ -27,7 +27,7 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
                 | Missile | EnergyTank | ThermalVisor | Wavebuster | IceSpreader | Flamethrower | Artifact
 
                 | FrigatePowerDoor | MainQuarryBarrier | MainQuarrySaveUnlocked | ChozoIceTempleBarrier | StorageDepotABarrier 
-                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier | OmegaPirateTopBarrier
+                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier
                 | OmegaPirateEntranceBarrier
                 deriving  (Read, Eq, Ord, Show)
 
@@ -93,7 +93,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTrigger | MainQuarrySaveTrigger | ChozoIceTempleTrigger | StorageDepotATrigger
-                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger | OmegaPirateTopTrigger
+                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
                 | OmegaPirateEntranceTrigger
 
                 deriving  (Read, Eq, Ord, Show)

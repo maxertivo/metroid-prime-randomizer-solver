@@ -36,3 +36,7 @@
 ## 1.4.0 -- 2023-02-27
 
 * Added ability to get Hall of the Elders from out of bounds for relevant difficulties. Significantly improved performance.
+
+## 1.5.0 -- 2023-05-01
+
+* Significant performance improvements. Minor solving improvements.
