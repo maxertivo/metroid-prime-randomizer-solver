@@ -14,21 +14,21 @@ createItemNodes ((a, b, c):rest) = Item (readItemId a) (readItemName b) (getWarp
 createItemNodes [] = []
 
 readItemName :: String -> ItemName
-readItemName str = readItemName' str [MorphBall .. Artifact]
+readItemName str = readItemName' str [(minBound :: ItemName) .. (maxBound :: ItemName)]
                 where
                 readItemName' :: String -> [ItemName] -> ItemName
                 readItemName' s [] = error $ "Unable to read item name " ++ s
                 readItemName' s (name:rest) = if s == show name then name else readItemName' s rest
 
 readItemId :: String -> ItemId
-readItemId str = readItemId' str [MainPlazaHalfPipe .. MagmoorWorkstation]
+readItemId str = readItemId' str [(minBound :: ItemId) .. (maxBound :: ItemId)]
                 where
                 readItemId' :: String -> [ItemId] -> ItemId
                 readItemId' s [] = error $ "Unable to read item ID " ++ s
                 readItemId' s (itemId:rest) = if s == show itemId then itemId else readItemId' s rest
 
 readRoomId :: String -> RoomId
-readRoomId str = readRoomId' str [OLandingSite .. MMinesBackSw]
+readRoomId str = readRoomId' str [(minBound :: RoomId) .. (maxBound :: RoomId)]
                 where
                 readRoomId' :: String -> [RoomId] -> RoomId
                 readRoomId' s [] = error $ "Unable to read room ID " ++ s

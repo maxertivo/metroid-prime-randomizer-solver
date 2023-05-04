@@ -29,7 +29,7 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
                 | FrigatePowerDoor | MainQuarryBarrier | MainQuarrySaveUnlocked | ChozoIceTempleBarrier | StorageDepotABarrier 
                 | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier | OmegaPirateTopBarrier
                 | OmegaPirateEntranceBarrier
-                deriving  (Eq, Ord, Show, Enum)
+                deriving  (Eq, Ord, Show, Enum, Bounded)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
 data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove | OTallonCanyon | ORootTunnel 
@@ -75,7 +75,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
                 | MMetroidQuarantineBBack | MMissileStationMinesInbounds | MOreProcessingBottom | MOreProcessingTop | MMinesFrontSw | MMinesBackSw
-                deriving  (Eq, Ord, Show, Enum)
+                deriving  (Eq, Ord, Show, Enum, Bounded)
 
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -96,7 +96,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger | OmegaPirateTopTrigger
                 | OmegaPirateEntranceTrigger
 
-                deriving  (Eq, Ord, Show, Enum)
+                deriving  (Eq, Ord, Show, Enum, Bounded)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert
                 deriving (Eq, Ord, Show, Enum)
