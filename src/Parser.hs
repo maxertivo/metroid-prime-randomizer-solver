@@ -10,14 +10,35 @@ parseElevators :: String -> [(RoomId, RoomId)]
 parseElevators input = createElevatorTuples $ shortenAreas $ splitElevators $ removePunc $ removeEmpty $ getElevatorLines $ lines input
 
 createItemNodes :: [(String, String, String)] -> [Item]
-createItemNodes ((a, b, c):rest) = Item (read a :: ItemId) (read b :: ItemName) (getWarp c a) : createItemNodes rest
+createItemNodes ((a, b, c):rest) = Item (readItemId a) (readItemName b) (getWarp c a) : createItemNodes rest
 createItemNodes [] = []
+
+readItemName :: String -> ItemName
+readItemName str = readItemName' str [MorphBall .. Artifact]
+                where
+                readItemName' :: String -> [ItemName] -> ItemName
+                readItemName' s [] = error $ "Unable to read item name " ++ s
+                readItemName' s (name:rest) = if s == show name then name else readItemName' s rest
+
+readItemId :: String -> ItemId
+readItemId str = readItemId' str [MainPlazaHalfPipe .. MagmoorWorkstation]
+                where
+                readItemId' :: String -> [ItemId] -> ItemId
+                readItemId' s [] = error $ "Unable to read item ID " ++ s
+                readItemId' s (itemId:rest) = if s == show itemId then itemId else readItemId' s rest
+
+readRoomId :: String -> RoomId
+readRoomId str = readRoomId' str [OLandingSite .. MMinesBackSw]
+                where
+                readRoomId' :: String -> [RoomId] -> RoomId
+                readRoomId' s [] = error $ "Unable to read room ID " ++ s
+                readRoomId' s (room:rest) = if s == show room then room else readRoomId' s rest
 
 getWarp :: String -> String -> RoomId
 getWarp warp item
-    | warp == "" = getDefaultWarp (read item :: ItemId) defaultWarps
+    | warp == "" = getDefaultWarp (readItemId item) defaultWarps
     | warp == "OSavestation" = OSaveStation -- There is a typo in early versions of the randomizer
-    | otherwise = read warp :: RoomId
+    | otherwise = readRoomId warp
 
 getDefaultWarp :: ItemId -> [(RoomId, ItemId)] -> RoomId
 getDefaultWarp itemId ((room, item):rest) =
@@ -64,7 +85,7 @@ createTuples [] = []
 createTuples _ = error "list length must be divisible by 4"
 
 createElevatorTuples :: [String] -> [(RoomId, RoomId)]
-createElevatorTuples (a:b:rest) = (read a :: RoomId, read b :: RoomId) : createElevatorTuples rest
+createElevatorTuples (a:b:rest) = (readRoomId a, readRoomId b) : createElevatorTuples rest
 createElevatorTuples [] = []
 createElevatorTuples _ = error "elevators should be in pairs"
 

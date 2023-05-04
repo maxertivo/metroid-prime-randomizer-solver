@@ -27,9 +27,9 @@ data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | Sp
                 | Missile | EnergyTank | ThermalVisor | Wavebuster | IceSpreader | Flamethrower | Artifact
 
                 | FrigatePowerDoor | MainQuarryBarrier | MainQuarrySaveUnlocked | ChozoIceTempleBarrier | StorageDepotABarrier 
-                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier
+                | ResearchLabHydraBarrier | EliteControlBarrier | MetroidQuarantineABarrier | MetroidQuarantineBBarrier | OmegaPirateTopBarrier
                 | OmegaPirateEntranceBarrier
-                deriving  (Read, Eq, Ord, Show)
+                deriving  (Eq, Ord, Show, Enum)
 
 -- Room IDs are distinct from Item IDs to make it more difficult to confuse them
 data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove | OTallonCanyon | ORootTunnel 
@@ -75,7 +75,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
                 | MMetroidQuarantineBBack | MMissileStationMinesInbounds | MOreProcessingBottom | MOreProcessingTop | MMinesFrontSw | MMinesBackSw
-                deriving  (Read, Eq, Ord, Show)
+                deriving  (Eq, Ord, Show, Enum)
 
 data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPlazaLockedDoor | RuinedFountain | RuinedShrineBeetleBattle | RuinedShrineHalfPipe 
                 | RuinedShrineLowerTunnel | Vault | TrainingChamber | RuinedNursery | TrainingChamberAccess | MagmaPool | TowerofLight | TowerChamber 
@@ -93,12 +93,12 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTrigger | MainQuarrySaveTrigger | ChozoIceTempleTrigger | StorageDepotATrigger
-                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
+                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger | OmegaPirateTopTrigger
                 | OmegaPirateEntranceTrigger
 
-                deriving  (Read, Eq, Ord, Show)
+                deriving  (Eq, Ord, Show, Enum)
 
 data Difficulty = Easy | Medium | Hard | VeryHard | Expert
-                deriving (Read ,Eq, Ord, Show, Enum, Bounded)
+                deriving (Eq, Ord, Show, Enum)
 
 data DifficultyArg = Arg Difficulty | All
