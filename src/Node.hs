@@ -70,7 +70,7 @@ data RoomId = OLandingSite | OCanyonCavern | OWaterfallCavern | OGully | OAlcove
 
                 | MTransporttoTallonOverworldSouth | MQuarryAccess | MMainQuarry | MSaveStationMinesA | MSecurityAccessA | MMineSecurityStation | MSecurityAccessB 
                 | MStorageDepotA | MEliteResearch | MResearchAccess | MOreProcessing | MElevatorAccessA | MElevatorA | MStorageDepotB | MWasteDisposal 
-                | MEliteControlAccess | MEliteControl | MMaintenanceTunnel | MVentilationShaft | MControlRoom | MOmegaResearch | MMapStationMines | MDynamoAccess 
+                | MEliteControlAccess | MEliteControl | MMaintenanceTunnel | MVentilationShaft | MOmegaResearch | MMapStationMines | MDynamoAccess 
                 | MCentralDynamo | MSaveStationMinesB | MQuarantineAccessA | MMetroidQuarantineA | MElevatorAccessB | MElevatorB | MFungalHallAccess | MFungalHallA 
                 | MPhazonMiningTunnel | MFungalHallB | MMissileStationMines | MQuarantineAccessB | MMetroidQuarantineB | MSaveStationMinesC | MEliteQuartersAccess 
                 | MEliteQuarters | MProcessingCenterAccess | MPhazonProcessingCenter | MTransportAccess | MTransporttoMagmoorCavernsSouth | MMetroidQuarantineABack
@@ -93,7 +93,7 @@ data ItemId = MainPlazaHalfPipe | MainPlazaGrappleLedge | MainPlazaTree | MainPl
                 | WarriorShrine | ShoreTunnel | FieryShoresMorphTrack | FieryShoresWarriorShrineTunnel | PlasmaProcessing | MagmoorWorkstation
 
                 | FrigatePowerDoorTrigger | MainQuarryBarrierTrigger | MainQuarrySaveTrigger | ChozoIceTempleTrigger | StorageDepotATrigger
-                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger | OmegaPirateTopTrigger
+                | ResearchLabHydraTrigger | EliteControlTrigger | MetroidQuarantineATrigger | MetroidQuarantineBTrigger
                 | OmegaPirateEntranceTrigger
 
                 deriving  (Eq, Ord, Show, Enum, Bounded)

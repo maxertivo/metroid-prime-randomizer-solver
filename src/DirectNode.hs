@@ -3,10 +3,10 @@ module DirectNode where
 import Node
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.IntMap (IntMap)
-import qualified Data.IntMap as IntMap
 import Data.Set (Set)
 import Util
+import Data.Vector
+import qualified Data.Vector as Vector
 import Data.List (sortBy)
 
 data DirectRoom = DirectRoom {roomId :: RoomId, roomEdges :: [DirectEdge], itemEdges :: [DirectIEdge]} 
@@ -35,24 +35,31 @@ instance Show DirectEdge where
 instance Show DirectIEdge where 
     show (DirectIEdge _ (DirectItem itemId _ _)) = show itemId
 
-convertToDirectArrays :: [(Int, Room)] -> [(Int, Item)] -> (IntMap DirectRoom, IntMap DirectItem)
+sortByEnum :: (Int,a) -> (Int,a) -> Ordering
+sortByEnum (a,b) (c,d) = compare (fromEnum a) (fromEnum c)
+
+convertToDirectArrays :: [(Int, Room)] -> [(Int, Item)] -> (Vector DirectRoom, Vector DirectItem)
 convertToDirectArrays roomList itemList = 
     (directRooms, directItems)
     where 
+        sortedRooms = sortBy sortByEnum roomList
 
-        (directRooms, directItems) = 
-                (IntMap.fromList [ (fromEnum roomId, convertDirectRoom room) | (roomId,room) <- roomList ]
-                            , IntMap.fromList [ (fromEnum itemId, convertDirectItem item) | (itemId, item) <- itemList ])
+        sortedItems = sortBy sortByEnum itemList
+
+        (directRooms, directItems) = (Vector.fromList
+                        [ convertDirectRoom room | (roomId,room) <- sortedRooms ]
+                    , Vector.fromList
+                        [ convertDirectItem item | (itemId,item) <- sortedItems ])
      
         convertDirectRoom (Room roomId roomEdges itemEdges) = DirectRoom roomId (convertDirectEdges roomEdges) (convertDirectIEdges itemEdges)
 
-        convertDirectItem (Item itemId itemName warp) = DirectItem itemId itemName (intMapLookup (fromEnum warp) directRooms)
+        convertDirectItem (Item itemId itemName warp) = DirectItem itemId itemName (directRooms Vector.! fromEnum warp)
 
         convertDirectEdges [] = []
-        convertDirectEdges (Edge predicate roomId : rest) = DirectEdge predicate (intMapLookup (fromEnum roomId) directRooms) : convertDirectEdges rest
+        convertDirectEdges (Edge predicate roomId : rest) = DirectEdge predicate (directRooms Vector.! fromEnum roomId) : convertDirectEdges rest
 
         convertDirectIEdges [] = []
-        convertDirectIEdges (IEdge itemPredicate itemId : rest) = DirectIEdge itemPredicate (intMapLookup (fromEnum itemId) directItems) : convertDirectIEdges rest
+        convertDirectIEdges (IEdge itemPredicate itemId : rest) = DirectIEdge itemPredicate (directItems Vector.! fromEnum itemId) : convertDirectIEdges rest
 
 -- convertDirectRoom :: Room -> Map RoomId Room -> Map ItemId Item -> DirectRoom
 -- convertDirectRoom (Room roomId roomEdges itemEdges) roomMap itemMap = DirectRoom roomId (convertDirectEdges roomEdges roomMap itemMap) (convertDirectIEdges itemEdges roomMap itemMap)

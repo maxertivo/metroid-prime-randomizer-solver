@@ -14,11 +14,12 @@ import qualified Data.IntMap as IntMap
 import Data.Set (Set, empty)
 import qualified Data.Set as Set
 import Graph
+import Data.Vector (Vector, (!))
 
-isCompletable ::(IntMap DirectRoom, IntMap DirectItem) -> Bool
+isCompletable ::(Vector DirectRoom, Vector DirectItem) -> Bool
 isCompletable (directRooms,directItems) =
-    let startRoom = intMapLookup (fromEnum OLandingSite) directRooms
-        artifactTemple =  intMapLookup (fromEnum ArtifactTemple) directItems
+    let startRoom = directRooms Data.Vector.! fromEnum OLandingSite
+        artifactTemple =  directItems Data.Vector.! fromEnum ArtifactTemple
     in  isCompletableHelper startRoom artifactTemple (State Map.empty startRoom Set.empty)
 
 isCompletableHelper :: DirectRoom -> DirectItem -> State -> Bool
