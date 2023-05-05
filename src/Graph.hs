@@ -29,18 +29,16 @@ If the item does not warp, it is treated as if it warps to the room containing t
 This is mostly useful for non-warp randomizer seeds. 
 --}
 
-buildItemMap :: [Item] -> Map ItemId Item
-buildItemMap items = Map.fromList (map (\x -> (itemId x, x)) items)
+replaceElevators :: [Room] -> [(RoomId, RoomId)] -> [Room]
+replaceElevators rooms [] = rooms
+replaceElevators rooms ((a, b):rest) =
+    replaceElevators (findAndReplaceElevator rooms (a,b)) rest
 
-buildRoomMap :: [Room] -> Map RoomId Room
-buildRoomMap rooms = Map.fromList (map (\x -> (roomId x, x)) rooms)
-
-replaceElevators :: Map RoomId Room -> [(RoomId, RoomId)] -> Map RoomId Room
-replaceElevators graph [] = graph
-replaceElevators graph ((a, b):rest) =
-    let oldNode = getVal (Map.lookup a graph) "Missing room"
-        newNode = replaceEdgeRoom oldNode a b
-     in replaceElevators (Map.insert a newNode graph) rest
+findAndReplaceElevator :: [Room] -> (RoomId, RoomId) -> [Room]
+findAndReplaceElevator [] (a,b) = error "Missing room"
+findAndReplaceElevator (room:rest) (a,b) =
+    let newNode = replaceEdgeRoom room a b
+     in if roomId room == a then newNode : rest else room : findAndReplaceElevator rest (a,b)
 
 replaceEdgeRoom :: Room -> RoomId -> RoomId -> Room
 replaceEdgeRoom (Room rId edgeList itemEdges) original replacement =

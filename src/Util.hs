@@ -4,6 +4,8 @@ import Node
 
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
 import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -94,3 +96,13 @@ checkBools (i:rest1) (bool:rest2) =
         then i : checkBools rest1 rest2
         else checkBools rest1 rest2
 checkBools _ _ = []
+
+mapLookup :: (Ord a, Show a) => a -> Map a b -> b
+mapLookup x m = case Map.lookup x m of
+                Just result -> result
+                Nothing -> error $ "failed to lookup " ++ show x
+
+intMapLookup :: Int -> IntMap a -> a
+intMapLookup x m = case IntMap.lookup x m of
+                Just result -> result
+                Nothing -> error $ "failed to lookup " ++ show x

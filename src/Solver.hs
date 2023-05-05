@@ -4,61 +4,64 @@ import Node
 import Predicates
 import State
 import Util
+import DirectNode
 
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
 import Data.Set (Set, empty)
 import qualified Data.Set as Set
 import Graph
 
-isCompletable :: Map RoomId Room -> Map ItemId Item -> Bool
-isCompletable roomMap itemMap =
-    isCompletableHelper roomMap itemMap (State Map.empty OLandingSite Set.empty)
+isCompletable ::(IntMap DirectRoom, IntMap DirectItem) -> Bool
+isCompletable (directRooms,directItems) =
+    let startRoom = intMapLookup (fromEnum OLandingSite) directRooms
+        artifactTemple =  intMapLookup (fromEnum ArtifactTemple) directItems
+    in  isCompletableHelper startRoom artifactTemple (State Map.empty startRoom Set.empty)
 
-isCompletableHelper :: Map RoomId Room -> Map ItemId Item -> State -> Bool
-isCompletableHelper roomMap itemMap currState =
-    let newState = collectFreeItems roomMap itemMap currState
-        maybeCandidate = getBestCandidate roomMap itemMap newState
-     in isComplete roomMap itemMap newState ||
+isCompletableHelper :: DirectRoom -> DirectItem -> State -> Bool
+isCompletableHelper startRoom artifactTemple currState =
+    let newState = collectFreeItems currState
+        maybeCandidate = getBestCandidate startRoom newState
+     in isComplete newState artifactTemple ||
         case maybeCandidate of
             Nothing -> False
-            Just candidate -> isCompletableHelper roomMap itemMap (state candidate)
+            Just candidate -> isCompletableHelper startRoom artifactTemple (state candidate)
 
-isComplete :: Map RoomId Room -> Map ItemId Item -> State -> Bool
-isComplete roomMap itemMap (State inventory roomId collectedItems) =
-    let artifactTempleItem = getVal (Map.lookup ArtifactTemple itemMap) "Missing Item ArtifactTemple"
-     in complete inventory collectedItems &&
-        isAccessible roomMap roomId OArtifactTemple inventory collectedItems &&
-        -- Either you collected Artifact Temple or you can collect it and return
-        (Set.member ArtifactTemple collectedItems || isAccessible roomMap (warp artifactTempleItem) OArtifactTemple inventory collectedItems)
+isComplete :: State -> DirectItem -> Bool
+isComplete (State inventory room collectedItems) artifactTempleItem =
+    complete inventory collectedItems &&
+    isAccessible room OArtifactTemple inventory collectedItems &&
+    -- Either you collected Artifact Temple or you can collect it and return
+    (Set.member ArtifactTemple collectedItems || isAccessible (DirectNode.warp artifactTempleItem) OArtifactTemple inventory collectedItems)
 
 -- Try some warp chains and return the best state we could reach
-getBestCandidate :: Map RoomId Room -> Map ItemId Item -> State -> Maybe CandidateState
-getBestCandidate roomMap itemMap state = 
-    let candidates = getAllCandidates roomMap itemMap (getAccessibleItems roomMap itemMap state) state 1 []
+getBestCandidate :: DirectRoom -> State -> Maybe CandidateState
+getBestCandidate startRoom state = 
+    let candidates = getAllCandidates (getAccessibleItems state) state 1 [] startRoom
      in case candidates of
         [] -> Nothing
         _ -> Just $ minimum candidates
 
-getAllCandidates :: Map RoomId Room -> Map ItemId Item -> [Item] -> State -> Int -> [ItemName] -> [CandidateState]
-getAllCandidates _ _ [] _ _ _ = []
-getAllCandidates roomMap itemMap (item:rest) currState depth newItems =
-    let Item itemId itemName warp = item
-        State inventory _ collectedItems = currState
+getAllCandidates :: [DirectItem] -> State -> Int -> [ItemName] -> DirectRoom -> [CandidateState]
+getAllCandidates [] _ _ _ _ = []
+getAllCandidates (DirectItem itemId itemName warp : rest) currState depth newItems startRoom =
+    let State inventory _ collectedItems = currState
         newInventory = addItem itemName inventory
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
-        accessibleItems = getAccessibleItems roomMap itemMap newState
-        accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems roomMap itemMap (State newInventory OLandingSite newIds)) accessibleItems
+        accessibleItems = getAccessibleItems newState
+        accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems (State newInventory startRoom newIds)) accessibleItems
         numAccessibleItems = length accessibleItems
         belowDepthLimit = numAccessibleItems <= 4 || depth <= 2
-        recurseItemList = getAllCandidates roomMap itemMap rest currState depth newItems
-        recurseDeeper = getAllCandidates roomMap itemMap accessibleItems newState (depth + 1) (itemName : newItems)
-        recurseDeeperLimitSearch = getAllCandidates roomMap itemMap accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
+        recurseItemList = getAllCandidates rest currState depth newItems startRoom
+        recurseDeeper = getAllCandidates accessibleItems newState (depth + 1) (itemName : newItems) startRoom
+        recurseDeeperLimitSearch = getAllCandidates accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems) startRoom
         candidate = CandidateState newState depth (itemName : newItems)
-        warpCanAccessStart = isAccessible roomMap warp OLandingSite newInventory newIds
-        startCanAccessWarp = isAccessible roomMap OLandingSite warp newInventory newIds
+        warpCanAccessStart = isAccessible warp (DirectNode.roomId startRoom) newInventory newIds
+        startCanAccessWarp = isAccessible startRoom (DirectNode.roomId warp) newInventory newIds
      in if warpCanAccessStart && startCanAccessWarp
             then if containsUpgrade (itemName : newItems) newInventory
                       then candidate : recurseItemList   -- We have a candidate and can end this warp chain
@@ -91,67 +94,58 @@ containsUpgrade newItems inventory =
         (not (contains inventory PhazonSuit) && listContains newItems EnergyTank && not (containsCount 10 EnergyTank previousInventory)) || 
         listContains newItems Missile && not (containsCount 8 Missile previousInventory)
 
-collectFreeItems :: Map RoomId Room -> Map ItemId Item -> State -> State
-collectFreeItems roomMap itemMap state = collectFreeItemsHelper roomMap itemMap (getAccessibleItems roomMap itemMap state) state
+collectFreeItems :: State -> State
+collectFreeItems state = collectFreeItemsHelper (getAccessibleItems state) state
 
-collectFreeItemsHelper :: Map RoomId Room -> Map ItemId Item -> [Item] -> State -> State
-collectFreeItemsHelper _ _ [] currState = currState
-collectFreeItemsHelper roomMap itemMap (item:rest) currState =
-    let (State inventory roomId collectedItems) = currState
-        Item itemId itemName warp = item
+collectFreeItemsHelper :: [DirectItem] -> State -> State
+collectFreeItemsHelper [] currState = currState
+collectFreeItemsHelper (DirectItem itemId itemName warp:rest) currState =
+    let (State inventory room collectedItems) = currState
         newInventory = addItem itemName inventory
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
-     in if isMutuallyAccessible roomMap warp roomId newInventory newIds -- Check to make sure the warp is not useful, so that collecting the item has no cost
+     in if isMutuallyAccessible warp room newInventory newIds -- Check to make sure the warp is not useful, so that collecting the item has no cost
             then if itemName `elem` [Missile, EnergyTank, Artifact] && missile inventory collectedItems
                     -- We got a non-upgrade item, and it warped us somewhere mutually accessible, so we don't need to calculate accessible items again
-                    then collectFreeItemsHelper roomMap itemMap rest newState
+                    then collectFreeItemsHelper rest newState
                     -- Recalculate accessible items since we got an upgrade
-                    else collectFreeItemsHelper roomMap itemMap (getAccessibleItems roomMap itemMap newState) newState 
+                    else collectFreeItemsHelper (getAccessibleItems newState) newState 
             -- Not a free item
-            else collectFreeItemsHelper roomMap itemMap rest currState
+            else collectFreeItemsHelper rest currState
 
-isMutuallyAccessible :: Map RoomId Room -> RoomId -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
-isMutuallyAccessible roomMap room1 room2 inventory itemIds = isAccessible roomMap room1 room2 inventory itemIds && isAccessible roomMap room2 room1 inventory itemIds
+isMutuallyAccessible :: DirectRoom -> DirectRoom -> Map ItemName Int -> Set ItemId -> Bool
+isMutuallyAccessible room1 room2 inventory itemIds = isAccessible room1 (DirectNode.roomId room2) inventory itemIds && isAccessible room2 (DirectNode.roomId room1) inventory itemIds
 
-isAccessible :: Map RoomId Room -> RoomId -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
-isAccessible roomMap fromRoom = isAccessibleHelper roomMap [fromRoom]
+isAccessible :: DirectRoom -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
+isAccessible fromRoom = isAccessibleHelper [fromRoom] []
 
-isAccessibleHelper :: Map RoomId Room -> [RoomId] -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
-isAccessibleHelper _ [] _ _ _ = False
-isAccessibleHelper roomMap (roomId:rest) destination inventory itemIds =
+isAccessibleHelper :: [DirectRoom] -> [RoomId] -> RoomId -> Map ItemName Int -> Set ItemId -> Bool
+isAccessibleHelper [] _ _ _ _ = False
+isAccessibleHelper (DirectRoom roomId roomEdges itemEdges:rest) checkedRooms destination inventory itemIds =
     roomId == destination ||
-    case Map.lookup roomId roomMap of
-        Just (Room _ edges _) ->
-            let predicates = map predicate edges
-                roomIds = map room edges
-                bools = eval2 predicates inventory itemIds
-                reachableRoomIds = checkBools roomIds bools
-             in isAccessibleHelper (Map.delete roomId roomMap) (reachableRoomIds ++ rest) destination inventory itemIds
-        Nothing -> isAccessibleHelper roomMap rest destination inventory itemIds
+        let predicates = map DirectNode.predicate roomEdges
+            rooms = map DirectNode.room roomEdges
+            bools = eval2 predicates inventory itemIds
+            reachableRooms = checkBools rooms bools
+            uncheckedRooms = filter (\x -> DirectNode.roomId x `notElem` checkedRooms) reachableRooms
+            in isAccessibleHelper (uncheckedRooms ++ rest) (roomId : checkedRooms) destination inventory itemIds
 
-getAccessibleItems :: Map RoomId Room -> Map ItemId Item -> State -> [Item]
-getAccessibleItems roomMap itemMap (State inventory roomId collectedItems) =
-    let itemIds = getAccessibleItemsHelper roomMap [roomId] inventory collectedItems []
-        uniqueItemIds = nub itemIds -- Remove duplicates
-        maybeItems = mapM ((\x -> x itemMap) . Map.lookup) uniqueItemIds
-     in case maybeItems of
-            Nothing -> error "Missing Item"
-            Just items -> items
+getAccessibleItems :: State -> [DirectItem]
+getAccessibleItems (State inventory room collectedItems) =
+    let items = getAccessibleItemsHelper [room] inventory collectedItems [] []
+     in nub items -- Remove duplicates
 
-getAccessibleItemsHelper :: Map RoomId Room -> [RoomId] -> Map ItemName Int -> Set ItemId -> [ItemId] -> [ItemId]
-getAccessibleItemsHelper _ [] _ _ result = result
-getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
-    case Map.lookup roomId roomMap of
-        Just (Room _ edges itemEdges) ->
-            let predicates = map predicate edges
-                itemPredicates = map itemPredicate itemEdges
-                roomIds = map room edges
-                itemIds = map item itemEdges
+getAccessibleItemsHelper :: [DirectRoom] -> Map ItemName Int -> Set ItemId -> [DirectRoom] -> [DirectItem] -> [DirectItem]
+getAccessibleItemsHelper [] _ _ _ result = result
+getAccessibleItemsHelper (DirectRoom roomId roomEdges itemEdges : rest) inventory collectedItems checkedRooms result =
+            let predicates = map DirectNode.predicate roomEdges
+                itemPredicates = map DirectNode.itemPredicate itemEdges
+                rooms = map DirectNode.room roomEdges
+                items = map DirectNode.item itemEdges
                 bools = eval2 predicates inventory collectedItems
                 itemBools = eval2 itemPredicates inventory collectedItems
-                reachableRoomIds = checkBools roomIds bools
-                reachableItemIds = checkBools itemIds itemBools
-                uncollectedItemIds = removeSet reachableItemIds collectedItems
-             in getAccessibleItemsHelper (Map.delete roomId roomMap) (reachableRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
-        Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result
+                reachableRooms = checkBools rooms bools
+                reachableItems = checkBools items itemBools
+                uncheckedRooms = filter (`notElem` checkedRooms) reachableRooms
+                uncollectedItems = filter (\x -> DirectNode.itemId x `Set.notMember` collectedItems) reachableItems
+             in getAccessibleItemsHelper (uncheckedRooms ++ rest) inventory collectedItems (DirectRoom roomId roomEdges itemEdges : checkedRooms) (uncollectedItems ++ result)

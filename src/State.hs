@@ -1,12 +1,13 @@
 module State where
 
 import Node
+import DirectNode
 import Util
 import Data.List
 import Data.Map (Map)
 import Data.Set (Set)
 
-data State = State {inventory :: Map ItemName Int, currentNode :: RoomId, collectedItems :: Set ItemId}
+data State = State {inventory :: Map ItemName Int, currentNode :: DirectRoom, collectedItems :: Set ItemId}
             deriving (Show)
 data CandidateState = CandidateState{state :: State, depth :: Int, newItems :: [ItemName]}
             deriving (Show)

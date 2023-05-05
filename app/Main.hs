@@ -5,6 +5,7 @@ import Graph
 import Node
 import Parser
 import Solver
+import DirectNode
 import System.Directory
 import System.Environment
 
@@ -61,7 +62,8 @@ checkAllDifficulties fileContents =
 
 isLogCompletable :: String -> Difficulty -> Bool
 isLogCompletable fileContents diff =
-    let roomMap = buildRoomMap $ buildNodes diff
-        roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        itemMap = buildItemMap $ parse fileContents ++ pseudoItems
-     in isCompletable roomMap2 itemMap
+    let roomList = buildNodes diff
+        roomList2 = replaceElevators roomList (parseElevators fileContents)
+        itemList = parse fileContents ++ pseudoItems
+        directArrays = convertToDirectArrays (map (\x -> (fromEnum (Node.roomId x), x)) roomList2) (map (\x -> (fromEnum (Node.itemId x), x)) itemList)
+     in isCompletable directArrays
