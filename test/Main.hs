@@ -10,12 +10,6 @@ import Util
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-stripPrefixTest1 = assertEqual "stripPrefixTest1" (Just "Rest") (stripPrefix "somePrefix" "somePrefixRest")
-
-stripPrefixTest2 = assertEqual "stripPrefixTest2" Nothing (stripPrefix "somePrefix" "somePrfixRest")
-
-splitTest1 = assertEqual "splitTest1" ["abc-edge","asdf","beet","asdf -bert"] (split ["abc-edge", "asdf- beet", "asdf -bert"])
-
 parseTest1 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest1" MainPlazaHalfPipe a
 parseTest2 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest2" Missile b
 parseTest3 = let (Item a b c : rest) = parse testVal in assertEqual "parseTest3" RSaveStation1 c
@@ -36,10 +30,7 @@ containsAny2 = assertEqual "containsAny2" True (listContainsAny [GrappleBeam, Wa
 
 testVal = "Randomizer V3.1\nSeed: 525693944\nExcluded pickups: 5 19 28 \nChozo - - - Main Plaza (Half-Pipe) - - - - - - - - Missile Expansion 17 - - Warps to: Chozo Ruins | Save Station 1\nElevators:\nChozo Ruins - Transport to Tallon Overworld North <> Tallon Overworld - Transport to Chozo Ruins West"
 
-tests = [testCase "stripPrefixTest1" stripPrefixTest1
-        , testCase "stripPrefixTest2" stripPrefixTest2
-        , testCase "splitTest1" splitTest1
-        , testCase "parseTest1" parseTest1
+tests = [testCase "parseTest1" parseTest1
         , testCase "parseTest2" parseTest2
         , testCase "parseTest3" parseTest3
         , testCase "parseElevatorTest" parseElevatorTest

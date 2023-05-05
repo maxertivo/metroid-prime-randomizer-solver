@@ -26,21 +26,27 @@ data GraphException
     | InvalidArgument !String
     deriving (Show)
 
+data Id = R RoomId | I ItemId 
+    deriving (Show)
+
+data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
+
 instance Exception GraphException
 
 main :: IO ()
 main = do
     fileContents <- readFile "resources/sample.txt"
-    let roomMap = buildRoomMap buildNodes Expert
+    let roomMap = buildRoomMap $ buildNodes Expert
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        itemMap = buildItemMap parse fileContents ++ pseudoItems
+        itemMap = buildItemMap $ parse fileContents ++ pseudoItems
     case Map.lookup OLandingSite roomMap2 of
         Just node -> explore roomMap2 itemMap Map.empty Set.empty node
         Nothing -> return ()
 
 explore :: Map RoomId Room -> Map ItemId Item -> Map ItemName Int -> Set ItemId -> Room -> IO ()
-explore roomMap itemMap items colItems (Room roomId edges) = do
-    let predicates = map predicate edges
+explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges) = do
+    let edges = convertEdges roomEdges itemEdges
+        predicates = map genPredicate edges
         bools = eval2 predicates items colItems
         ids = map nodeId edges
     putStrLn "---------------------------------------"
@@ -58,7 +64,7 @@ explore roomMap itemMap items colItems (Room roomId edges) = do
                  Just (I itemId) -> case Map.lookup itemId itemMap of
                                 Nothing -> error "Missing item"
                                 Just (Item id name warp) -> explore roomMap itemMap (addItem name items) (Set.insert id colItems) (getVal (Map.lookup warp roomMap) "Missing room")
-        else explore roomMap itemMap items colItems (Room roomId edges)
+        else explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges)
 
 printEdges :: [Id] -> [Bool] -> IO ()
 printEdges = printEdgesHelper 1
@@ -77,3 +83,8 @@ getIndex :: [a] -> Integer -> Maybe a
 getIndex [] _ = Nothing
 getIndex (x:_) 0 = Just x
 getIndex (_:rest) i = getIndex rest (i - 1)
+
+convertEdges :: [Edge] -> [IEdge] -> [GenericEdge]
+convertEdges [] [] = []
+convertEdges [] (IEdge itemPredicate itemId:rest) = GenericEdge itemPredicate (I itemId) : convertEdges [] rest
+convertEdges (Edge predicate roomId : rest) iEdges = GenericEdge predicate (R roomId) : convertEdges rest iEdges
