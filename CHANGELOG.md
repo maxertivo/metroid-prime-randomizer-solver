@@ -40,3 +40,7 @@
 ## 1.5.0 -- 2023-05-01
 
 * Significant performance improvements. Minor solving improvements.
+
+## 1.6.0 -- 2023-05-06
+
+* Another significant performance improvement.
