@@ -8,12 +8,9 @@ import Predicates
 import Util
 
 {-- 
-A graph is represented as a collection of nodes. Specifically, it's a Map of the Node ID to the Node itself.
+The graph is split into two parts: a room map and an item map.
 
-Note that Rooms and Items are both nodes in this graph, with edges representing the requirements (specified as a function) to move from node to node.
-Items are nodes that force you to traverse to their designated "warp" room.
-
-We calculate if a seed is completable by constructing a graph representing it and calling isCompletable.
+We calculate if a seed is completable by constructing the graph, and then calling isCompletable.
 This function does the following:
     1. Collects all "free" items. That is, items where we can handle the warp and the warp is not useful for later
     2. Checks if you can complete the game with current items. If so, we are done and can complete the game.

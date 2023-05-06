@@ -29,7 +29,7 @@ data GraphException
 data Id = R RoomId | I ItemId 
     deriving (Show)
 
-data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
+data GenericEdge = GenericEdge {genPredicate :: Predicate, nodeId :: Id}
 
 instance Exception GraphException
 
