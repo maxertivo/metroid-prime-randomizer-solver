@@ -2,11 +2,12 @@ module Parser (parse, parseElevators, parseArg, parseDifficulty) where
 
 import Data.Char
 import Node
+import Data.Bifunctor (bimap)
 
 parse :: String -> [Item]
 parse input = createItemNodes $ createTuples $ handleExpansions $ shortenAreas $ removePrefixes $ removePunc $ removeEmpty $ split $ dropLines $ addDash $ removeEmpty $ lines input
 
-parseElevators :: String -> [(RoomId, RoomId)]
+parseElevators :: String -> [(Int, Int)]
 parseElevators input = createElevatorTuples $ shortenAreas $ splitElevators $ removePunc $ removeEmpty $ getElevatorLines $ lines input
 
 createItemNodes :: [(String, String, String)] -> [Item]
@@ -20,27 +21,27 @@ readItemName str = readItemName' str [(minBound :: ItemName) .. (maxBound :: Ite
                 readItemName' s [] = error $ "Unable to read item name " ++ s
                 readItemName' s (name:rest) = if s == show name then name else readItemName' s rest
 
-readItemId :: String -> ItemId
+readItemId :: String -> Int
 readItemId str = readItemId' str [(minBound :: ItemId) .. (maxBound :: ItemId)]
                 where
-                readItemId' :: String -> [ItemId] -> ItemId
+                readItemId' :: String -> [ItemId] -> Int
                 readItemId' s [] = error $ "Unable to read item ID " ++ s
-                readItemId' s (itemId:rest) = if s == show itemId then itemId else readItemId' s rest
+                readItemId' s (itemId:rest) = if s == show itemId then fromEnum itemId else readItemId' s rest
 
-readRoomId :: String -> RoomId
+readRoomId :: String -> Int
 readRoomId str = readRoomId' str [(minBound :: RoomId) .. (maxBound :: RoomId)]
                 where
-                readRoomId' :: String -> [RoomId] -> RoomId
+                readRoomId' :: String -> [RoomId] -> Int
                 readRoomId' s [] = error $ "Unable to read room ID " ++ s
-                readRoomId' s (room:rest) = if s == show room then room else readRoomId' s rest
+                readRoomId' s (room:rest) = if s == show room then fromEnum room else readRoomId' s rest
 
-getWarp :: String -> String -> RoomId
+getWarp :: String -> String -> Int
 getWarp warp item
     | warp == "" = getDefaultWarp (readItemId item) defaultWarps
-    | warp == "OSavestation" = OSaveStation -- There is a typo in early versions of the randomizer
+    | warp == "OSavestation" = fromEnum OSaveStation -- There is a typo in early versions of the randomizer
     | otherwise = readRoomId warp
 
-getDefaultWarp :: ItemId -> [(RoomId, ItemId)] -> RoomId
+getDefaultWarp :: Int -> [(Int, Int)] -> Int
 getDefaultWarp itemId ((room, item):rest) =
     if itemId == item
         then room
@@ -84,7 +85,7 @@ createTuples (_:b:c:d:rest) = (b, c, d) : createTuples rest
 createTuples [] = []
 createTuples _ = error "list length must be divisible by 4"
 
-createElevatorTuples :: [String] -> [(RoomId, RoomId)]
+createElevatorTuples :: [String] -> [(Int, Int)]
 createElevatorTuples (a:b:rest) = (readRoomId a, readRoomId b) : createElevatorTuples rest
 createElevatorTuples [] = []
 createElevatorTuples _ = error "elevators should be in pairs"
@@ -165,8 +166,8 @@ parseArg [] _ = Nothing
 parseArg [_] _ = Nothing 
 parseArg (first:second:rest) flag = if first == flag then Just second else parseArg (second:rest) flag
 
-defaultWarps :: [(RoomId, ItemId)]
-defaultWarps =
+defaultWarps :: [(Int, Int)]
+defaultWarps = map (Data.Bifunctor.bimap fromEnum fromEnum)
     [ (RMainPlaza, MainPlazaHalfPipe)
     , (RMainPlaza, MainPlazaGrappleLedge)
     , (RMainPlaza, MainPlazaTree)

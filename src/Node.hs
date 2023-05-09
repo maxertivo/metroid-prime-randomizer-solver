@@ -3,18 +3,18 @@ module Node where
 import Data.Map (Map)
 import Data.Set (Set)
 
-data Room = Room {roomId :: RoomId, roomEdges :: [Edge], itemEdges :: [IEdge]} 
+data Room = Room {roomId :: Int, roomEdges :: [Edge], itemEdges :: [IEdge]} 
         deriving (Show)
 
-data Item =  Item {itemId :: ItemId, itemName :: ItemName, warp :: RoomId}
+data Item =  Item {itemId :: Int, itemName :: ItemName, warp :: Int}
         deriving (Show)
 
 instance Eq Item where
     Item id1 _ _ == Item id2 _ _ = id1 == id2
 
-data Edge = Edge {predicate :: Map ItemName Int -> Set ItemId -> Bool, room :: RoomId}
+data Edge = Edge {predicate :: Map ItemName Int -> Set Int -> Bool, room :: Int}
 
-data IEdge = IEdge {itemPredicate :: Map ItemName Int -> Set ItemId -> Bool, item :: ItemId}
+data IEdge = IEdge {itemPredicate :: Map ItemName Int -> Set Int -> Bool, item :: Int}
 
 instance Show Edge where 
     show (Edge _ nodeId) = show nodeId

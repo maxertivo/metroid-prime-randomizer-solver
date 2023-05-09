@@ -48,7 +48,7 @@ removeAll graph (y:rest) =
                 else removeAll (Map.insert y (num - 1) graph) rest
         Nothing -> removeAll graph rest
 
-removeSet :: [ItemId] -> Set ItemId -> [ItemId]
+removeSet :: [Int] -> Set Int -> [Int]
 removeSet [] _ = []
 removeSet (x:rest) set =
     if Set.member x set
