@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 module Solver (isCompletable) where
 
 import Node
@@ -16,12 +15,12 @@ import qualified Data.Set as Set
 import Graph
 
 isCompletable :: IntMap Room -> IntMap Item -> Bool
-isCompletable !roomMap !itemMap =
-    isCompletableHelper roomMap itemMap (State Map.empty (fromEnum OLandingSite) Set.empty)
+isCompletable roomMap itemMap =
+    isCompletableHelper roomMap itemMap (State Map.empty landingSite Set.empty)
 
 isCompletableHelper :: IntMap Room -> IntMap Item -> State -> Bool
 isCompletableHelper roomMap itemMap currState =
-    let !newState = collectFreeItems roomMap itemMap currState
+    let newState = collectFreeItems roomMap itemMap currState
         maybeCandidate = getBestCandidate roomMap itemMap newState
      in isComplete roomMap itemMap newState ||
         case maybeCandidate of
@@ -30,11 +29,11 @@ isCompletableHelper roomMap itemMap currState =
 
 isComplete :: IntMap Room -> IntMap Item -> State -> Bool
 isComplete roomMap itemMap (State inventory roomId collectedItems) =
-    let artifactTempleItem = getVal (IntMap.lookup (fromEnum ArtifactTemple) itemMap) "Missing Item ArtifactTemple"
+    let artifactTempleItem = getVal (IntMap.lookup artifactTempleItemId itemMap) "Missing Item ArtifactTemple"
      in complete inventory collectedItems &&
         isAccessible roomMap roomId (fromEnum OArtifactTemple) inventory collectedItems &&
         -- Either you collected Artifact Temple or you can collect it and return
-        (Set.member (fromEnum ArtifactTemple) collectedItems || isAccessible roomMap (warp artifactTempleItem) (fromEnum OArtifactTemple) inventory collectedItems)
+        (Set.member artifactTempleItemId collectedItems || isAccessible roomMap (warp artifactTempleItem) artifactTempleItemId inventory collectedItems)
 
 -- Try some warp chains and return the best state we could reach
 getBestCandidate :: IntMap Room -> IntMap Item -> State -> Maybe CandidateState
@@ -46,22 +45,21 @@ getBestCandidate roomMap itemMap state =
 
 getAllCandidates :: IntMap Room -> IntMap Item -> [Item] -> State -> Int -> [ItemName] -> [CandidateState]
 getAllCandidates _ _ [] _ _ _ = []
-getAllCandidates roomMap itemMap (item:rest) currState depth newItems =
-    let Item itemId itemName warp = item
-        State inventory _ collectedItems = currState
+getAllCandidates roomMap itemMap ((Item itemId itemName warp):rest) currState depth newItems =
+    let State inventory _ collectedItems = currState
         newInventory = addItem itemName inventory
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
         accessibleItems = getAccessibleItems roomMap itemMap newState
-        accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems roomMap itemMap (State newInventory (fromEnum OLandingSite) newIds)) accessibleItems
+        accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems roomMap itemMap (State newInventory landingSite newIds)) accessibleItems
         numAccessibleItems = length accessibleItems
         belowDepthLimit = numAccessibleItems <= 4 || depth <= 2
         recurseItemList = getAllCandidates roomMap itemMap rest currState depth newItems
         recurseDeeper = getAllCandidates roomMap itemMap accessibleItems newState (depth + 1) (itemName : newItems)
         recurseDeeperLimitSearch = getAllCandidates roomMap itemMap accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
         candidate = CandidateState newState depth (itemName : newItems)
-        warpCanAccessStart = isAccessible roomMap warp (fromEnum OLandingSite) newInventory newIds
-        startCanAccessWarp = isAccessible roomMap (fromEnum OLandingSite) warp newInventory newIds
+        warpCanAccessStart = isAccessible roomMap warp landingSite newInventory newIds
+        startCanAccessWarp = isAccessible roomMap landingSite warp newInventory newIds
      in if warpCanAccessStart && startCanAccessWarp
             then if containsUpgrade (itemName : newItems) newInventory
                       then candidate : recurseItemList   -- We have a candidate and can end this warp chain
@@ -99,9 +97,8 @@ collectFreeItems roomMap itemMap state = collectFreeItemsHelper roomMap itemMap 
 
 collectFreeItemsHelper :: IntMap Room -> IntMap Item -> [Item] -> State -> State
 collectFreeItemsHelper _ _ [] currState = currState
-collectFreeItemsHelper roomMap itemMap (item:rest) currState =
+collectFreeItemsHelper roomMap itemMap ((Item itemId itemName warp):rest) currState =
     let (State inventory roomId collectedItems) = currState
-        Item itemId itemName warp = item
         newInventory = addItem itemName inventory
         newIds = Set.insert itemId collectedItems
         newState = State newInventory warp newIds
@@ -115,14 +112,14 @@ collectFreeItemsHelper roomMap itemMap (item:rest) currState =
             else collectFreeItemsHelper roomMap itemMap rest currState
 
 isMutuallyAccessible :: IntMap Room -> Int -> Int -> Map ItemName Int -> Set Int -> Bool
-isMutuallyAccessible !roomMap !room1 !room2 !inventory !itemIds = isAccessible roomMap room1 room2 inventory itemIds && isAccessible roomMap room2 room1 inventory itemIds
+isMutuallyAccessible roomMap room1 room2 inventory itemIds = isAccessible roomMap room1 room2 inventory itemIds && isAccessible roomMap room2 room1 inventory itemIds
 
 isAccessible :: IntMap Room -> Int -> Int -> Map ItemName Int -> Set Int -> Bool
-isAccessible !roomMap !fromRoom = isAccessibleHelper roomMap [fromRoom]
+isAccessible roomMap fromRoom = isAccessibleHelper roomMap [fromRoom]
 
 isAccessibleHelper :: IntMap Room -> [Int] -> Int -> Map ItemName Int -> Set Int -> Bool
 isAccessibleHelper _ [] _ _ _ = False
-isAccessibleHelper !roomMap (roomId:rest) !destination !inventory !itemIds =
+isAccessibleHelper roomMap (roomId:rest) destination inventory itemIds =
     roomId == destination ||
     case IntMap.lookup roomId roomMap of
         Just (Room _ edges _) ->
@@ -134,7 +131,7 @@ isAccessibleHelper !roomMap (roomId:rest) !destination !inventory !itemIds =
         Nothing -> isAccessibleHelper roomMap rest destination inventory itemIds
 
 getAccessibleItems :: IntMap Room -> IntMap Item -> State -> [Item]
-getAccessibleItems !roomMap !itemMap (State inventory roomId collectedItems) =
+getAccessibleItems roomMap itemMap (State inventory roomId collectedItems) =
     let itemIds = getAccessibleItemsHelper roomMap [roomId] inventory collectedItems []
         uniqueItemIds = nub itemIds -- Remove duplicates
         maybeItems = mapM ((\x -> x itemMap) . IntMap.lookup) uniqueItemIds
@@ -144,7 +141,7 @@ getAccessibleItems !roomMap !itemMap (State inventory roomId collectedItems) =
 
 getAccessibleItemsHelper :: IntMap Room -> [Int] -> Map ItemName Int -> Set Int -> [Int] -> [Int]
 getAccessibleItemsHelper _ [] _ _ result = result
-getAccessibleItemsHelper !roomMap (roomId:rest) !inventory !collectedItems result =
+getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
     case IntMap.lookup roomId roomMap of
         Just (Room _ edges itemEdges) ->
             let predicates = map predicate edges
@@ -158,3 +155,9 @@ getAccessibleItemsHelper !roomMap (roomId:rest) !inventory !collectedItems resul
                 uncollectedItemIds = removeSet reachableItemIds collectedItems
              in getAccessibleItemsHelper (IntMap.delete roomId roomMap) (reachableRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
         Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result
+
+landingSite :: Int
+landingSite = fromEnum OLandingSite
+
+artifactTempleItemId :: Int
+artifactTempleItemId = fromEnum ArtifactTemple

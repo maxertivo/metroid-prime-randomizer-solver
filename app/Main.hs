@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 module Main where
 
 import Data.List
@@ -61,8 +60,8 @@ checkAllDifficulties fileContents =
     checkAllDifficulties' _ _ = Nothing
 
 isLogCompletable :: String -> Difficulty -> Bool
-isLogCompletable !fileContents !diff =
-    let !roomMap = buildRoomMap $ buildNodes diff
-        !roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        !itemMap = buildItemMap $ parse fileContents ++ pseudoItems
+isLogCompletable fileContents diff =
+    let roomMap = buildRoomMap $ buildNodes diff
+        roomMap2 = replaceElevators roomMap (parseElevators fileContents)
+        itemMap = buildItemMap $ parse fileContents ++ pseudoItems
      in isCompletable roomMap2 itemMap

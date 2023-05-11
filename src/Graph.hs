@@ -1,5 +1,7 @@
-module Graph where
+module Graph (buildItemMap, buildRoomMap, replaceElevators, pseudoItems, pseudoItemNames, buildNodes) where
 
+import Data.Set (Set)
+import Data.Map (Map)
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 
@@ -41,15 +43,15 @@ replaceElevators graph ((a, b):rest) =
 
 replaceEdgeRoom :: Room -> Int -> Int -> Room
 replaceEdgeRoom (Room rId edgeList itemEdges) original replacement =
-    let newEdges = f edgeList original replacement
-     in Room (fromEnum rId)newEdges itemEdges
-  where
-    f :: [Edge] -> Int -> Int -> [Edge]
-    f [] _ _ = []
-    f ((Edge p roomId):rest) orig replace =
-        if roomId `elem` elevatorRooms
-            then Edge p (fromEnum replace) : f rest orig replace
-            else Edge p (fromEnum roomId) : f rest orig replace
+    let newEdges = replaceEdges edgeList original replacement
+     in Room (fromEnum rId) newEdges itemEdges
+
+replaceEdges :: [Edge] -> Int -> Int -> [Edge]
+replaceEdges [] _ _ = []
+replaceEdges ((Edge p roomId):rest) orig replace =
+    if roomId `elem` elevatorRooms
+        then Edge p (fromEnum replace) : replaceEdges rest orig replace
+        else Edge p (fromEnum roomId) : replaceEdges rest orig replace
 
 elevatorRooms :: [Int]
 elevatorRooms = map fromEnum [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
@@ -75,730 +77,739 @@ pseudoItemNames = map itemName pseudoItems
 {-- This creates all rooms to add to the graph --}
 buildNodes :: Difficulty -> [Room]
 buildNodes diff = [ -- Tallon Overworld Rooms
-            Room (fromEnum OLandingSite)[Edge noReq (fromEnum OCanyonCavern)
-                                    ,Edge noReq (fromEnum OWaterfallCavern)
-                                    ,Edge (sjf diff) (fromEnum OGully)
-                                    ,Edge (sjf diff) (fromEnum OAlcove)
-                                    ,Edge noReq (fromEnum OTempleHall)]
-                                    [IEdge morph (fromEnum LandingSite)]
-            ,Room (fromEnum OAlcove)[Edge noReq (fromEnum OLandingSite)]
-                                    [IEdge noReq (fromEnum Alcove)]
-            ,Room (fromEnum OCanyonCavern)[Edge noReq (fromEnum OLandingSite)
-                                    ,Edge noReq (fromEnum OTallonCanyon)
-                                    ,Edge (tallonCanyonSw diff) (fromEnum OTallonFrontSw)] []
-            ,Room (fromEnum OTallonCanyon)[Edge noReq (fromEnum OCanyonCavern)
-                                    ,Edge boostBombs (fromEnum OGully)
-                                    ,Edge noReq (fromEnum ORootTunnel)
-                                    ,Edge noReq (fromEnum OTransportTunnelA)] []
-            ,Room (fromEnum OGully)[Edge bombs (fromEnum OTallonCanyon)
-                                    ,Edge noReq (fromEnum OLandingSite)] []
-            ,Room (fromEnum ORootTunnel)[Edge noReq (fromEnum OTallonCanyon)
-                                    ,Edge missile (fromEnum ORootCave)] []
-            ,Room (fromEnum ORootCave)[Edge missile (fromEnum ORootTunnel)
-                                    ,Edge noReq (fromEnum OTransportTunnelB)
-                                    ,Edge (arbor diff) (fromEnum OArborChamber)]
-                                    [IEdge (rootCaveItem diff) (fromEnum RootCave)]
-            ,Room (fromEnum OTransportTunnelB)[Edge noReq (fromEnum ORootCave)
-                                    ,Edge noReq (fromEnum OTransporttoMagmoorCavernsEast)]
-                                    [IEdge noReq (fromEnum TransportTunnelB)]
-            ,Room (fromEnum OTransporttoMagmoorCavernsEast)[Edge noReq (fromEnum CTransporttoTallonOverworldWest)
-                                    ,Edge noReq (fromEnum OTransportTunnelB)] []
-            ,Room (fromEnum OArborChamber)[Edge noReq (fromEnum ORootCave)]
-                                    [IEdge noReq (fromEnum ArborChamber)]
-            ,Room (fromEnum OTransportTunnelA)[Edge noReq (fromEnum OTallonCanyon)
-                                    ,Edge noReq (fromEnum OTransporttoChozoRuinsWest)] []
-            ,Room (fromEnum OTransporttoChozoRuinsWest)[Edge noReq (fromEnum OTransportTunnelA)
-                                    ,Edge noReq (fromEnum RTransporttoTallonOverworldNorth)] []
-            ,Room (fromEnum OWaterfallCavern)[Edge noReq (fromEnum OLandingSite)
-                                    ,Edge morphMissile (fromEnum OFrigateCrashSite)] []
-            ,Room (fromEnum OFrigateCrashSite)[Edge noReq (fromEnum OWaterfallCavern)
-                                    ,Edge (fcsClimb diff) (fromEnum OOvergrownCavern)
-                                    ,Edge (fcsEntry diff) (fromEnum OFrigateAccessTunnel)]
-                                    [IEdge (fcsItem diff) (fromEnum FrigateCrashSite)]
-            ,Room (fromEnum OOvergrownCavern)[Edge ice (fromEnum OFrigateCrashSite)
-                                    ,Edge ice (fromEnum OTransportTunnelC)]
-                                    [IEdge morph (fromEnum OvergrownCavern)]
-            ,Room (fromEnum OTransportTunnelC)[Edge ice (fromEnum OOvergrownCavern)
-                                    ,Edge ice (fromEnum OTransporttoChozoRuinsEast)] []
-            ,Room (fromEnum OTransporttoChozoRuinsEast)[Edge noReq (fromEnum RTransporttoTallonOverworldEast)
-                                    ,Edge ice (fromEnum OTransportTunnelC)] []
-            ,Room (fromEnum OFrigateAccessTunnel)[Edge ice (fromEnum OFrigateCrashSite)
-                                    ,Edge noReq (fromEnum OMainVentilationShaftSectionC)] []
-            ,Room (fromEnum OMainVentilationShaftSectionC)[Edge noReq (fromEnum OFrigateAccessTunnel)
-                                    ,Edge noReq (fromEnum OMainVentilationShaftSectionB)] []
-            ,Room (fromEnum OMainVentilationShaftSectionB)[Edge wave (fromEnum OMainVentilationShaftSectionA)
-                                    ,Edge (climbFrigateMvs diff) (fromEnum OMainVentilationShaftSectionC)]
-                                    [IEdge wave (fromEnum FrigatePowerDoorTrigger)]
-            ,Room (fromEnum OMainVentilationShaftSectionA)[Edge (frigatePowerDoor diff) (fromEnum OMainVentilationShaftSectionB)
-                                    ,Edge noReq (fromEnum OReactorCore)] []
-            ,Room (fromEnum OReactorCore)[Edge (climbReactorCore diff) (fromEnum OMainVentilationShaftSectionA)
-                                    ,Edge wave (fromEnum OReactorAccess)] []
-            ,Room (fromEnum OReactorAccess)[Edge wave (fromEnum OCargoFreightLifttoDeckGamma)
-                                    ,Edge noReq (fromEnum OReactorCore)
-                                    ,Edge noReq (fromEnum OSaveStation)] []
-            ,Room (fromEnum OSaveStation)[Edge noReq (fromEnum OReactorAccess)] []
-            ,Room (fromEnum OCargoFreightLifttoDeckGamma)[Edge (cargoFreightLift diff) (fromEnum ODeckBetaTransitHall)
-                                    ,Edge noReq (fromEnum OReactorAccess)]
-                                    [IEdge missile (fromEnum CargoFreightLifttoDeckGamma)]
-            ,Room (fromEnum ODeckBetaTransitHall)[Edge noReq (fromEnum OCargoFreightLifttoDeckGamma)
-                                    ,Edge noReq (fromEnum OBiohazardContainment)] []
-            ,Room (fromEnum OBiohazardContainment)[Edge noReq (fromEnum ODeckBetaTransitHall)
-                                    ,Edge (biohazard diff) (fromEnum ODeckBetaSecurityHall)]
-                                    [IEdge supers (fromEnum BiohazardContainment)]
-            ,Room (fromEnum ODeckBetaSecurityHall)[Edge (climbBiohazard diff) (fromEnum OBiohazardContainment)
-                                    ,Edge noReq (fromEnum OBiotechResearchArea1)]
-                                    [IEdge supers (fromEnum BiohazardContainment)]
-            ,Room (fromEnum OBiotechResearchArea1)[Edge noReq (fromEnum ODeckBetaSecurityHall)
-                                    ,Edge (biotech diff) (fromEnum ODeckBetaConduitHall)] []
-            ,Room (fromEnum ODeckBetaConduitHall)[Edge (biotechReverse diff) (fromEnum OBiotechResearchArea1)
-                                    ,Edge noReq (fromEnum OConnectionElevatortoDeckBeta)] []
-            ,Room (fromEnum OConnectionElevatortoDeckBeta)[Edge noReq (fromEnum ODeckBetaConduitHall)
-                                    ,Edge noReq (fromEnum OHydroAccessTunnel)] []
-            ,Room (fromEnum OHydroAccessTunnel)[Edge gravSpace (fromEnum OConnectionElevatortoDeckBeta)
-                                    ,Edge (hydroTunnel diff) (fromEnum OGreatTreeHall)]
-                                    [IEdge morph (fromEnum HydroAccessTunnel)]
+            room OLandingSite [edge noReq OCanyonCavern
+                                    ,edge noReq OWaterfallCavern
+                                    ,edge (sjf diff) OGully
+                                    ,edge (sjf diff) OAlcove
+                                    ,edge noReq OTempleHall]
+                                    [itemEdge morph LandingSite]
+            ,room OAlcove [edge noReq OLandingSite]
+                                    [itemEdge noReq Alcove]
+            ,room OCanyonCavern [edge noReq OLandingSite
+                                    ,edge noReq OTallonCanyon
+                                    ,edge (tallonCanyonSw diff) OTallonFrontSw] []
+            ,room OTallonCanyon [edge noReq OCanyonCavern
+                                    ,edge boostBombs OGully
+                                    ,edge noReq ORootTunnel
+                                    ,edge noReq OTransportTunnelA] []
+            ,room OGully [edge bombs OTallonCanyon
+                                    ,edge noReq OLandingSite] []
+            ,room ORootTunnel [edge noReq OTallonCanyon
+                                    ,edge missile ORootCave] []
+            ,room ORootCave [edge missile ORootTunnel
+                                    ,edge noReq OTransportTunnelB
+                                    ,edge (arbor diff) OArborChamber]
+                                    [itemEdge (rootCaveItem diff) RootCave]
+            ,room OTransportTunnelB [edge noReq ORootCave
+                                    ,edge noReq OTransporttoMagmoorCavernsEast]
+                                    [itemEdge noReq TransportTunnelB]
+            ,room OTransporttoMagmoorCavernsEast [edge noReq CTransporttoTallonOverworldWest
+                                    ,edge noReq OTransportTunnelB] []
+            ,room OArborChamber [edge noReq ORootCave]
+                                    [itemEdge noReq ArborChamber]
+            ,room OTransportTunnelA [edge noReq OTallonCanyon
+                                    ,edge noReq OTransporttoChozoRuinsWest] []
+            ,room OTransporttoChozoRuinsWest [edge noReq OTransportTunnelA
+                                    ,edge noReq RTransporttoTallonOverworldNorth] []
+            ,room OWaterfallCavern [edge noReq OLandingSite
+                                    ,edge morphMissile OFrigateCrashSite] []
+            ,room OFrigateCrashSite [edge noReq OWaterfallCavern
+                                    ,edge (fcsClimb diff) OOvergrownCavern
+                                    ,edge (fcsEntry diff) OFrigateAccessTunnel]
+                                    [itemEdge (fcsItem diff) FrigateCrashSite]
+            ,room OOvergrownCavern [edge ice OFrigateCrashSite
+                                    ,edge ice OTransportTunnelC]
+                                    [itemEdge morph OvergrownCavern]
+            ,room OTransportTunnelC [edge ice OOvergrownCavern
+                                    ,edge ice OTransporttoChozoRuinsEast] []
+            ,room OTransporttoChozoRuinsEast [edge noReq RTransporttoTallonOverworldEast
+                                    ,edge ice OTransportTunnelC] []
+            ,room OFrigateAccessTunnel [edge ice OFrigateCrashSite
+                                    ,edge noReq OMainVentilationShaftSectionC] []
+            ,room OMainVentilationShaftSectionC [edge noReq OFrigateAccessTunnel
+                                    ,edge noReq OMainVentilationShaftSectionB] []
+            ,room OMainVentilationShaftSectionB [edge wave OMainVentilationShaftSectionA
+                                    ,edge (climbFrigateMvs diff) OMainVentilationShaftSectionC]
+                                    [itemEdge wave FrigatePowerDoorTrigger]
+            ,room OMainVentilationShaftSectionA [edge (frigatePowerDoor diff) OMainVentilationShaftSectionB
+                                    ,edge noReq OReactorCore] []
+            ,room OReactorCore [edge (climbReactorCore diff) OMainVentilationShaftSectionA
+                                    ,edge wave OReactorAccess] []
+            ,room OReactorAccess [edge wave OCargoFreightLifttoDeckGamma
+                                    ,edge noReq OReactorCore
+                                    ,edge noReq OSaveStation] []
+            ,room OSaveStation [edge noReq OReactorAccess] []
+            ,room OCargoFreightLifttoDeckGamma [edge (cargoFreightLift diff) ODeckBetaTransitHall
+                                    ,edge noReq OReactorAccess]
+                                    [itemEdge missile CargoFreightLifttoDeckGamma]
+            ,room ODeckBetaTransitHall [edge noReq OCargoFreightLifttoDeckGamma
+                                    ,edge noReq OBiohazardContainment] []
+            ,room OBiohazardContainment [edge noReq ODeckBetaTransitHall
+                                    ,edge (biohazard diff) ODeckBetaSecurityHall]
+                                    [itemEdge supers BiohazardContainment]
+            ,room ODeckBetaSecurityHall [edge (climbBiohazard diff) OBiohazardContainment
+                                    ,edge noReq OBiotechResearchArea1]
+                                    [itemEdge supers BiohazardContainment]
+            ,room OBiotechResearchArea1 [edge noReq ODeckBetaSecurityHall
+                                    ,edge (biotech diff) ODeckBetaConduitHall] []
+            ,room ODeckBetaConduitHall [edge (biotechReverse diff) OBiotechResearchArea1
+                                    ,edge noReq OConnectionElevatortoDeckBeta] []
+            ,room OConnectionElevatortoDeckBeta [edge noReq ODeckBetaConduitHall
+                                    ,edge noReq OHydroAccessTunnel] []
+            ,room OHydroAccessTunnel [edge gravSpace OConnectionElevatortoDeckBeta
+                                    ,edge (hydroTunnel diff) OGreatTreeHall]
+                                    [itemEdge morph HydroAccessTunnel]
             --Great Tree Hall is split into two rooms, an upper and lower section
-            ,Room (fromEnum OGreatTreeHall)[Edge (hydroTunnel diff) (fromEnum OHydroAccessTunnel)
-                                    ,Edge ice (fromEnum OTransportTunnelE)
-                                    ,Edge (gthClimb diff) (fromEnum OGreatTreeHallTop)] []
-            ,Room (fromEnum OGreatTreeHallTop)[Edge ice (fromEnum OTransportTunnelD)
-                                    ,Edge (gtcEnter diff) (fromEnum OGreatTreeChamber)
-                                    ,Edge (gthSpiderTrack diff) (fromEnum OLifeGroveTunnel)
-                                    ,Edge (bars diff) (fromEnum OGreatTreeHall)] []
-            ,Room (fromEnum OTransportTunnelD)[Edge ice (fromEnum OGreatTreeHallTop)
-                                    ,Edge ice (fromEnum OTransporttoChozoRuinsSouth)] []
-            ,Room (fromEnum OTransporttoChozoRuinsSouth)[Edge ice (fromEnum OTransportTunnelD)
-                                    ,Edge noReq (fromEnum RTransporttoTallonOverworldSouth)] []
-            ,Room (fromEnum OGreatTreeChamber)[Edge noReq (fromEnum OGreatTreeHallTop)
-                                    ,Edge (gtcSw diff) (fromEnum OTallonBackSw)]
-                                    [IEdge noReq (fromEnum GreatTreeChamber)]
-            ,Room (fromEnum OLifeGroveTunnel)[Edge noReq (fromEnum OGreatTreeHallTop)
-                                    ,Edge (lifeGroveTunnel diff) (fromEnum OLifeGrove)]
-                                    [IEdge (lifeGroveTunnelItem diff) (fromEnum LifeGroveTunnel)]
-            ,Room (fromEnum OLifeGrove)[Edge morph (fromEnum OLifeGroveTunnel)]
-                                    [IEdge noReq (fromEnum LifeGroveStart)
-                                    ,IEdge (lgUnderWater diff) (fromEnum LifeGroveUnderwaterSpinner)]
-            ,Room (fromEnum OTransportTunnelE)[Edge ice (fromEnum OTransporttoPhazonMinesEast)
-                                    ,Edge ice (fromEnum OGreatTreeHall)] []
-            ,Room (fromEnum OTransporttoPhazonMinesEast)[Edge ice (fromEnum OTransportTunnelE)
-                                    ,Edge noReq (fromEnum MTransporttoTallonOverworldSouth)] []
-            ,Room (fromEnum OTempleHall)[Edge noReq (fromEnum OLandingSite)
-                                    ,Edge noReq (fromEnum OTempleSecurityStation)] []
-            ,Room (fromEnum OTempleSecurityStation)[Edge missile (fromEnum OTempleLobby)
-                                    ,Edge noReq (fromEnum OTempleHall)] []
-            ,Room (fromEnum OTempleLobby)[Edge missile (fromEnum OTempleSecurityStation)
-                                    ,Edge noReq (fromEnum OArtifactTemple)] []
-            ,Room (fromEnum OArtifactTemple)[Edge noReq (fromEnum OTempleLobby)]
-                                    [IEdge noReq (fromEnum ArtifactTemple)]
-            ,Room (fromEnum OTallonBackSw)[Edge bombs (fromEnum OLifeGrove)
-                                    ,Edge bombs (fromEnum OGreatTreeHallTop)
-                                    ,Edge (wallcrawlIntoFrigate diff) (fromEnum ODeckBetaConduitHall)]
-                                    [IEdge bombs (fromEnum LifeGroveUnderwaterSpinner)]
-            ,Room (fromEnum OTallonFrontSw)[Edge bombs (fromEnum OFrigateCrashSite)
-                                    ,Edge bombs (fromEnum OTallonCanyon)]
-                                    [IEdge bombs (fromEnum ArborChamber)
-                                    ,IEdge bombs (fromEnum RootCave)]
+            ,room OGreatTreeHall [edge (hydroTunnel diff) OHydroAccessTunnel
+                                    ,edge ice OTransportTunnelE
+                                    ,edge (gthClimb diff) OGreatTreeHallTop] []
+            ,room OGreatTreeHallTop [edge ice OTransportTunnelD
+                                    ,edge (gtcEnter diff) OGreatTreeChamber
+                                    ,edge (gthSpiderTrack diff) OLifeGroveTunnel
+                                    ,edge (bars diff) OGreatTreeHall] []
+            ,room OTransportTunnelD [edge ice OGreatTreeHallTop
+                                    ,edge ice OTransporttoChozoRuinsSouth] []
+            ,room OTransporttoChozoRuinsSouth [edge ice OTransportTunnelD
+                                    ,edge noReq RTransporttoTallonOverworldSouth] []
+            ,room OGreatTreeChamber [edge noReq OGreatTreeHallTop
+                                    ,edge (gtcSw diff) OTallonBackSw]
+                                    [itemEdge noReq GreatTreeChamber]
+            ,room OLifeGroveTunnel [edge noReq OGreatTreeHallTop
+                                    ,edge (lifeGroveTunnel diff) OLifeGrove]
+                                    [itemEdge (lifeGroveTunnelItem diff) LifeGroveTunnel]
+            ,room OLifeGrove [edge morph OLifeGroveTunnel]
+                                    [itemEdge noReq LifeGroveStart
+                                    ,itemEdge (lgUnderWater diff) LifeGroveUnderwaterSpinner]
+            ,room OTransportTunnelE [edge ice OTransporttoPhazonMinesEast
+                                    ,edge ice OGreatTreeHall] []
+            ,room OTransporttoPhazonMinesEast [edge ice OTransportTunnelE
+                                    ,edge noReq MTransporttoTallonOverworldSouth] []
+            ,room OTempleHall [edge noReq OLandingSite
+                                    ,edge noReq OTempleSecurityStation] []
+            ,room OTempleSecurityStation [edge missile OTempleLobby
+                                    ,edge noReq OTempleHall] []
+            ,room OTempleLobby [edge missile OTempleSecurityStation
+                                    ,edge noReq OArtifactTemple] []
+            ,room OArtifactTemple [edge noReq OTempleLobby]
+                                    [itemEdge noReq ArtifactTemple]
+            ,room OTallonBackSw [edge bombs OLifeGrove
+                                    ,edge bombs OGreatTreeHallTop
+                                    ,edge (wallcrawlIntoFrigate diff) ODeckBetaConduitHall]
+                                    [itemEdge bombs LifeGroveUnderwaterSpinner]
+            ,room OTallonFrontSw [edge bombs OFrigateCrashSite
+                                    ,edge bombs OTallonCanyon]
+                                    [itemEdge bombs ArborChamber
+                                    ,itemEdge bombs RootCave]
 
             -- Chozo Ruins Rooms
-            ,Room (fromEnum RTransporttoTallonOverworldNorth)[Edge noReq (fromEnum OTransporttoChozoRuinsWest)
-                                    ,Edge noReq (fromEnum RRuinsEntrance)] []
-            ,Room (fromEnum RRuinsEntrance)[Edge noReq (fromEnum RTransporttoTallonOverworldNorth)
-                                    ,Edge noReq (fromEnum RMainPlaza)] []
-            ,Room (fromEnum RMainPlaza)[Edge noReq (fromEnum RRuinsEntrance)
-                                    ,Edge morph (fromEnum RRuinedFountainAccess)
-                                    ,Edge missile (fromEnum RRuinedShrineAccess)
-                                    ,Edge noReq (fromEnum RNurseryAccess)
-                                    ,Edge (mainPlazaGrappleLedge diff) (fromEnum RPistonTunnelInbounds)
-                                    ,Edge (mainPlazaLedge diff) (fromEnum RMainPlazaLedge)
-                                    ,Edge (mainPlazaSw diff) (fromEnum RChozoFrontSw)]
-                                    [IEdge (mainPipe diff) (fromEnum MainPlazaHalfPipe)
-                                    ,IEdge (mainPlazaGrappleLedge diff) (fromEnum MainPlazaGrappleLedge)
-                                    ,IEdge supers (fromEnum MainPlazaTree)]
+            ,room RTransporttoTallonOverworldNorth [edge noReq OTransporttoChozoRuinsWest
+                                    ,edge noReq RRuinsEntrance] []
+            ,room RRuinsEntrance [edge noReq RTransporttoTallonOverworldNorth
+                                    ,edge noReq RMainPlaza] []
+            ,room RMainPlaza [edge noReq RRuinsEntrance
+                                    ,edge morph RRuinedFountainAccess
+                                    ,edge missile RRuinedShrineAccess
+                                    ,edge noReq RNurseryAccess
+                                    ,edge (mainPlazaGrappleLedge diff) RPistonTunnelInbounds
+                                    ,edge (mainPlazaLedge diff) RMainPlazaLedge
+                                    ,edge (mainPlazaSw diff) RChozoFrontSw]
+                                    [itemEdge (mainPipe diff) MainPlazaHalfPipe
+                                    ,itemEdge (mainPlazaGrappleLedge diff) MainPlazaGrappleLedge
+                                    ,itemEdge supers MainPlazaTree]
             --Created new room to hold the main plaza ledge item, and allow one-way traversal through Vault
-            ,Room (fromEnum RMainPlazaLedge)[Edge noReq (fromEnum RMainPlaza)]
-                                    [IEdge noReq (fromEnum MainPlazaLockedDoor)] 
-            ,Room (fromEnum RPlazaAccess)[Edge noReq (fromEnum RVault)
-                                    ,Edge noReq (fromEnum RMainPlazaLedge)] []
-            ,Room (fromEnum RVault)[Edge noReq (fromEnum RPlazaAccess)
-                                    ,Edge morph (fromEnum RVaultAccess)]
-                                    [IEdge bombs (fromEnum Vault)]
-            ,Room (fromEnum RVaultAccess)[Edge morph (fromEnum RVault)
-                                    ,Edge noReq (fromEnum RTransporttoMagmoorCavernsNorth)] []
-            ,Room (fromEnum RTransporttoMagmoorCavernsNorth)[Edge noReq (fromEnum RVaultAccess)
-                                    ,Edge noReq (fromEnum CTransporttoChozoRuinsNorth)
-                                    ,Edge (climbSunTower diff) (fromEnum RSunTower)
-                                    ,Edge morph (fromEnum RTransportAccessNorth)] []
-            ,Room (fromEnum RTransportAccessNorth)[Edge morph (fromEnum RTransporttoMagmoorCavernsNorth)
-                                    ,Edge missile (fromEnum RHiveTotem)]
-                                    [IEdge noReq (fromEnum TransportAccessNorth)]
-            ,Room (fromEnum RHiveTotem)[Edge missile (fromEnum RTransportAccessNorth)
-                                    ,Edge noReq (fromEnum RTotemAccess)]
-                                    [IEdge noReq (fromEnum HiveTotem)]
-            ,Room (fromEnum RTotemAccess)[Edge noReq (fromEnum RHiveTotem)
-                                    ,Edge noReq (fromEnum RRuinedGallery)] []
-            ,Room (fromEnum RRuinedGallery)[Edge noReq (fromEnum RTotemAccess)
-                                    ,Edge missile (fromEnum RMapStation)
-                                    ,Edge noReq (fromEnum RNorthAtrium)]
-                                    [IEdge missile (fromEnum RuinedGalleryMissileWall)
-                                    ,IEdge bombs (fromEnum RuinedGalleryTunnel)]
-            ,Room (fromEnum RMapStation)[Edge missile (fromEnum RRuinedGallery)] []
-            ,Room (fromEnum RNorthAtrium)[Edge noReq (fromEnum RRuinedGallery)
-                                    ,Edge noReq (fromEnum RRuinedNursery)] []
-            ,Room (fromEnum RRuinedNursery)[Edge noReq (fromEnum RNorthAtrium)
-                                    ,Edge noReq (fromEnum RSaveStation1)
-                                    ,Edge noReq (fromEnum REyonTunnel)]
-                                    [IEdge bombs (fromEnum RuinedNursery)]
-            ,Room (fromEnum RSaveStation1)[Edge noReq (fromEnum RRuinedNursery)] []
-            ,Room (fromEnum REyonTunnel)[Edge noReq (fromEnum RRuinedNursery)
-                                    ,Edge noReq (fromEnum RNurseryAccess)] []
-            ,Room (fromEnum RNurseryAccess)[Edge noReq (fromEnum REyonTunnel)
-                                    ,Edge noReq (fromEnum RMainPlaza)] []
-            ,Room (fromEnum RRuinedShrineAccess)[Edge noReq (fromEnum RRuinedShrine)
-                                    ,Edge missile (fromEnum RMainPlaza)] []
-            ,Room (fromEnum RRuinedShrine)[Edge noReq (fromEnum RRuinedShrineAccess)
-                                    ,Edge (tolAccess diff) (fromEnum RTowerofLightAccess)]
-                                    [IEdge bombs (fromEnum RuinedShrineLowerTunnel)
-                                    ,IEdge (rsHalf diff) (fromEnum RuinedShrineHalfPipe)
-                                    ,IEdge noReq (fromEnum RuinedShrineBeetleBattle)]
-            ,Room (fromEnum RTowerofLightAccess)[Edge wave (fromEnum RRuinedShrine)
-                                    ,Edge wave (fromEnum RTowerofLight)] []
-            ,Room (fromEnum RTowerofLight)[Edge wave (fromEnum RTowerofLightAccess)
-                                    ,Edge (towerChamber diff) (fromEnum RTowerChamber)]
-                                    [IEdge (towerOfLight diff) (fromEnum TowerofLight)]
-            ,Room (fromEnum RTowerChamber)[Edge wave (fromEnum RTowerofLight)]
-                                    [IEdge noReq (fromEnum TowerChamber)]
-            ,Room (fromEnum RRuinedFountainAccess)[Edge noReq (fromEnum RRuinedFountainNonWarp)
-                                    ,Edge morph (fromEnum RMainPlaza)] []
+            ,room RMainPlazaLedge [edge noReq RMainPlaza]
+                                    [itemEdge noReq MainPlazaLockedDoor] 
+            ,room RPlazaAccess [edge noReq RVault
+                                    ,edge noReq RMainPlazaLedge] []
+            ,room RVault [edge noReq RPlazaAccess
+                                    ,edge morph RVaultAccess]
+                                    [itemEdge bombs Vault]
+            ,room RVaultAccess [edge morph RVault
+                                    ,edge noReq RTransporttoMagmoorCavernsNorth] []
+            ,room RTransporttoMagmoorCavernsNorth [edge noReq RVaultAccess
+                                    ,edge noReq CTransporttoChozoRuinsNorth
+                                    ,edge (climbSunTower diff) RSunTower
+                                    ,edge morph RTransportAccessNorth] []
+            ,room RTransportAccessNorth [edge morph RTransporttoMagmoorCavernsNorth
+                                    ,edge missile RHiveTotem]
+                                    [itemEdge noReq TransportAccessNorth]
+            ,room RHiveTotem [edge missile RTransportAccessNorth
+                                    ,edge noReq RTotemAccess]
+                                    [itemEdge noReq HiveTotem]
+            ,room RTotemAccess [edge noReq RHiveTotem
+                                    ,edge noReq RRuinedGallery] []
+            ,room RRuinedGallery [edge noReq RTotemAccess
+                                    ,edge missile RMapStation
+                                    ,edge noReq RNorthAtrium]
+                                    [itemEdge missile RuinedGalleryMissileWall
+                                    ,itemEdge bombs RuinedGalleryTunnel]
+            ,room RMapStation [edge missile RRuinedGallery] []
+            ,room RNorthAtrium [edge noReq RRuinedGallery
+                                    ,edge noReq RRuinedNursery] []
+            ,room RRuinedNursery [edge noReq RNorthAtrium
+                                    ,edge noReq RSaveStation1
+                                    ,edge noReq REyonTunnel]
+                                    [itemEdge bombs RuinedNursery]
+            ,room RSaveStation1 [edge noReq RRuinedNursery] []
+            ,room REyonTunnel [edge noReq RRuinedNursery
+                                    ,edge noReq RNurseryAccess] []
+            ,room RNurseryAccess [edge noReq REyonTunnel
+                                    ,edge noReq RMainPlaza] []
+            ,room RRuinedShrineAccess [edge noReq RRuinedShrine
+                                    ,edge missile RMainPlaza] []
+            ,room RRuinedShrine [edge noReq RRuinedShrineAccess
+                                    ,edge (tolAccess diff) RTowerofLightAccess]
+                                    [itemEdge bombs RuinedShrineLowerTunnel
+                                    ,itemEdge (rsHalf diff) RuinedShrineHalfPipe
+                                    ,itemEdge noReq RuinedShrineBeetleBattle]
+            ,room RTowerofLightAccess [edge wave RRuinedShrine
+                                    ,edge wave RTowerofLight] []
+            ,room RTowerofLight [edge wave RTowerofLightAccess
+                                    ,edge (towerChamber diff) RTowerChamber]
+                                    [itemEdge (towerOfLight diff) TowerofLight]
+            ,room RTowerChamber [edge wave RTowerofLight]
+                                    [itemEdge noReq TowerChamber]
+            ,room RRuinedFountainAccess [edge noReq RRuinedFountainNonWarp
+                                    ,edge morph RMainPlaza] []
             -- The Ruined Fountain Warp puts you on top of the item and forces you to collect it
-            ,Room (fromEnum RRuinedFountainNonWarp)[Edge (ruinedFountainItem diff) (fromEnum RRuinedFountain)
-                                    ,Edge noReq (fromEnum RRuinedFountainAccess)
-                                    ,Edge noReq (fromEnum RMeditationFountain)
-                                    ,Edge noReq (fromEnum RArboretumAccess)] []
-            ,Room (fromEnum RRuinedFountain)[Edge (leaveRuinedFountainItem diff) (fromEnum RRuinedFountainNonWarp)]
-                                    [IEdge noReq (fromEnum RuinedFountain)]
-            ,Room (fromEnum RMeditationFountain)[Edge noReq (fromEnum RRuinedFountainNonWarp)
-                                    ,Edge noReq (fromEnum RMagmaPool)] []
-            ,Room (fromEnum RMagmaPool)[Edge noReq (fromEnum RMeditationFountain)
-                                    ,Edge (crossMagmaPool diff) (fromEnum RTrainingChamberAccess)]
-                                    [IEdge (magmaPoolItem diff) (fromEnum MagmaPool)]
-            ,Room (fromEnum RTrainingChamberAccess)[Edge (crossMagmaPool diff) (fromEnum RMagmaPool)
-                                    ,Edge wave (fromEnum RTrainingChamber)]
-                                    [IEdge wavePb (fromEnum MagmaPool)
-                                    ,IEdge morph (fromEnum TrainingChamberAccess)]
-            ,Room (fromEnum RTrainingChamber)[Edge wave (fromEnum RTowerofLightAccess)
-                                    ,Edge (tcTunnel diff) (fromEnum RPistonTunnelInbounds)]
-                                    [IEdge (tcItem diff) (fromEnum TrainingChamber)]
-            ,Room (fromEnum RPistonTunnelInbounds)[Edge morph (fromEnum RMainPlaza)
-                                    ,Edge blocked (fromEnum RTrainingChamber)] [] -- Since it is blocked initially, it's simpler to consider it one-way
-            ,Room (fromEnum RPistonTunnel)[Edge morph (fromEnum RPistonTunnelInbounds) -- If you jump after being warped here, you go oob
-                                    ,Edge (wallcrawl diff) (fromEnum RChozoFrontSw)] []
-            ,Room (fromEnum RArboretumAccess)[Edge noReq (fromEnum RRuinedFountainNonWarp)
-                                    ,Edge missile (fromEnum RArboretum)] []
-            ,Room (fromEnum RArboretum)[Edge missile (fromEnum RArboretumAccess)
-                                    ,Edge bombs (fromEnum RSunchamberLobby)
-                                    ,Edge missile (fromEnum RGatheringHallAccess)] []
-            ,Room (fromEnum RSunchamberLobby)[Edge missile (fromEnum RArboretum)
-                                    ,Edge noReq (fromEnum RSunchamberAccess)] []
-            ,Room (fromEnum RSunchamberAccess)[Edge noReq (fromEnum RSunchamberLobby)
-                                    ,Edge noVines (fromEnum RSunchamber)] []
-            ,Room (fromEnum RSunchamber)[Edge noVines (fromEnum RSunchamberAccess)
-                                    ,Edge noReq (fromEnum RSunTowerAccess)]
-                                    [IEdge bombs (fromEnum SunchamberFlaahgra)
-                                    ,IEdge (sunchamberghost diff) (fromEnum SunchamberGhosts)]
-            ,Room (fromEnum RSunTowerAccess)[Edge noReq (fromEnum RSunchamber)
-                                    ,Edge noReq (fromEnum RSunTower)] []
+            ,room RRuinedFountainNonWarp [edge (ruinedFountainItem diff) RRuinedFountain
+                                    ,edge noReq RRuinedFountainAccess
+                                    ,edge noReq RMeditationFountain
+                                    ,edge noReq RArboretumAccess] []
+            ,room RRuinedFountain [edge (leaveRuinedFountainItem diff) RRuinedFountainNonWarp]
+                                    [itemEdge noReq RuinedFountain]
+            ,room RMeditationFountain [edge noReq RRuinedFountainNonWarp
+                                    ,edge noReq RMagmaPool] []
+            ,room RMagmaPool [edge noReq RMeditationFountain
+                                    ,edge (crossMagmaPool diff) RTrainingChamberAccess]
+                                    [itemEdge (magmaPoolItem diff) MagmaPool]
+            ,room RTrainingChamberAccess [edge (crossMagmaPool diff) RMagmaPool
+                                    ,edge wave RTrainingChamber]
+                                    [itemEdge wavePb MagmaPool
+                                    ,itemEdge morph TrainingChamberAccess]
+            ,room RTrainingChamber [edge wave RTowerofLightAccess
+                                    ,edge (tcTunnel diff) RPistonTunnelInbounds]
+                                    [itemEdge (tcItem diff) TrainingChamber]
+            ,room RPistonTunnelInbounds [edge morph RMainPlaza
+                                    ,edge blocked RTrainingChamber] [] -- Since it is blocked initially, it's simpler to consider it one-way
+            ,room RPistonTunnel [edge morph RPistonTunnelInbounds -- If you jump after being warped here, you go oob
+                                    ,edge (wallcrawl diff) RChozoFrontSw] []
+            ,room RArboretumAccess [edge noReq RRuinedFountainNonWarp
+                                    ,edge missile RArboretum] []
+            ,room RArboretum [edge missile RArboretumAccess
+                                    ,edge bombs RSunchamberLobby
+                                    ,edge missile RGatheringHallAccess] []
+            ,room RSunchamberLobby [edge missile RArboretum
+                                    ,edge noReq RSunchamberAccess] []
+            ,room RSunchamberAccess [edge noReq RSunchamberLobby
+                                    ,edge noVines RSunchamber] []
+            ,room RSunchamber [edge noVines RSunchamberAccess
+                                    ,edge noReq RSunTowerAccess]
+                                    [itemEdge bombs SunchamberFlaahgra
+                                    ,itemEdge (sunchamberghost diff) SunchamberGhosts]
+            ,room RSunTowerAccess [edge noReq RSunchamber
+                                    ,edge noReq RSunTower] []
             -- The spawn point is at the top of the room, so to approximate this, items are required to enter the room from the elevator
-            ,Room (fromEnum RSunTower)[Edge noReq (fromEnum RSunTowerAccess)
-                                    ,Edge noReq (fromEnum RTransporttoMagmoorCavernsNorth)] []
-            ,Room (fromEnum RGatheringHallAccess)[Edge missile (fromEnum RArboretum)
-                                    ,Edge noReq (fromEnum RGatheringHall)] []
-            ,Room (fromEnum RGatheringHall)[Edge noReq (fromEnum RGatheringHallAccess)
-                                    ,Edge missile (fromEnum RSaveStation2)
-                                    ,Edge noReq (fromEnum RWateryHallAccess)
-                                    ,Edge morph (fromEnum REastAtrium)
-                                    ,Edge (gatheringHallSw diff) (fromEnum RChozoBackSw)]
-                                    [IEdge bombs (fromEnum GatheringHall)]
-            ,Room (fromEnum RWateryHallAccess)[Edge noReq (fromEnum RGatheringHall)
-                                    ,Edge missile (fromEnum RWateryHall)]
-                                    [IEdge missile (fromEnum WateryHallAccess)]
-            ,Room (fromEnum RWateryHall)[Edge missile (fromEnum RWateryHallAccess)
-                                    ,Edge (wateryHallTraverse diff) (fromEnum RDynamoAccess)
-                                    ,Edge (wateryHallSw diff) (fromEnum RChozoBackSw)]
-                                    [IEdge (wateryHallWater diff) (fromEnum WateryHallUnderwater)
-                                    ,IEdge noReq (fromEnum WateryHallScanPuzzle)]
-            ,Room (fromEnum RDynamoAccess)[Edge missile (fromEnum RWateryHall)
-                                    ,Edge missile (fromEnum RDynamo)] []
-            ,Room (fromEnum RDynamo)[Edge missile (fromEnum RDynamoAccess)]
-                                    [IEdge missile (fromEnum DynamoLower)
-                                    ,IEdge spider (fromEnum DynamoSpiderTrack)]
-            ,Room (fromEnum RSaveStation2)[Edge missile (fromEnum RGatheringHall)] []
-            ,Room (fromEnum REastAtrium)[Edge noReq (fromEnum RGatheringHall)
-                                    ,Edge noReq (fromEnum REnergyCoreAccess)] []
-            ,Room (fromEnum REnergyCoreAccess)[Edge noReq (fromEnum REastAtrium)
-                                    ,Edge noReq (fromEnum REnergyCore)] []
-            ,Room (fromEnum REnergyCore)[Edge noReq (fromEnum REnergyCoreAccess)
-                                    ,Edge morph (fromEnum RBurnDomeAccess)
-                                    ,Edge bombs (fromEnum RWestFurnaceAccess)] []
-            ,Room (fromEnum RBurnDomeAccess)[Edge bombs (fromEnum REnergyCore)
-                                    ,Edge morph (fromEnum RBurnDome)] []
-            ,Room (fromEnum RBurnDome)[Edge noReq (fromEnum RBurnDomeAccess)]
-                                    [IEdge bombs (fromEnum BurnDomeMissile)
-                                    ,IEdge noReq (fromEnum BurnDomeIDrone)]
-            ,Room (fromEnum RWestFurnaceAccess)[Edge noReq (fromEnum REnergyCore)
-                                    ,Edge noReq (fromEnum RFurnaceFront)] []
-            ,Room (fromEnum RFurnaceFront)[Edge noReq (fromEnum RWestFurnaceAccess)
-                                    ,Edge (furnaceTraverse diff) (fromEnum RFurnace)]
-                                    [IEdge bombs (fromEnum FurnaceInsideFurnace)]
-            ,Room (fromEnum RFurnace)[Edge bombs (fromEnum RFurnaceFront)
-                                    ,Edge morph (fromEnum RCrosswayAccessWest)
-                                    ,Edge ice (fromEnum REastFurnaceAccess)]
-                                    [IEdge (furnaceItem diff) (fromEnum FurnaceSpiderTracks)]
-            ,Room (fromEnum REastFurnaceAccess)[Edge ice (fromEnum RFurnace)
-                                    ,Edge ice (fromEnum RHalloftheElders)] []
-            ,Room (fromEnum RCrosswayAccessWest)[Edge morph (fromEnum RFurnace)
-                                    ,Edge wave (fromEnum RCrossway)] []
-            ,Room (fromEnum RCrossway)[Edge noReq (fromEnum RCrosswayAccessWest)
-                                    ,Edge (crosswayTraverse diff) (fromEnum RElderHallAccess)
-                                    ,Edge ice (fromEnum RCrosswayAccessSouth)]
-                                    [IEdge (crosswayItem diff) (fromEnum Crossway)]
-            ,Room (fromEnum RElderHallAccess)[Edge missile (fromEnum RCrossway)
-                                    ,Edge noReq (fromEnum RHalloftheElders)] []
-            ,Room (fromEnum RCrosswayAccessSouth)[Edge ice (fromEnum RCrossway)
-                                    ,Edge ice (fromEnum RHalloftheElders)] []
-            ,Room (fromEnum RHalloftheElders)[Edge ice (fromEnum RCrosswayAccessSouth)
-                                    ,Edge ice (fromEnum REastFurnaceAccess)
-                                    ,Edge sjOrBombs (fromEnum RElderHallAccess)
-                                    ,Edge (hoteWave diff) (fromEnum RReflectingPoolAccess)
-                                    ,Edge (hotePlasma diff) (fromEnum RElderChamber)]
-                                    [IEdge (hoteIce diff) (fromEnum HalloftheElders)]
-            ,Room (fromEnum RElderChamber)[Edge (elderChamberExit diff) (fromEnum RHalloftheElders)]
-                                    [IEdge noReq (fromEnum ElderChamber)]
-            ,Room (fromEnum RReflectingPoolAccess)[Edge noReq (fromEnum RHalloftheElders)
-                                    ,Edge noReq (fromEnum RReflectingPool)] []
-            ,Room (fromEnum RReflectingPool)[Edge noReq (fromEnum RReflectingPoolAccess)
-                                    ,Edge (reflectPoolSave diff) (fromEnum RSaveStation3)
-                                    ,Edge (reflectPoolAntechamber diff) (fromEnum RAntechamber)
-                                    ,Edge (reflectPoolIceDoor diff) (fromEnum RTransportAccessSouth)] []
-            ,Room (fromEnum RAntechamber)[Edge ice (fromEnum RReflectingPool)]
-                                    [IEdge noReq (fromEnum Antechamber)]
-            ,Room (fromEnum RTransportAccessSouth)[Edge ice (fromEnum RReflectingPool)
-                                    ,Edge noReq (fromEnum RTransporttoTallonOverworldSouth)] []
-            ,Room (fromEnum RTransporttoTallonOverworldSouth)[Edge noReq (fromEnum RTransportAccessSouth)
-                                    ,Edge noReq (fromEnum OTransporttoChozoRuinsSouth)] []
-            ,Room (fromEnum RSaveStation3)[Edge missile (fromEnum RReflectingPool)
-                                    ,Edge bombs (fromEnum RTransporttoTallonOverworldEast)] []
-            ,Room (fromEnum RTransporttoTallonOverworldEast)[Edge bombs (fromEnum RSaveStation3)
-                                    ,Edge noReq (fromEnum OTransporttoChozoRuinsEast)] []
-            ,Room (fromEnum RChozoBackSw)[Edge bombs (fromEnum RReflectingPool)
-                                    ,Edge (longWallcrawl diff) (fromEnum RChozoFrontSw)]
-                                    [IEdge bombs (fromEnum HalloftheElders)
-                                    ,IEdge (crosswayInfiniteSpeed diff) (fromEnum ElderChamber)]
-            ,Room (fromEnum RChozoFrontSw)[] [IEdge bombs (fromEnum TrainingChamber)
-                                    ,IEdge bombs (fromEnum MainPlazaGrappleLedge)
-                                    ,IEdge bombs (fromEnum TrainingChamberAccess)
-                                    ,IEdge bombs (fromEnum TowerofLight)]
+            ,room RSunTower [edge noReq RSunTowerAccess
+                                    ,edge noReq RTransporttoMagmoorCavernsNorth] []
+            ,room RGatheringHallAccess [edge missile RArboretum
+                                    ,edge noReq RGatheringHall] []
+            ,room RGatheringHall [edge noReq RGatheringHallAccess
+                                    ,edge missile RSaveStation2
+                                    ,edge noReq RWateryHallAccess
+                                    ,edge morph REastAtrium
+                                    ,edge (gatheringHallSw diff) RChozoBackSw]
+                                    [itemEdge bombs GatheringHall]
+            ,room RWateryHallAccess [edge noReq RGatheringHall
+                                    ,edge missile RWateryHall]
+                                    [itemEdge missile WateryHallAccess]
+            ,room RWateryHall [edge missile RWateryHallAccess
+                                    ,edge (wateryHallTraverse diff) RDynamoAccess
+                                    ,edge (wateryHallSw diff) RChozoBackSw]
+                                    [itemEdge (wateryHallWater diff) WateryHallUnderwater
+                                    ,itemEdge noReq WateryHallScanPuzzle]
+            ,room RDynamoAccess [edge missile RWateryHall
+                                    ,edge missile RDynamo] []
+            ,room RDynamo [edge missile RDynamoAccess]
+                                    [itemEdge missile DynamoLower
+                                    ,itemEdge spider DynamoSpiderTrack]
+            ,room RSaveStation2 [edge missile RGatheringHall] []
+            ,room REastAtrium [edge noReq RGatheringHall
+                                    ,edge noReq REnergyCoreAccess] []
+            ,room REnergyCoreAccess [edge noReq REastAtrium
+                                    ,edge noReq REnergyCore] []
+            ,room REnergyCore [edge noReq REnergyCoreAccess
+                                    ,edge morph RBurnDomeAccess
+                                    ,edge bombs RWestFurnaceAccess] []
+            ,room RBurnDomeAccess [edge bombs REnergyCore
+                                    ,edge morph RBurnDome] []
+            ,room RBurnDome [edge noReq RBurnDomeAccess]
+                                    [itemEdge bombs BurnDomeMissile
+                                    ,itemEdge noReq BurnDomeIDrone]
+            ,room RWestFurnaceAccess [edge noReq REnergyCore
+                                    ,edge noReq RFurnaceFront] []
+            ,room RFurnaceFront [edge noReq RWestFurnaceAccess
+                                    ,edge (furnaceTraverse diff) RFurnace]
+                                    [itemEdge bombs FurnaceInsideFurnace]
+            ,room RFurnace [edge bombs RFurnaceFront
+                                    ,edge morph RCrosswayAccessWest
+                                    ,edge ice REastFurnaceAccess]
+                                    [itemEdge (furnaceItem diff) FurnaceSpiderTracks]
+            ,room REastFurnaceAccess [edge ice RFurnace
+                                    ,edge ice RHalloftheElders] []
+            ,room RCrosswayAccessWest [edge morph RFurnace
+                                    ,edge wave RCrossway] []
+            ,room RCrossway [edge noReq RCrosswayAccessWest
+                                    ,edge (crosswayTraverse diff) RElderHallAccess
+                                    ,edge ice RCrosswayAccessSouth]
+                                    [itemEdge (crosswayItem diff) Crossway]
+            ,room RElderHallAccess [edge missile RCrossway
+                                    ,edge noReq RHalloftheElders] []
+            ,room RCrosswayAccessSouth [edge ice RCrossway
+                                    ,edge ice RHalloftheElders] []
+            ,room RHalloftheElders [edge ice RCrosswayAccessSouth
+                                    ,edge ice REastFurnaceAccess
+                                    ,edge sjOrBombs RElderHallAccess
+                                    ,edge (hoteWave diff) RReflectingPoolAccess
+                                    ,edge (hotePlasma diff) RElderChamber]
+                                    [itemEdge (hoteIce diff) HalloftheElders]
+            ,room RElderChamber [edge (elderChamberExit diff) RHalloftheElders]
+                                    [itemEdge noReq ElderChamber]
+            ,room RReflectingPoolAccess [edge noReq RHalloftheElders
+                                    ,edge noReq RReflectingPool] []
+            ,room RReflectingPool [edge noReq RReflectingPoolAccess
+                                    ,edge (reflectPoolSave diff) RSaveStation3
+                                    ,edge (reflectPoolAntechamber diff) RAntechamber
+                                    ,edge (reflectPoolIceDoor diff) RTransportAccessSouth] []
+            ,room RAntechamber [edge ice RReflectingPool]
+                                    [itemEdge noReq Antechamber]
+            ,room RTransportAccessSouth [edge ice RReflectingPool
+                                    ,edge noReq RTransporttoTallonOverworldSouth] []
+            ,room RTransporttoTallonOverworldSouth [edge noReq RTransportAccessSouth
+                                    ,edge noReq OTransporttoChozoRuinsSouth] []
+            ,room RSaveStation3 [edge missile RReflectingPool
+                                    ,edge bombs RTransporttoTallonOverworldEast] []
+            ,room RTransporttoTallonOverworldEast [edge bombs RSaveStation3
+                                    ,edge noReq OTransporttoChozoRuinsEast] []
+            ,room RChozoBackSw [edge bombs RReflectingPool
+                                    ,edge (longWallcrawl diff) RChozoFrontSw]
+                                    [itemEdge bombs HalloftheElders
+                                    ,itemEdge (crosswayInfiniteSpeed diff) ElderChamber]
+            ,room RChozoFrontSw [] [itemEdge bombs TrainingChamber
+                                    ,itemEdge bombs MainPlazaGrappleLedge
+                                    ,itemEdge bombs TrainingChamberAccess
+                                    ,itemEdge bombs TowerofLight]
             
             --Magmoor Caverns Rooms
-            ,Room (fromEnum CTransporttoChozoRuinsNorth)[Edge noReq (fromEnum RTransporttoMagmoorCavernsNorth)
-                                    ,Edge noReq (fromEnum CBurningTrail)] []
-            ,Room (fromEnum CBurningTrail)[Edge noReq (fromEnum CTransporttoChozoRuinsNorth)
-                                    ,Edge missile (fromEnum CSaveStationMagmoorA)
-                                    ,Edge noReq (fromEnum CLakeTunnel)
-                                    ,Edge (burningTrailSw diff) (fromEnum CMagmoorFrontSw)] []
-            ,Room (fromEnum CSaveStationMagmoorA)[Edge missile (fromEnum CBurningTrail)] []
-            ,Room (fromEnum CLakeTunnel)[Edge noReq (fromEnum CBurningTrail)
-                                    ,Edge noReq (fromEnum CLavaLake)] []
-            ,Room (fromEnum CLavaLake)[Edge noReq (fromEnum CLakeTunnel)
-                                    ,Edge (lavaLakeTraversal diff) (fromEnum CPitTunnel)]
-                                    [IEdge (lavaLakeItem diff) (fromEnum LavaLake)]
-            ,Room (fromEnum CPitTunnel)[Edge (lavaLakeReverseTraversal diff) (fromEnum CLavaLake)
-                                    ,Edge (pitTunnel diff) (fromEnum CTriclopsPit)] []
-            ,Room (fromEnum CTriclopsPit)[Edge (pitTunnelReverse diff) (fromEnum CPitTunnel)
-                                    ,Edge (storageCavern diff) (fromEnum CStorageCavern)
-                                    ,Edge (heatResistOr8Etanks diff) (fromEnum CMonitorTunnel)] -- This has a high requirement to discourage this path to get to phendrana
-                                    [IEdge (triclopsPitItem diff) (fromEnum TriclopsPit)]
-            ,Room (fromEnum CStorageCavern)[Edge (vmr2Tank diff) (fromEnum CTriclopsPit)]
-                                    [IEdge noReq (fromEnum StorageCavern)]
-            ,Room (fromEnum CMonitorTunnel)[Edge (vmr2Tank diff) (fromEnum CTriclopsPit)
-                                    ,Edge (vmr2Tank diff) (fromEnum CMonitorStation)] []
-            ,Room (fromEnum CMonitorStation)[Edge (vmr4Tank diff) (fromEnum CMonitorTunnel) -- This requirement is excessive if warped to MonitorStation, going to storage cavern
-                                    ,Edge (vmr3Tank diff) (fromEnum CShoreTunnel)
-                                    ,Edge (toTransportTunnelA diff) (fromEnum CTransportTunnelA)
-                                    ,Edge (monitorStationClimb diff) (fromEnum CWarriorShrine)] []
-            ,Room (fromEnum CTransportTunnelA)[Edge bombs (fromEnum CMonitorStation)
-                                    ,Edge noReq (fromEnum CTransporttoPhendranaDriftsNorth)]
-                                    [IEdge bombs (fromEnum TransportTunnelA)]
-            ,Room (fromEnum CTransporttoPhendranaDriftsNorth)[Edge noReq (fromEnum CTransportTunnelA)
-                                    ,Edge noReq (fromEnum DTransporttoMagmoorCavernsWest)] []
-            ,Room (fromEnum CWarriorShrine)[Edge (vmr2Tank diff) (fromEnum CMonitorStation)
-                                    ,Edge (warriorShrineTunnel diff) (fromEnum CFieryShores)]
-                                    [IEdge noReq (fromEnum WarriorShrine)
-                                    ,IEdge (warriorShrineTunnel diff) (fromEnum FieryShoresWarriorShrineTunnel)]
-            ,Room (fromEnum CShoreTunnel)[Edge (vmr2Tank diff) (fromEnum CMonitorStation)
-                                    ,Edge (vmr2Tank diff) (fromEnum CFieryShores)]
-                                    [IEdge pb (fromEnum ShoreTunnel)]
-            ,Room (fromEnum CFieryShores)[Edge (vmr3Tank diff) (fromEnum CShoreTunnel)
-                                    ,Edge (vmr1Tank diff) (fromEnum CTransportTunnelB)]
-                                    [IEdge bombs (fromEnum FieryShoresMorphTrack)]
-            ,Room (fromEnum CTransportTunnelB)[Edge (vmr4Tank diff) (fromEnum CFieryShores)
-                                    ,Edge noReq (fromEnum CTransporttoTallonOverworldWest)] []
-            ,Room (fromEnum CTransporttoTallonOverworldWest)[Edge (vmr4Tank diff) (fromEnum CTransportTunnelB)
-                                    ,Edge noReq (fromEnum OTransporttoMagmoorCavernsEast)
-                                    ,Edge (crossTft diff) (fromEnum CTwinFiresTunnel)] []
-            ,Room (fromEnum CTwinFiresTunnel)[Edge (crossTftReverse diff) (fromEnum CTransporttoTallonOverworldWest)
-                                    ,Edge noReq (fromEnum CTwinFires)] []
-            ,Room (fromEnum CTwinFires)[Edge noReq (fromEnum CTwinFiresTunnel)
-                                    ,Edge (crossTwinFires diff) (fromEnum CNorthCoreTunnel)] []
-            ,Room (fromEnum CNorthCoreTunnel)[Edge (crossTwinFires diff) (fromEnum CTwinFires)
-                                    ,Edge (crossNorthCoreTunnel diff) (fromEnum CGeothermalCore)] []
-            ,Room (fromEnum CGeothermalCore)[Edge (crossNorthCoreTunnel diff) (fromEnum CNorthCoreTunnel)
-                                    ,Edge noReq (fromEnum CSouthCoreTunnel)
-                                    ,Edge (geoCore diff) (fromEnum CPlasmaProcessing)] []
-            ,Room (fromEnum CPlasmaProcessing)[Edge plasma (fromEnum CGeothermalCore)]
-                                    [IEdge noReq (fromEnum PlasmaProcessing)]
-            ,Room (fromEnum CSouthCoreTunnel)[Edge wave (fromEnum CGeothermalCore)
-                                    ,Edge wave (fromEnum CMagmoorWorkstation)] []
-            ,Room (fromEnum CMagmoorWorkstation)[Edge noReq (fromEnum CSouthCoreTunnel)
-                                    ,Edge sjOrBombs (fromEnum CWorkstationTunnel)
-                                    ,Edge (workstationWaveDoor diff) (fromEnum CTransportTunnelC)
-                                    ,Edge (workstationSw diff) (fromEnum CMagmoorBackSw)]
-                                    [IEdge (workstationItem diff) (fromEnum MagmoorWorkstation)]
-            ,Room (fromEnum CTransportTunnelC)[Edge wave (fromEnum CMagmoorWorkstation)
-                                    ,Edge wave (fromEnum CTransporttoPhendranaDriftsSouth)] []
-            ,Room (fromEnum CTransporttoPhendranaDriftsSouth)[Edge wave (fromEnum CTransportTunnelC)
-                                    ,Edge missile (fromEnum CSaveStationMagmoorB)
-                                    ,Edge noReq (fromEnum DTransporttoMagmoorCavernsSouth)] []
-            ,Room (fromEnum CSaveStationMagmoorB)[Edge missile (fromEnum CTransporttoPhendranaDriftsSouth)] []
-            ,Room (fromEnum CWorkstationTunnel)[Edge noReq (fromEnum CMagmoorWorkstation)
-                                    ,Edge (workstationTunnel diff) (fromEnum CTransporttoPhazonMinesWest)] []
-            ,Room (fromEnum CTransporttoPhazonMinesWest)[Edge (workstationTunnel diff) (fromEnum CWorkstationTunnel)
-                                    ,Edge noReq (fromEnum MTransporttoMagmoorCavernsSouth)] []
-            ,Room (fromEnum CMagmoorBackSw)[Edge bombs (fromEnum CTransporttoPhazonMinesWest)
-                                    ,Edge (longWallcrawl diff) (fromEnum CMagmoorFrontSw)]
-                                    [IEdge bombs (fromEnum PlasmaProcessing)]
-            ,Room (fromEnum CMagmoorFrontSw)[Edge (magmoorFrontWallcrawl diff) (fromEnum CMagmoorBackSw)] []
+            ,room CTransporttoChozoRuinsNorth [edge noReq RTransporttoMagmoorCavernsNorth
+                                    ,edge noReq CBurningTrail] []
+            ,room CBurningTrail [edge noReq CTransporttoChozoRuinsNorth
+                                    ,edge missile CSaveStationMagmoorA
+                                    ,edge noReq CLakeTunnel
+                                    ,edge (burningTrailSw diff) CMagmoorFrontSw] []
+            ,room CSaveStationMagmoorA [edge missile CBurningTrail] []
+            ,room CLakeTunnel [edge noReq CBurningTrail
+                                    ,edge noReq CLavaLake] []
+            ,room CLavaLake [edge noReq CLakeTunnel
+                                    ,edge (lavaLakeTraversal diff) CPitTunnel]
+                                    [itemEdge (lavaLakeItem diff) LavaLake]
+            ,room CPitTunnel [edge (lavaLakeReverseTraversal diff) CLavaLake
+                                    ,edge (pitTunnel diff) CTriclopsPit] []
+            ,room CTriclopsPit [edge (pitTunnelReverse diff) CPitTunnel
+                                    ,edge (storageCavern diff) CStorageCavern
+                                    ,edge (heatResistOr8Etanks diff) CMonitorTunnel] -- This has a high requirement to discourage this path to get to phendrana
+                                    [itemEdge (triclopsPitItem diff) TriclopsPit]
+            ,room CStorageCavern [edge (vmr2Tank diff) CTriclopsPit]
+                                    [itemEdge noReq StorageCavern]
+            ,room CMonitorTunnel [edge (vmr2Tank diff) CTriclopsPit
+                                    ,edge (vmr2Tank diff) CMonitorStation] []
+            ,room CMonitorStation [edge (vmr4Tank diff) CMonitorTunnel -- This requirement is excessive if warped to MonitorStation, going to storage cavern
+                                    ,edge (vmr3Tank diff) CShoreTunnel
+                                    ,edge (toTransportTunnelA diff) CTransportTunnelA
+                                    ,edge (monitorStationClimb diff) CWarriorShrine] []
+            ,room CTransportTunnelA [edge bombs CMonitorStation
+                                    ,edge noReq CTransporttoPhendranaDriftsNorth]
+                                    [itemEdge bombs TransportTunnelA]
+            ,room CTransporttoPhendranaDriftsNorth [edge noReq CTransportTunnelA
+                                    ,edge noReq DTransporttoMagmoorCavernsWest] []
+            ,room CWarriorShrine [edge (vmr2Tank diff) CMonitorStation
+                                    ,edge (warriorShrineTunnel diff) CFieryShores]
+                                    [itemEdge noReq WarriorShrine
+                                    ,itemEdge (warriorShrineTunnel diff) FieryShoresWarriorShrineTunnel]
+            ,room CShoreTunnel [edge (vmr2Tank diff) CMonitorStation
+                                    ,edge (vmr2Tank diff) CFieryShores]
+                                    [itemEdge pb ShoreTunnel]
+            ,room CFieryShores [edge (vmr3Tank diff) CShoreTunnel
+                                    ,edge (vmr1Tank diff) CTransportTunnelB]
+                                    [itemEdge bombs FieryShoresMorphTrack]
+            ,room CTransportTunnelB [edge (vmr4Tank diff) CFieryShores
+                                    ,edge noReq CTransporttoTallonOverworldWest] []
+            ,room CTransporttoTallonOverworldWest [edge (vmr4Tank diff) CTransportTunnelB
+                                    ,edge noReq OTransporttoMagmoorCavernsEast
+                                    ,edge (crossTft diff) CTwinFiresTunnel] []
+            ,room CTwinFiresTunnel [edge (crossTftReverse diff) CTransporttoTallonOverworldWest
+                                    ,edge noReq CTwinFires] []
+            ,room CTwinFires [edge noReq CTwinFiresTunnel
+                                    ,edge (crossTwinFires diff) CNorthCoreTunnel] []
+            ,room CNorthCoreTunnel [edge (crossTwinFires diff) CTwinFires
+                                    ,edge (crossNorthCoreTunnel diff) CGeothermalCore] []
+            ,room CGeothermalCore [edge (crossNorthCoreTunnel diff) CNorthCoreTunnel
+                                    ,edge noReq CSouthCoreTunnel
+                                    ,edge (geoCore diff) CPlasmaProcessing] []
+            ,room CPlasmaProcessing [edge plasma CGeothermalCore]
+                                    [itemEdge noReq PlasmaProcessing]
+            ,room CSouthCoreTunnel [edge wave CGeothermalCore
+                                    ,edge wave CMagmoorWorkstation] []
+            ,room CMagmoorWorkstation [edge noReq CSouthCoreTunnel
+                                    ,edge sjOrBombs CWorkstationTunnel
+                                    ,edge (workstationWaveDoor diff) CTransportTunnelC
+                                    ,edge (workstationSw diff) CMagmoorBackSw]
+                                    [itemEdge (workstationItem diff) MagmoorWorkstation]
+            ,room CTransportTunnelC [edge wave CMagmoorWorkstation
+                                    ,edge wave CTransporttoPhendranaDriftsSouth] []
+            ,room CTransporttoPhendranaDriftsSouth [edge wave CTransportTunnelC
+                                    ,edge missile CSaveStationMagmoorB
+                                    ,edge noReq DTransporttoMagmoorCavernsSouth] []
+            ,room CSaveStationMagmoorB [edge missile CTransporttoPhendranaDriftsSouth] []
+            ,room CWorkstationTunnel [edge noReq CMagmoorWorkstation
+                                    ,edge (workstationTunnel diff) CTransporttoPhazonMinesWest] []
+            ,room CTransporttoPhazonMinesWest [edge (workstationTunnel diff) CWorkstationTunnel
+                                    ,edge noReq MTransporttoMagmoorCavernsSouth] []
+            ,room CMagmoorBackSw [edge bombs CTransporttoPhazonMinesWest
+                                    ,edge (longWallcrawl diff) CMagmoorFrontSw]
+                                    [itemEdge bombs PlasmaProcessing]
+            ,room CMagmoorFrontSw [edge (magmoorFrontWallcrawl diff) CMagmoorBackSw] []
 
             -- Phendrana Drifts Rooms
-            ,Room (fromEnum DTransporttoMagmoorCavernsWest)[Edge noReq (fromEnum CTransporttoPhendranaDriftsNorth)
-                                    ,Edge noReq (fromEnum DShorelineEntrance)] []
-            ,Room (fromEnum DShorelineEntrance)[Edge noReq (fromEnum DTransporttoMagmoorCavernsWest)
-                                    ,Edge (iceBarrier diff) (fromEnum DPhendranaShorelines)] []
-            ,Room (fromEnum DPhendranaShorelines)[Edge (iceBarrier diff) (fromEnum DShorelineEntrance)
-                                    ,Edge noReq (fromEnum DSaveStationB)
-                                    ,Edge noReq (fromEnum DIceRuinsAccess)
+            ,room DTransporttoMagmoorCavernsWest [edge noReq CTransporttoPhendranaDriftsNorth
+                                    ,edge noReq DShorelineEntrance] []
+            ,room DShorelineEntrance [edge noReq DTransporttoMagmoorCavernsWest
+                                    ,edge (iceBarrier diff) DPhendranaShorelines] []
+            ,room DPhendranaShorelines [edge (iceBarrier diff) DShorelineEntrance
+                                    ,edge noReq DSaveStationB
+                                    ,edge noReq DIceRuinsAccess
                                     ,Edge (climbShorelines diff)  (fromEnum DPhendranaShorelinesUpper)
-                                    ,Edge (climbShorelines diff) (fromEnum DTempleEntryway)]
-                                    [IEdge plasma (fromEnum PhendranaShorelinesBehindIce)
-                                    ,IEdge (shorelinesTower diff) (fromEnum PhendranaShorelinesSpiderTrack)]
-            ,Room (fromEnum DPhendranaShorelinesUpper)[Edge noReq (fromEnum DPlazaWalkway)
-                                    ,Edge noReq (fromEnum DRuinsEntryway)
-                                    ,Edge noReq (fromEnum DPhendranaShorelines)] []
-            ,Room (fromEnum DSaveStationB)[Edge noReq (fromEnum DPhendranaShorelines)] []
-            ,Room (fromEnum DTempleEntryway)[Edge noReq (fromEnum DPhendranaShorelines)
-                                    ,Edge (iceBarrier diff) (fromEnum DChozoIceTemple)] []
-            ,Room (fromEnum DChozoIceTemple)[Edge (iceBarrier diff) (fromEnum DTempleEntryway)
-                                    ,Edge (iceTempleClimb diff) (fromEnum DChapelTunnel)]
-                                    [IEdge (iceTempleClimb diff) (fromEnum ChozoIceTempleTrigger)
-                                    ,IEdge (iceTempleItem diff) (fromEnum ChozoIceTemple)]
-            ,Room (fromEnum DChapelTunnel)[Edge chozoIceTempleBarrier (fromEnum DChozoIceTemple)
-                                    ,Edge noReq (fromEnum DChapeloftheElders)] []-- Warp point is near Chapel of the Elders
-            ,Room (fromEnum DChapeloftheElders)[Edge wave (fromEnum DChapelTunnel)]
-                                    [IEdge missile (fromEnum ChapeloftheElders)]
-            ,Room (fromEnum DIceRuinsAccess)[Edge noReq (fromEnum DPhendranaShorelines)
-                                    ,Edge (iceBarrier diff) (fromEnum DIceRuinsEast)] []
-            ,Room (fromEnum DIceRuinsEast)[Edge (iceBarrier diff) (fromEnum DIceRuinsAccess)
-                                    ,Edge noReq (fromEnum DPlazaWalkway)]
-                                    [IEdge (ireSpiderTrack diff) (fromEnum IceRuinsEastSpiderTrack)
-                                    ,IEdge plasma (fromEnum IceRuinsEastBehindIce)]
-            ,Room (fromEnum DPlazaWalkway)[Edge noReq (fromEnum DIceRuinsEast)
-                                    ,Edge noReq (fromEnum DPhendranaShorelinesUpper)] []
-            ,Room (fromEnum DRuinsEntryway)[Edge noReq (fromEnum DPhendranaShorelinesUpper)
-                                    ,Edge noReq (fromEnum DIceRuinsWest)] []
-            ,Room (fromEnum DIceRuinsWest)[Edge noReq (fromEnum DRuinsEntryway)
-                                    ,Edge missile (fromEnum DCanyonEntryway)
-                                    ,Edge (irwSw diff) (fromEnum DPhendranaFrontSw)
-                                    ,Edge (irwDoor diff) (fromEnum DCourtyardEntryway)]
-                                    [IEdge (irwItem diff) (fromEnum IceRuinsWest)]
-            ,Room (fromEnum DCanyonEntryway)[Edge noReq (fromEnum DIceRuinsWest)
-                                    ,Edge noReq (fromEnum DPhendranaCanyon)] []
-            ,Room (fromEnum DPhendranaCanyon)[Edge noReq (fromEnum DCanyonEntryway)]
-                                    [IEdge noReq (fromEnum PhendranaCanyon)]
-            ,Room (fromEnum DCourtyardEntryway)[Edge noReq (fromEnum DIceRuinsWest)
-                                    ,Edge (ruinedCourtyardClimb diff) (fromEnum DRuinedCourtyard)] []-- Ruined courtyard spawn is at the top of the room
-            ,Room (fromEnum DRuinedCourtyard)[Edge noReq (fromEnum DCourtyardEntryway)
-                                    ,Edge (ruinedCourtyardSave diff) (fromEnum DSaveStationA)
-                                    ,Edge wave (fromEnum DSpecimenStorage)
-                                    ,Edge (ruinedCourtyardConduit diff) (fromEnum DQuarantineAccess) 
-                                    ,Edge (ruinedCourtyardSw diff) (fromEnum DPhendranaFrontSw)]
-                                    [IEdge morph (fromEnum RuinedCourtyard)]
-            ,Room (fromEnum DSaveStationA)[Edge missile (fromEnum DCourtyardEntryway) -- If you fall
-                                    ,Edge (ruinedCourtyardSave diff) (fromEnum DRuinedCourtyard)] -- If can make it to the spawn point
-                                    [IEdge morph (fromEnum RuinedCourtyard)]-- You can grab the item by falling here, without reaching the warp
-            ,Room (fromEnum DQuarantineAccess)[Edge noReq (fromEnum DRuinedCourtyard)
-                                    ,Edge noReq (fromEnum DNorthQuarantineTunnel)] []
-            ,Room (fromEnum DNorthQuarantineTunnel)[Edge wave (fromEnum DQuarantineAccess)
-                                    ,Edge (quarantineTunnel diff) (fromEnum DQuarantineCave)] []
-            ,Room (fromEnum DQuarantineCave)[Edge (quarantineTunnel diff) (fromEnum DNorthQuarantineTunnel)
-                                    ,Edge (climbQuarantineCaveBack diff) (fromEnum DQuarantineCaveBack)]
-                                    [IEdge noReq (fromEnum QuarantineCave)]
+                                    ,edge (climbShorelines diff) DTempleEntryway]
+                                    [itemEdge plasma PhendranaShorelinesBehindIce
+                                    ,itemEdge (shorelinesTower diff) PhendranaShorelinesSpiderTrack]
+            ,room DPhendranaShorelinesUpper [edge noReq DPlazaWalkway
+                                    ,edge noReq DRuinsEntryway
+                                    ,edge noReq DPhendranaShorelines] []
+            ,room DSaveStationB [edge noReq DPhendranaShorelines] []
+            ,room DTempleEntryway [edge noReq DPhendranaShorelines
+                                    ,edge (iceBarrier diff) DChozoIceTemple] []
+            ,room DChozoIceTemple [edge (iceBarrier diff) DTempleEntryway
+                                    ,edge (iceTempleClimb diff) DChapelTunnel]
+                                    [itemEdge (iceTempleClimb diff) ChozoIceTempleTrigger
+                                    ,itemEdge (iceTempleItem diff) ChozoIceTemple]
+            ,room DChapelTunnel [edge chozoIceTempleBarrier DChozoIceTemple
+                                    ,edge noReq DChapeloftheElders] []-- Warp point is near Chapel of the Elders
+            ,room DChapeloftheElders [edge wave DChapelTunnel]
+                                    [itemEdge missile ChapeloftheElders]
+            ,room DIceRuinsAccess [edge noReq DPhendranaShorelines
+                                    ,edge (iceBarrier diff) DIceRuinsEast] []
+            ,room DIceRuinsEast [edge (iceBarrier diff) DIceRuinsAccess
+                                    ,edge noReq DPlazaWalkway]
+                                    [itemEdge (ireSpiderTrack diff) IceRuinsEastSpiderTrack
+                                    ,itemEdge plasma IceRuinsEastBehindIce]
+            ,room DPlazaWalkway [edge noReq DIceRuinsEast
+                                    ,edge noReq DPhendranaShorelinesUpper] []
+            ,room DRuinsEntryway [edge noReq DPhendranaShorelinesUpper
+                                    ,edge noReq DIceRuinsWest] []
+            ,room DIceRuinsWest [edge noReq DRuinsEntryway
+                                    ,edge missile DCanyonEntryway
+                                    ,edge (irwSw diff) DPhendranaFrontSw
+                                    ,edge (irwDoor diff) DCourtyardEntryway]
+                                    [itemEdge (irwItem diff) IceRuinsWest]
+            ,room DCanyonEntryway [edge noReq DIceRuinsWest
+                                    ,edge noReq DPhendranaCanyon] []
+            ,room DPhendranaCanyon [edge noReq DCanyonEntryway]
+                                    [itemEdge noReq PhendranaCanyon]
+            ,room DCourtyardEntryway [edge noReq DIceRuinsWest
+                                    ,edge (ruinedCourtyardClimb diff) DRuinedCourtyard] []-- Ruined courtyard spawn is at the top of the room
+            ,room DRuinedCourtyard [edge noReq DCourtyardEntryway
+                                    ,edge (ruinedCourtyardSave diff) DSaveStationA
+                                    ,edge wave DSpecimenStorage
+                                    ,edge (ruinedCourtyardConduit diff) DQuarantineAccess 
+                                    ,edge (ruinedCourtyardSw diff) DPhendranaFrontSw]
+                                    [itemEdge morph RuinedCourtyard]
+            ,room DSaveStationA [edge missile DCourtyardEntryway -- If you fall
+                                    ,edge (ruinedCourtyardSave diff) DRuinedCourtyard] -- If can make it to the spawn point
+                                    [itemEdge morph RuinedCourtyard]-- You can grab the item by falling here, without reaching the warp
+            ,room DQuarantineAccess [edge noReq DRuinedCourtyard
+                                    ,edge noReq DNorthQuarantineTunnel] []
+            ,room DNorthQuarantineTunnel [edge wave DQuarantineAccess
+                                    ,edge (quarantineTunnel diff) DQuarantineCave] []
+            ,room DQuarantineCave [edge (quarantineTunnel diff) DNorthQuarantineTunnel
+                                    ,edge (climbQuarantineCaveBack diff) DQuarantineCaveBack]
+                                    [itemEdge noReq QuarantineCave]
             -- Added a new "room" representing the other door in quarantine cave
-            ,Room (fromEnum DQuarantineCaveBack)[Edge (quarantineMonitor diff) (fromEnum DQuarantineMonitor)
-                                    ,Edge (quarantineTunnel diff) (fromEnum DSouthQuarantineTunnel)
-                                    ,Edge (climbQuarantineCaveEntrance diff) (fromEnum DQuarantineCave)]
-                                    [IEdge noReq (fromEnum QuarantineCave) -- Can drop into thardus fight
+            ,room DQuarantineCaveBack [edge (quarantineMonitor diff) DQuarantineMonitor
+                                    ,edge (quarantineTunnel diff) DSouthQuarantineTunnel
+                                    ,edge (climbQuarantineCaveEntrance diff) DQuarantineCave]
+                                    [itemEdge noReq QuarantineCave -- Can drop into thardus fight
                                     ]
-            ,Room (fromEnum DQuarantineMonitor)[Edge (climbQuarantineCaveBack diff) (fromEnum DQuarantineCaveBack)
-                                    ,Edge (climbQuarantineCaveEntrance diff) (fromEnum DQuarantineCave)]
-                                    [IEdge noReq (fromEnum QuarantineCave) -- Can drop into thardus fight
-                                    ,IEdge noReq (fromEnum QuarantineMonitor)]
-            ,Room (fromEnum DSouthQuarantineTunnel)[Edge (quarantineTunnel diff) (fromEnum DQuarantineCaveBack)
-                                    ,Edge wave (fromEnum DTransporttoMagmoorCavernsSouth)] []
-            ,Room (fromEnum DTransporttoMagmoorCavernsSouth)[Edge wave (fromEnum DSouthQuarantineTunnel)
-                                    ,Edge noReq (fromEnum CTransporttoPhendranaDriftsSouth)
-                                    ,Edge (phenElevatorClimb diff) (fromEnum DTransportAccess)] []
-            ,Room (fromEnum DTransportAccess)[Edge ice (fromEnum DTransporttoMagmoorCavernsSouth)
-                                    ,Edge wave (fromEnum DFrozenPike)]
-                                    [IEdge plasma (fromEnum TransportAccess)]
-            ,Room (fromEnum DSpecimenStorage)[Edge wave (fromEnum DRuinedCourtyard)
-                                    ,Edge wave (fromEnum DResearchEntrance)] []
-            ,Room (fromEnum DResearchEntrance)[Edge wave (fromEnum DSpecimenStorage)
-                                    ,Edge noReq (fromEnum DMapStation)
-                                    ,Edge wave (fromEnum DHydraLabEntryway)] []
-            ,Room (fromEnum DMapStation)[Edge noReq (fromEnum DResearchEntrance)] []
-            ,Room (fromEnum DHydraLabEntryway)[Edge wave (fromEnum DResearchEntrance)
-                                    ,Edge wave (fromEnum DResearchLabHydra)] []
-            ,Room (fromEnum DResearchLabHydra)[Edge wave (fromEnum DHydraLabEntryway)
-                                    ,Edge noReq (fromEnum DResearchLabHydraBack)]
-                                    [IEdge noReq (fromEnum ResearchLabHydraTrigger)]
-            ,Room (fromEnum DResearchLabHydraBack)[Edge researchLabHydraBarrier (fromEnum DResearchLabHydra)
-                                    ,Edge wave (fromEnum DObservatoryAccess)]
-                                    [IEdge supers (fromEnum ResearchLabHydra)]
-            ,Room (fromEnum DObservatoryAccess)[Edge wave (fromEnum DResearchLabHydra)
-                                    ,Edge wave (fromEnum DObservatory)] []
-            ,Room (fromEnum DObservatory)[Edge wave (fromEnum DObservatoryAccess)
-                                    ,Edge (observatoryClimb diff) (fromEnum DObservatoryTop)] []
-            ,Room (fromEnum DObservatoryTop)[Edge (observatorySave diff) (fromEnum DSaveStationD)
-                                    ,Edge wave (fromEnum DWestTowerEntrance)
-                                    ,Edge noReq (fromEnum DObservatory)]
-                                    [IEdge (observatoryItem diff) (fromEnum Observatory)]
-            ,Room (fromEnum DSaveStationD)[Edge (observatorySave diff) (fromEnum DObservatoryTop)] []
-            ,Room (fromEnum DWestTowerEntrance)[Edge wave (fromEnum DObservatoryTop)
-                                    ,Edge missile (fromEnum DWestTower)] []
-            ,Room (fromEnum DWestTower)[Edge missile (fromEnum DWestTowerEntrance)
-                                    ,Edge wave (fromEnum DControlTower)] []
-            ,Room (fromEnum DControlTower)[Edge wave (fromEnum DWestTower)
-                                    ,Edge wave (fromEnum DEastTower)]
-                                    [IEdge (controlTowerItem diff) (fromEnum ControlTower)]
-            ,Room (fromEnum DEastTower)[Edge wave (fromEnum DControlTower)
-                                    ,Edge wave (fromEnum DAetherLabEntryway)] []
-            ,Room (fromEnum DAetherLabEntryway)[Edge wave (fromEnum DEastTower)
-                                    ,Edge wave (fromEnum DResearchLabAether)] []
-            ,Room (fromEnum DResearchLabAether)[Edge wave (fromEnum DAetherLabEntryway)
-                                    ,Edge wave (fromEnum DResearchCoreAccess)]
-                                    [IEdge missile (fromEnum ResearchLabAetherTank)
-                                    ,IEdge (rlaTrack diff) (fromEnum ResearchLabAetherMorphTrack)]
-            ,Room (fromEnum DResearchCoreAccess)[Edge wave (fromEnum DResearchLabAether)
-                                    ,Edge wave (fromEnum DResearchCore)] []
-            ,Room (fromEnum DResearchCore)[Edge wave (fromEnum DResearchCoreAccess)
-                                    ,Edge ice (fromEnum DPikeAccess)]
-                                    [IEdge noReq (fromEnum ResearchCore)]
-            ,Room (fromEnum DPikeAccess)[Edge ice (fromEnum DResearchCore)
-                                    ,Edge wave (fromEnum DFrozenPike)] []
-            ,Room (fromEnum DFrozenPike)[Edge (frozenPikeClimb diff) (fromEnum DTransportAccess)
-                                    ,Edge wave (fromEnum DPikeAccess)
-                                    ,Edge wave (fromEnum DFrostCaveAccess)
-                                    ,Edge (frozenPikeBottom diff) (fromEnum DHunterCaveAccess)] []
-            ,Room (fromEnum DFrostCaveAccess)[Edge wave (fromEnum DFrozenPike)
-                                    ,Edge (frostCaveAccess diff) (fromEnum DFrostCave)] []
-            ,Room (fromEnum DFrostCave)[Edge (frostCaveAccess diff) (fromEnum DFrostCaveAccess)
-                                    ,Edge (frostCaveDoor diff) (fromEnum DSaveStationC)
-                                    ,Edge (frostCaveToTunnel diff) (fromEnum DUpperEdgeTunnel)
-                                    ,Edge (frostCaveSw diff) (fromEnum DPhendranaBackSw)]
-                                    [IEdge (frostCaveItem diff) (fromEnum FrostCave)]
-            ,Room (fromEnum DSaveStationC)[Edge (frostCaveDoor diff) (fromEnum DFrostCave)] []
-            ,Room (fromEnum DUpperEdgeTunnel)[Edge (frostCaveAccess diff) (fromEnum DFrostCave)
-                                    ,Edge wave (fromEnum DPhendranasEdge)] []
-            ,Room (fromEnum DPhendranasEdge)[Edge wave (fromEnum DUpperEdgeTunnel)
-                                    ,Edge (toStorageCave diff) (fromEnum DStorageCave)
-                                    ,Edge (toSecurityCave diff) (fromEnum DSecurityCave)
-                                    ,Edge noReq (fromEnum DLowerEdgeTunnel)] []
-            ,Room (fromEnum DStorageCave)[Edge (fromStorageCave diff) (fromEnum DPhendranasEdge)]
-                                    [IEdge noReq (fromEnum StorageCave)]
-            ,Room (fromEnum DSecurityCave)[Edge morph (fromEnum DPhendranasEdge)]
-                                    [IEdge noReq (fromEnum SecurityCave)]
-            ,Room (fromEnum DLowerEdgeTunnel)[Edge (phenEdgeLower diff) (fromEnum DPhendranasEdge)
-                                    ,Edge wave (fromEnum DHunterCave)] []
-            ,Room (fromEnum DHunterCave)[Edge wave (fromEnum DLowerEdgeTunnel)
-                                    ,Edge (hunterCaveLower diff) (fromEnum DLakeTunnel)
-                                    ,Edge (hunterCaveUpper diff) (fromEnum DHunterCaveFar)] []
-            ,Room (fromEnum DHunterCaveFar)[Edge sjOrBombs (fromEnum DHunterCave)
-                                    ,Edge wave (fromEnum DChamberAccess)
-                                    ,Edge wave (fromEnum DHunterCaveAccess)] []
-            ,Room (fromEnum DLakeTunnel)[Edge (hunterCaveClimb diff) (fromEnum DHunterCave)
-                                    ,Edge wave (fromEnum DGravityChamber)] []
-            ,Room (fromEnum DGravityChamber)[Edge (gravityChamberToLakeTunnel diff) (fromEnum DLakeTunnel)
-                                    ,Edge (climbGravityChamber diff) (fromEnum DGravityChamberTop)]
-                                    [IEdge noReq (fromEnum GravityChamberUnderwater)]
-            ,Room (fromEnum DGravityChamberTop)[Edge noReq (fromEnum DGravityChamber)
-                                    ,Edge wave (fromEnum DChamberAccess)]
-                                    [IEdge (gravLedge diff) (fromEnum GravityChamberGrappleLedge)]
-            ,Room (fromEnum DChamberAccess)[Edge wave (fromEnum DGravityChamberTop)
-                                    ,Edge wave (fromEnum DHunterCaveFar)] []
-            ,Room (fromEnum DHunterCaveAccess)[Edge wave (fromEnum DHunterCaveFar)
-                                    ,Edge (frozenPikeBottom diff) (fromEnum DFrozenPike)] []
-            ,Room (fromEnum DPhendranaFrontSw)[Edge bombs (fromEnum DRuinedCourtyard)
-                                    ,Edge (longWallcrawl diff) (fromEnum DPhendranaBackSw)]
-                                    [IEdge bombs (fromEnum QuarantineMonitor)
-                                    ,IEdge bombs (fromEnum QuarantineCave)]
-            ,Room (fromEnum DPhendranaBackSw)[Edge (longWallcrawl diff) (fromEnum DPhendranaFrontSw)
-                                    ,Edge bombs (fromEnum DFrostCave)
-                                    ,Edge bombs (fromEnum DGravityChamber)
-                                    ,Edge bombs (fromEnum DTransportAccess)
-                                    ,Edge bombs (fromEnum DFrozenPike)]
-                                    [IEdge bombs (fromEnum GravityChamberGrappleLedge)
-                                    ,IEdge (transportAccessItemOob diff) (fromEnum TransportAccess)
-                                    ,IEdge bombs (fromEnum SecurityCave)
-                                    ,IEdge bombs (fromEnum StorageCave)]
+            ,room DQuarantineMonitor [edge (climbQuarantineCaveBack diff) DQuarantineCaveBack
+                                    ,edge (climbQuarantineCaveEntrance diff) DQuarantineCave]
+                                    [itemEdge noReq QuarantineCave -- Can drop into thardus fight
+                                    ,itemEdge noReq QuarantineMonitor]
+            ,room DSouthQuarantineTunnel [edge (quarantineTunnel diff) DQuarantineCaveBack
+                                    ,edge wave DTransporttoMagmoorCavernsSouth] []
+            ,room DTransporttoMagmoorCavernsSouth [edge wave DSouthQuarantineTunnel
+                                    ,edge noReq CTransporttoPhendranaDriftsSouth
+                                    ,edge (phenElevatorClimb diff) DTransportAccess] []
+            ,room DTransportAccess [edge ice DTransporttoMagmoorCavernsSouth
+                                    ,edge wave DFrozenPike]
+                                    [itemEdge plasma TransportAccess]
+            ,room DSpecimenStorage [edge wave DRuinedCourtyard
+                                    ,edge wave DResearchEntrance] []
+            ,room DResearchEntrance [edge wave DSpecimenStorage
+                                    ,edge noReq DMapStation
+                                    ,edge wave DHydraLabEntryway] []
+            ,room DMapStation [edge noReq DResearchEntrance] []
+            ,room DHydraLabEntryway [edge wave DResearchEntrance
+                                    ,edge wave DResearchLabHydra] []
+            ,room DResearchLabHydra [edge wave DHydraLabEntryway
+                                    ,edge noReq DResearchLabHydraBack]
+                                    [itemEdge noReq ResearchLabHydraTrigger]
+            ,room DResearchLabHydraBack [edge researchLabHydraBarrier DResearchLabHydra
+                                    ,edge wave DObservatoryAccess]
+                                    [itemEdge supers ResearchLabHydra]
+            ,room DObservatoryAccess [edge wave DResearchLabHydra
+                                    ,edge wave DObservatory] []
+            ,room DObservatory [edge wave DObservatoryAccess
+                                    ,edge (observatoryClimb diff) DObservatoryTop] []
+            ,room DObservatoryTop [edge (observatorySave diff) DSaveStationD
+                                    ,edge wave DWestTowerEntrance
+                                    ,edge noReq DObservatory]
+                                    [itemEdge (observatoryItem diff) Observatory]
+            ,room DSaveStationD [edge (observatorySave diff) DObservatoryTop] []
+            ,room DWestTowerEntrance [edge wave DObservatoryTop
+                                    ,edge missile DWestTower] []
+            ,room DWestTower [edge missile DWestTowerEntrance
+                                    ,edge wave DControlTower] []
+            ,room DControlTower [edge wave DWestTower
+                                    ,edge wave DEastTower]
+                                    [itemEdge (controlTowerItem diff) ControlTower]
+            ,room DEastTower [edge wave DControlTower
+                                    ,edge wave DAetherLabEntryway] []
+            ,room DAetherLabEntryway [edge wave DEastTower
+                                    ,edge wave DResearchLabAether] []
+            ,room DResearchLabAether [edge wave DAetherLabEntryway
+                                    ,edge wave DResearchCoreAccess]
+                                    [itemEdge missile ResearchLabAetherTank
+                                    ,itemEdge (rlaTrack diff) ResearchLabAetherMorphTrack]
+            ,room DResearchCoreAccess [edge wave DResearchLabAether
+                                    ,edge wave DResearchCore] []
+            ,room DResearchCore [edge wave DResearchCoreAccess
+                                    ,edge ice DPikeAccess]
+                                    [itemEdge noReq ResearchCore]
+            ,room DPikeAccess [edge ice DResearchCore
+                                    ,edge wave DFrozenPike] []
+            ,room DFrozenPike [edge (frozenPikeClimb diff) DTransportAccess
+                                    ,edge wave DPikeAccess
+                                    ,edge wave DFrostCaveAccess
+                                    ,edge (frozenPikeBottom diff) DHunterCaveAccess] []
+            ,room DFrostCaveAccess [edge wave DFrozenPike
+                                    ,edge (frostCaveAccess diff) DFrostCave] []
+            ,room DFrostCave [edge (frostCaveAccess diff) DFrostCaveAccess
+                                    ,edge (frostCaveDoor diff) DSaveStationC
+                                    ,edge (frostCaveToTunnel diff) DUpperEdgeTunnel
+                                    ,edge (frostCaveSw diff) DPhendranaBackSw]
+                                    [itemEdge (frostCaveItem diff) FrostCave]
+            ,room DSaveStationC [edge (frostCaveDoor diff) DFrostCave] []
+            ,room DUpperEdgeTunnel [edge (frostCaveAccess diff) DFrostCave
+                                    ,edge wave DPhendranasEdge] []
+            ,room DPhendranasEdge [edge wave DUpperEdgeTunnel
+                                    ,edge (toStorageCave diff) DStorageCave
+                                    ,edge (toSecurityCave diff) DSecurityCave
+                                    ,edge noReq DLowerEdgeTunnel] []
+            ,room DStorageCave [edge (fromStorageCave diff) DPhendranasEdge]
+                                    [itemEdge noReq StorageCave]
+            ,room DSecurityCave [edge morph DPhendranasEdge]
+                                    [itemEdge noReq SecurityCave]
+            ,room DLowerEdgeTunnel [edge (phenEdgeLower diff) DPhendranasEdge
+                                    ,edge wave DHunterCave] []
+            ,room DHunterCave [edge wave DLowerEdgeTunnel
+                                    ,edge (hunterCaveLower diff) DLakeTunnel
+                                    ,edge (hunterCaveUpper diff) DHunterCaveFar] []
+            ,room DHunterCaveFar [edge sjOrBombs DHunterCave
+                                    ,edge wave DChamberAccess
+                                    ,edge wave DHunterCaveAccess] []
+            ,room DLakeTunnel [edge (hunterCaveClimb diff) DHunterCave
+                                    ,edge wave DGravityChamber] []
+            ,room DGravityChamber [edge (gravityChamberToLakeTunnel diff) DLakeTunnel
+                                    ,edge (climbGravityChamber diff) DGravityChamberTop]
+                                    [itemEdge noReq GravityChamberUnderwater]
+            ,room DGravityChamberTop [edge noReq DGravityChamber
+                                    ,edge wave DChamberAccess]
+                                    [itemEdge (gravLedge diff) GravityChamberGrappleLedge]
+            ,room DChamberAccess [edge wave DGravityChamberTop
+                                    ,edge wave DHunterCaveFar] []
+            ,room DHunterCaveAccess [edge wave DHunterCaveFar
+                                    ,edge (frozenPikeBottom diff) DFrozenPike] []
+            ,room DPhendranaFrontSw [edge bombs DRuinedCourtyard
+                                    ,edge (longWallcrawl diff) DPhendranaBackSw]
+                                    [itemEdge bombs QuarantineMonitor
+                                    ,itemEdge bombs QuarantineCave]
+            ,room DPhendranaBackSw [edge (longWallcrawl diff) DPhendranaFrontSw
+                                    ,edge bombs DFrostCave
+                                    ,edge bombs DGravityChamber
+                                    ,edge bombs DTransportAccess
+                                    ,edge bombs DFrozenPike]
+                                    [itemEdge bombs GravityChamberGrappleLedge
+                                    ,itemEdge (transportAccessItemOob diff) TransportAccess
+                                    ,itemEdge bombs SecurityCave
+                                    ,itemEdge bombs StorageCave]
 
             -- Phazon Mines Rooms
-            ,Room (fromEnum MTransporttoTallonOverworldSouth)[Edge noReq (fromEnum OTransporttoPhazonMinesEast)
-                                    ,Edge wave (fromEnum MQuarryAccess)] []
-            ,Room (fromEnum MQuarryAccess)[Edge wave (fromEnum MTransporttoTallonOverworldSouth)
-                                    ,Edge wave (fromEnum MMainQuarry)] []
-            ,Room (fromEnum MMainQuarry)[Edge wave (fromEnum MQuarryAccess)
-                                    ,Edge (quarrySave diff) (fromEnum MSaveStationMinesA)
-                                    ,Edge (reachWasteDisposal diff) (fromEnum MWasteDisposal)
-                                    ,Edge ice (fromEnum MSecurityAccessA)]
-                                    [IEdge noReq (fromEnum MainQuarryBarrierTrigger)
-                                    ,IEdge (quarrySave diff) (fromEnum MainQuarrySaveTrigger)
-                                    ,IEdge (quarryItem diff) (fromEnum MainQuarry)]
-            ,Room (fromEnum MSaveStationMinesA)[Edge mainQuarryBarrierWave (fromEnum MMainQuarry)] []
-            ,Room (fromEnum MSecurityAccessA)[Edge mainQuarryBarrierIce (fromEnum MMainQuarry)
-                                    ,Edge ice (fromEnum MMineSecurityStation)]
-                                    [IEdge pb (fromEnum SecurityAccessA)]
-            ,Room (fromEnum MMineSecurityStation)[Edge waveIce (fromEnum MSecurityAccessA)
-                                    ,Edge (toStorageDepotA diff) (fromEnum MStorageDepotA)
-                                    ,Edge wave (fromEnum MSecurityAccessB)]
-                                    [IEdge pb (fromEnum StorageDepotATrigger)]
-            ,Room (fromEnum MStorageDepotA)[Edge (storageDepotABarrier diff) (fromEnum MMineSecurityStation)]
-                                    [IEdge noReq (fromEnum StorageDepotA)]
-            ,Room (fromEnum MSecurityAccessB)[Edge wave (fromEnum MMineSecurityStation)
-                                    ,Edge (securityAccessBSw diff) (fromEnum MMinesFrontSw)
-                                    ,Edge ice (fromEnum MEliteResearch)] []
-            ,Room (fromEnum MEliteResearch)[Edge ice (fromEnum MSecurityAccessB)
-                                    ,Edge (eliteResearchDoor diff) (fromEnum MResearchAccess)]
-                                    [IEdge (eliteResearchTopItem diff) (fromEnum EliteResearchLaser)
-                                    ,IEdge (eliteResearchPirate diff) (fromEnum EliteResearchPhazonElite)]
+            ,room MTransporttoTallonOverworldSouth [edge noReq OTransporttoPhazonMinesEast
+                                    ,edge wave MQuarryAccess] []
+            ,room MQuarryAccess [edge wave MTransporttoTallonOverworldSouth
+                                    ,edge wave MMainQuarry] []
+            ,room MMainQuarry [edge wave MQuarryAccess
+                                    ,edge (quarrySave diff) MSaveStationMinesA
+                                    ,edge (reachWasteDisposal diff) MWasteDisposal
+                                    ,edge ice MSecurityAccessA]
+                                    [itemEdge noReq MainQuarryBarrierTrigger
+                                    ,itemEdge (quarrySave diff) MainQuarrySaveTrigger
+                                    ,itemEdge (quarryItem diff) MainQuarry]
+            ,room MSaveStationMinesA [edge mainQuarryBarrierWave MMainQuarry] []
+            ,room MSecurityAccessA [edge mainQuarryBarrierIce MMainQuarry
+                                    ,edge ice MMineSecurityStation]
+                                    [itemEdge pb SecurityAccessA]
+            ,room MMineSecurityStation [edge waveIce MSecurityAccessA
+                                    ,edge (toStorageDepotA diff) MStorageDepotA
+                                    ,edge wave MSecurityAccessB]
+                                    [itemEdge pb StorageDepotATrigger]
+            ,room MStorageDepotA [edge (storageDepotABarrier diff) MMineSecurityStation]
+                                    [itemEdge noReq StorageDepotA]
+            ,room MSecurityAccessB [edge wave MMineSecurityStation
+                                    ,edge (securityAccessBSw diff) MMinesFrontSw
+                                    ,edge ice MEliteResearch] []
+            ,room MEliteResearch [edge ice MSecurityAccessB
+                                    ,edge (eliteResearchDoor diff) MResearchAccess]
+                                    [itemEdge (eliteResearchTopItem diff) EliteResearchLaser
+                                    ,itemEdge (eliteResearchPirate diff) EliteResearchPhazonElite]
             -- Currently require boosting through wall even if you can laser it
-            ,Room (fromEnum MResearchAccess)[Edge (shaftClimb2 diff) (fromEnum MEliteResearch)
-                                    ,Edge ice (fromEnum MOreProcessingBottom)] []
-            ,Room (fromEnum MOreProcessingBottom)[Edge ice (fromEnum MResearchAccess)
-                                    ,Edge (oreProcessingClimb diff) (fromEnum MElevatorAccessA)
-                                    ,Edge (oreProcessingTop diff) (fromEnum MWasteDisposal)
-                                    ,Edge (oreProcessingTop diff) (fromEnum MStorageDepotB)] []
+            ,room MResearchAccess [edge (shaftClimb2 diff) MEliteResearch
+                                    ,edge ice MOreProcessingBottom] []
+            ,room MOreProcessingBottom [edge ice MResearchAccess
+                                    ,edge (oreProcessingClimb diff) MElevatorAccessA
+                                    ,edge (oreProcessingTop diff) MWasteDisposal
+                                    ,edge (oreProcessingTop diff) MStorageDepotB] []
             -- Spawn point is next to the pb rocks
-            ,Room (fromEnum MOreProcessing)[Edge noReq (fromEnum MOreProcessingBottom)
-                                    ,Edge (dashFromPbRocks diff) (fromEnum MElevatorAccessA)
-                                    ,Edge (oreProcessingTopFromRocks diff) (fromEnum MOreProcessingTop)] []
+            ,room MOreProcessing [edge noReq MOreProcessingBottom
+                                    ,edge (dashFromPbRocks diff) MElevatorAccessA
+                                    ,edge (oreProcessingTopFromRocks diff) MOreProcessingTop] []
             -- This fake room is considered to be at the top on the waste disposal side
-            ,Room (fromEnum MOreProcessingTop)[Edge noReq (fromEnum MOreProcessing)
-                                    ,Edge ice (fromEnum MWasteDisposal)
-                                    ,Edge (oreProcessingCrossTop diff) (fromEnum MStorageDepotB)] []
-            ,Room (fromEnum MWasteDisposal)[Edge ice (fromEnum MOreProcessingTop)
-                                    ,Edge (wasteDisposalTraversal diff) (fromEnum MMainQuarry)] []
-            ,Room (fromEnum MStorageDepotB)[Edge (oreProcessingCrossTop diff) (fromEnum MOreProcessingTop)
-                                    ,Edge ice (fromEnum MOreProcessing)]
-                                    [IEdge noReq (fromEnum StorageDepotB)]
-            ,Room (fromEnum MElevatorAccessA)[Edge ice (fromEnum MOreProcessing)
-                                    ,Edge (oreProcessingTopFromEaa diff) (fromEnum MOreProcessingTop)
-                                    ,Edge ice (fromEnum MElevatorA)] []
-            ,Room (fromEnum MElevatorA)[Edge (shaftClimb1 diff) (fromEnum MElevatorAccessA)
-                                    ,Edge ice (fromEnum MEliteControlAccess)] []
-            ,Room (fromEnum MEliteControlAccess)[Edge ice (fromEnum MElevatorA)
-                                    ,Edge wave (fromEnum MEliteControl)]
-                                    [IEdge (ecaItem diff) (fromEnum EliteControlAccess)]
-            ,Room (fromEnum MEliteControl)[Edge wave (fromEnum MEliteControlAccess)
-                                    ,Edge ice (fromEnum MMaintenanceTunnel)
-                                    ,Edge ice (fromEnum MVentilationShaft)]
-                                    [IEdge noReq (fromEnum EliteControlTrigger)]
-            ,Room (fromEnum MMaintenanceTunnel)[Edge ice (fromEnum MEliteControl)
-                                    ,Edge (maintTunnel diff) (fromEnum MPhazonProcessingCenter)] []
-            ,Room (fromEnum MPhazonProcessingCenter)[Edge (maintTunnel diff) (fromEnum MMaintenanceTunnel)
-                                    ,Edge blocked (fromEnum MProcessingCenterAccess) -- This barrier is considered to be one-way
-                                    ,Edge (ppcClimb diff) (fromEnum MTransportAccess)]
-                                    [IEdge pb (fromEnum PhazonProcessingCenter)]
-            ,Room (fromEnum MTransportAccess)[Edge ice (fromEnum MPhazonProcessingCenter)
-                                    ,Edge (toMinesElevator diff) (fromEnum MTransporttoMagmoorCavernsSouth)] []
-            ,Room (fromEnum MTransporttoMagmoorCavernsSouth)[Edge (toMinesElevator diff) (fromEnum MTransportAccess)
-                                    ,Edge noReq (fromEnum CTransporttoPhazonMinesWest)] []
+            ,room MOreProcessingTop [edge noReq MOreProcessing
+                                    ,edge ice MWasteDisposal
+                                    ,edge (oreProcessingCrossTop diff) MStorageDepotB] []
+            ,room MWasteDisposal [edge ice MOreProcessingTop
+                                    ,edge (wasteDisposalTraversal diff) MMainQuarry] []
+            ,room MStorageDepotB [edge (oreProcessingCrossTop diff) MOreProcessingTop
+                                    ,edge ice MOreProcessing]
+                                    [itemEdge noReq StorageDepotB]
+            ,room MElevatorAccessA [edge ice MOreProcessing
+                                    ,edge (oreProcessingTopFromEaa diff) MOreProcessingTop
+                                    ,edge ice MElevatorA] []
+            ,room MElevatorA [edge (shaftClimb1 diff) MElevatorAccessA
+                                    ,edge ice MEliteControlAccess] []
+            ,room MEliteControlAccess [edge ice MElevatorA
+                                    ,edge wave MEliteControl]
+                                    [itemEdge (ecaItem diff) EliteControlAccess]
+            ,room MEliteControl [edge wave MEliteControlAccess
+                                    ,edge ice MMaintenanceTunnel
+                                    ,edge ice MVentilationShaft]
+                                    [itemEdge noReq EliteControlTrigger]
+            ,room MMaintenanceTunnel [edge ice MEliteControl
+                                    ,edge (maintTunnel diff) MPhazonProcessingCenter] []
+            ,room MPhazonProcessingCenter [edge (maintTunnel diff) MMaintenanceTunnel
+                                    ,edge blocked MProcessingCenterAccess -- This barrier is considered to be one-way
+                                    ,edge (ppcClimb diff) MTransportAccess]
+                                    [itemEdge pb PhazonProcessingCenter]
+            ,room MTransportAccess [edge ice MPhazonProcessingCenter
+                                    ,edge (toMinesElevator diff) MTransporttoMagmoorCavernsSouth] []
+            ,room MTransporttoMagmoorCavernsSouth [edge (toMinesElevator diff) MTransportAccess
+                                    ,edge noReq CTransporttoPhazonMinesWest] []
             -- Warp is at the top
-            ,Room (fromEnum MVentilationShaft)[Edge eliteControlBarrier (fromEnum MEliteControl)
-                                    ,Edge ice (fromEnum MOmegaResearch)]
-                                    [IEdge pb (fromEnum VentilationShaft)]
-            ,Room (fromEnum MOmegaResearch)[Edge ice (fromEnum MVentilationShaft)
-                                    ,Edge (maintTunnel diff) (fromEnum MMapStationMines)
-                                    ,Edge ice (fromEnum MDynamoAccess)] []
-            ,Room (fromEnum MMapStationMines)[Edge (maintTunnel diff) (fromEnum MOmegaResearch)] []
-            ,Room (fromEnum MDynamoAccess)[Edge ice (fromEnum MOmegaResearch)
-                                    ,Edge ice (fromEnum MCentralDynamo)] []
+            ,room MVentilationShaft [edge eliteControlBarrier MEliteControl
+                                    ,edge ice MOmegaResearch]
+                                    [itemEdge pb VentilationShaft]
+            ,room MOmegaResearch [edge ice MVentilationShaft
+                                    ,edge (maintTunnel diff) MMapStationMines
+                                    ,edge ice MDynamoAccess] []
+            ,room MMapStationMines [edge (maintTunnel diff) MOmegaResearch] []
+            ,room MDynamoAccess [edge ice MOmegaResearch
+                                    ,edge ice MCentralDynamo] []
             -- Warp is the top, but treating as the bottom. It's slightly inaccurate
-            ,Room (fromEnum MCentralDynamo)[Edge (centralDynamoClimb diff) (fromEnum MDynamoAccess)
-                                    ,Edge ice (fromEnum MSaveStationMinesB)
-                                    ,Edge (maintTunnel diff) (fromEnum MQuarantineAccessA)]
-                                    [IEdge morph (fromEnum CentralDynamo)]
-            ,Room (fromEnum MSaveStationMinesB)[Edge ice (fromEnum MCentralDynamo)] []
-            ,Room (fromEnum MQuarantineAccessA)[Edge (maintTunnel diff) (fromEnum MCentralDynamo)
-                                    ,Edge wave (fromEnum MMetroidQuarantineA)] []
-            ,Room (fromEnum MMetroidQuarantineA)[Edge wave (fromEnum MQuarantineAccessA)
-                                    ,Edge noReq (fromEnum MMetroidQuarantineABack)]
-                                    [IEdge noReq (fromEnum MetroidQuarantineATrigger)]
-            ,Room (fromEnum MMetroidQuarantineABack)[Edge mqaBarrier (fromEnum MMetroidQuarantineA)
-                                    ,Edge (mqaTraversal diff) (fromEnum MElevatorAccessB)]
-                                    [IEdge (mqaItem diff) (fromEnum MetroidQuarantineA)]
-            ,Room (fromEnum MElevatorAccessB)[Edge ice (fromEnum MMetroidQuarantineABack)
-                                    ,Edge plasma (fromEnum MElevatorB)] []
-            ,Room (fromEnum MElevatorB)[Edge plasma (fromEnum MFungalHallAccess)
-                                    ,Edge plasma (fromEnum MElevatorAccessB)] []
-            ,Room (fromEnum MFungalHallAccess)[Edge plasma (fromEnum MElevatorB)
-                                    ,Edge plasma (fromEnum MFungalHallA)]
-                                    [IEdge morph (fromEnum FungalHallAccess)]
-            ,Room (fromEnum MFungalHallA)[Edge (climbFungalHallAccess diff) (fromEnum MFungalHallAccess)
-                                    ,Edge (fungalHallATraversal diff) (fromEnum MPhazonMiningTunnel)] []
-            ,Room (fromEnum MPhazonMiningTunnel)[Edge plasma (fromEnum MFungalHallA)
-                                    ,Edge (miningTunnelTraversal diff) (fromEnum MFungalHallB)]
-                                    [IEdge (miningTunnelItem diff) (fromEnum PhazonMiningTunnel)]
-            ,Room (fromEnum MFungalHallB)[Edge (miningTunnelTraversal diff) (fromEnum MPhazonMiningTunnel)
-                                    ,Edge (fungalHallBTraversal diff) (fromEnum MMissileStationMinesInbounds)
-                                    ,Edge (fungalHallBTraversal diff) (fromEnum MQuarantineAccessB)]
-                                    [IEdge bombs (fromEnum FungalHallB)]
-            ,Room (fromEnum MMissileStationMinesInbounds)[Edge plasma (fromEnum MFungalHallB)] []
-            ,Room (fromEnum MMissileStationMines)[Edge morph (fromEnum MMissileStationMinesInbounds) -- You get warped out of bounds and need morph
-                                    ,Edge (wallcrawl diff) (fromEnum MMinesBackSw)] []
-            ,Room (fromEnum MQuarantineAccessB)[Edge plasma (fromEnum MFungalHallB)
-                                    ,Edge (quarantineAccessBTraversal diff) (fromEnum MMetroidQuarantineB)] []
-            ,Room (fromEnum MMetroidQuarantineB)[Edge (quarantineAccessBTraversal diff) (fromEnum MQuarantineAccessB)
-                                    ,Edge (mqbTraversal diff) (fromEnum MMetroidQuarantineBBack)]
-                                    [IEdge noReq (fromEnum MetroidQuarantineBTrigger)]
-            ,Room (fromEnum MMetroidQuarantineBBack)[Edge mqbBarrier (fromEnum MMetroidQuarantineB)
-                                    ,Edge plasma (fromEnum MSaveStationMinesC)
-                                    ,Edge (mqbBackClimb diff) (fromEnum MEliteQuartersAccess)
-                                    ,Edge (mqbSw diff) (fromEnum MMinesBackSw)]
-                                    [IEdge supers (fromEnum MetroidQuarantineB)]
-            ,Room (fromEnum MSaveStationMinesC)[Edge plasma (fromEnum MMetroidQuarantineBBack)] []
-            ,Room (fromEnum MEliteQuartersAccess)[Edge plasma (fromEnum MMetroidQuarantineBBack)
-                                    ,Edge plasma (fromEnum MEliteQuarters)]
-                                    [IEdge plasma (fromEnum OmegaPirateEntranceTrigger)]
-            ,Room (fromEnum MEliteQuarters)[Edge (eliteQuartersExit diff) (fromEnum MEliteQuartersAccess)
-                                    ,Edge (eliteQuartersTop diff) (fromEnum MProcessingCenterAccess)]
-                                    [IEdge (eliteQuarters diff) (fromEnum EliteQuarters)]
-            ,Room (fromEnum MProcessingCenterAccess)[Edge plasma (fromEnum MEliteQuarters)
-                                    ,Edge (ppcBottomClimb diff) (fromEnum MPhazonProcessingCenter)]
-                                    [IEdge noReq (fromEnum ProcessingCenterAccess)]
-            ,Room (fromEnum MMinesFrontSw)[Edge ice (fromEnum MMainQuarry)]
-                                    [IEdge bombs (fromEnum StorageDepotA)
-                                    ,IEdge ice (fromEnum SecurityAccessA)]
-            ,Room (fromEnum MMinesBackSw)[Edge bombs (fromEnum MFungalHallB)
-                                    ,Edge bombs (fromEnum MPhazonProcessingCenter)
-                                    ,Edge bombs (fromEnum MMetroidQuarantineB)]
-                                    [IEdge (longWallcrawl diff) (fromEnum FungalHallAccess)]
+            ,room MCentralDynamo [edge (centralDynamoClimb diff) MDynamoAccess
+                                    ,edge ice MSaveStationMinesB
+                                    ,edge (maintTunnel diff) MQuarantineAccessA]
+                                    [itemEdge morph CentralDynamo]
+            ,room MSaveStationMinesB [edge ice MCentralDynamo] []
+            ,room MQuarantineAccessA [edge (maintTunnel diff) MCentralDynamo
+                                    ,edge wave MMetroidQuarantineA] []
+            ,room MMetroidQuarantineA [edge wave MQuarantineAccessA
+                                    ,edge noReq MMetroidQuarantineABack]
+                                    [itemEdge noReq MetroidQuarantineATrigger]
+            ,room MMetroidQuarantineABack [edge mqaBarrier MMetroidQuarantineA
+                                    ,edge (mqaTraversal diff) MElevatorAccessB]
+                                    [itemEdge (mqaItem diff) MetroidQuarantineA]
+            ,room MElevatorAccessB [edge ice MMetroidQuarantineABack
+                                    ,edge plasma MElevatorB] []
+            ,room MElevatorB [edge plasma MFungalHallAccess
+                                    ,edge plasma MElevatorAccessB] []
+            ,room MFungalHallAccess [edge plasma MElevatorB
+                                    ,edge plasma MFungalHallA]
+                                    [itemEdge morph FungalHallAccess]
+            ,room MFungalHallA [edge (climbFungalHallAccess diff) MFungalHallAccess
+                                    ,edge (fungalHallATraversal diff) MPhazonMiningTunnel] []
+            ,room MPhazonMiningTunnel [edge plasma MFungalHallA
+                                    ,edge (miningTunnelTraversal diff) MFungalHallB]
+                                    [itemEdge (miningTunnelItem diff) PhazonMiningTunnel]
+            ,room MFungalHallB [edge (miningTunnelTraversal diff) MPhazonMiningTunnel
+                                    ,edge (fungalHallBTraversal diff) MMissileStationMinesInbounds
+                                    ,edge (fungalHallBTraversal diff) MQuarantineAccessB]
+                                    [itemEdge bombs FungalHallB]
+            ,room MMissileStationMinesInbounds [edge plasma MFungalHallB] []
+            ,room MMissileStationMines [edge morph MMissileStationMinesInbounds -- You get warped out of bounds and need morph
+                                    ,edge (wallcrawl diff) MMinesBackSw] []
+            ,room MQuarantineAccessB [edge plasma MFungalHallB
+                                    ,edge (quarantineAccessBTraversal diff) MMetroidQuarantineB] []
+            ,room MMetroidQuarantineB [edge (quarantineAccessBTraversal diff) MQuarantineAccessB
+                                    ,edge (mqbTraversal diff) MMetroidQuarantineBBack]
+                                    [itemEdge noReq MetroidQuarantineBTrigger]
+            ,room MMetroidQuarantineBBack [edge mqbBarrier MMetroidQuarantineB
+                                    ,edge plasma MSaveStationMinesC
+                                    ,edge (mqbBackClimb diff) MEliteQuartersAccess
+                                    ,edge (mqbSw diff) MMinesBackSw]
+                                    [itemEdge supers MetroidQuarantineB]
+            ,room MSaveStationMinesC [edge plasma MMetroidQuarantineBBack] []
+            ,room MEliteQuartersAccess [edge plasma MMetroidQuarantineBBack
+                                    ,edge plasma MEliteQuarters]
+                                    [itemEdge plasma OmegaPirateEntranceTrigger]
+            ,room MEliteQuarters [edge (eliteQuartersExit diff) MEliteQuartersAccess
+                                    ,edge (eliteQuartersTop diff) MProcessingCenterAccess]
+                                    [itemEdge (eliteQuarters diff) EliteQuarters]
+            ,room MProcessingCenterAccess [edge plasma MEliteQuarters
+                                    ,edge (ppcBottomClimb diff) MPhazonProcessingCenter]
+                                    [itemEdge noReq ProcessingCenterAccess]
+            ,room MMinesFrontSw [edge ice MMainQuarry]
+                                    [itemEdge bombs StorageDepotA
+                                    ,itemEdge ice SecurityAccessA]
+            ,room MMinesBackSw [edge bombs MFungalHallB
+                                    ,edge bombs MPhazonProcessingCenter
+                                    ,edge bombs MMetroidQuarantineB]
+                                    [itemEdge (longWallcrawl diff) FungalHallAccess]
             ]
+        where 
+            room :: RoomId -> [Edge] -> [IEdge] -> Room
+            room roomId = Room (fromEnum roomId)
+            
+            edge :: (Map ItemName Int -> Set Int -> Bool) -> RoomId -> Edge
+            edge predicate roomId = Edge predicate (fromEnum roomId)
+
+            itemEdge :: (Map ItemName Int -> Set Int -> Bool) -> ItemId -> IEdge
+            itemEdge predicate itemId = IEdge predicate (fromEnum itemId)
