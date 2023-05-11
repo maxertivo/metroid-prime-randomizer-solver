@@ -33,7 +33,7 @@ isComplete roomMap itemMap (State inventory roomId collectedItems) =
      in complete inventory collectedItems &&
         isAccessible roomMap roomId (fromEnum OArtifactTemple) inventory collectedItems &&
         -- Either you collected Artifact Temple or you can collect it and return
-        (Set.member artifactTempleItemId collectedItems || isAccessible roomMap (warp artifactTempleItem) artifactTempleItemId inventory collectedItems)
+        (Set.member artifactTempleItemId collectedItems || isAccessible roomMap (warp artifactTempleItem) (fromEnum OArtifactTemple) inventory collectedItems)
 
 -- Try some warp chains and return the best state we could reach
 getBestCandidate :: IntMap Room -> IntMap Item -> State -> Maybe CandidateState
