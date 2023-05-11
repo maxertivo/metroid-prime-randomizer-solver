@@ -16,7 +16,7 @@ import Graph
 
 isCompletable :: IntMap Room -> IntMap Item -> Bool
 isCompletable roomMap itemMap =
-    isCompletableHelper roomMap itemMap (State Map.empty landingSite Set.empty)
+    isCompletableHelper roomMap itemMap startingState
 
 isCompletableHelper :: IntMap Room -> IntMap Item -> State -> Bool
 isCompletableHelper roomMap itemMap currState =
@@ -31,9 +31,9 @@ isComplete :: IntMap Room -> IntMap Item -> State -> Bool
 isComplete roomMap itemMap (State inventory roomId collectedItems) =
     let artifactTempleItem = getVal (IntMap.lookup artifactTempleItemId itemMap) "Missing Item ArtifactTemple"
      in complete inventory collectedItems &&
-        isAccessible roomMap roomId (fromEnum OArtifactTemple) inventory collectedItems &&
+        isAccessible roomMap roomId (getRoomMapKey OArtifactTemple) inventory collectedItems &&
         -- Either you collected Artifact Temple or you can collect it and return
-        (Set.member artifactTempleItemId collectedItems || isAccessible roomMap (warp artifactTempleItem) (fromEnum OArtifactTemple) inventory collectedItems)
+        (Set.member artifactTempleItemId collectedItems || isAccessible roomMap (warp artifactTempleItem) (getRoomMapKey OArtifactTemple) inventory collectedItems)
 
 -- Try some warp chains and return the best state we could reach
 getBestCandidate :: IntMap Room -> IntMap Item -> State -> Maybe CandidateState
@@ -157,7 +157,10 @@ getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
         Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result
 
 landingSite :: Int
-landingSite = fromEnum OLandingSite
+landingSite = getRoomMapKey OLandingSite
 
 artifactTempleItemId :: Int
-artifactTempleItemId = fromEnum ArtifactTemple
+artifactTempleItemId = getItemMapKey ArtifactTemple
+
+startingState :: State
+startingState = State Map.empty landingSite Set.empty

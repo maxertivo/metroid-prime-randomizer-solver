@@ -26,19 +26,19 @@ readItemId str = readItemId' str [(minBound :: ItemId) .. (maxBound :: ItemId)]
                 where
                 readItemId' :: String -> [ItemId] -> Int
                 readItemId' s [] = error $ "Unable to read item ID " ++ s
-                readItemId' s (itemId:rest) = if s == show itemId then fromEnum itemId else readItemId' s rest
+                readItemId' s (itemId:rest) = if s == show itemId then getItemMapKey itemId else readItemId' s rest
 
 readRoomId :: String -> Int
 readRoomId str = readRoomId' str [(minBound :: RoomId) .. (maxBound :: RoomId)]
                 where
                 readRoomId' :: String -> [RoomId] -> Int
                 readRoomId' s [] = error $ "Unable to read room ID " ++ s
-                readRoomId' s (room:rest) = if s == show room then fromEnum room else readRoomId' s rest
+                readRoomId' s (room:rest) = if s == show room then getRoomMapKey room else readRoomId' s rest
 
 getWarp :: String -> String -> Int
 getWarp warp item
     | warp == "" = getDefaultWarp (readItemId item) defaultWarps
-    | warp == "OSavestation" = fromEnum OSaveStation -- There is a typo in early versions of the randomizer
+    | warp == "OSavestation" = getRoomMapKey OSaveStation -- There is a typo in early versions of the randomizer
     | otherwise = readRoomId warp
 
 getDefaultWarp :: Int -> [(Int, Int)] -> Int
@@ -167,7 +167,7 @@ parseArg [_] _ = Nothing
 parseArg (first:second:rest) flag = if first == flag then Just second else parseArg (second:rest) flag
 
 defaultWarps :: [(Int, Int)]
-defaultWarps = map (Data.Bifunctor.bimap fromEnum fromEnum)
+defaultWarps = map (Data.Bifunctor.bimap getRoomMapKey getItemMapKey)
     [ (RMainPlaza, MainPlazaHalfPipe)
     , (RMainPlaza, MainPlazaGrappleLedge)
     , (RMainPlaza, MainPlazaTree)

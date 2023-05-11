@@ -84,7 +84,7 @@ tallonFloaty :: Map ItemName Int -> Set Int -> Bool
 tallonFloaty inv ids = boost inv ids && bombs inv ids && floaty inv ids
 
 noVines :: Map ItemName Int -> Set Int -> Bool
-noVines _ ids = not (member (fromEnum SunchamberFlaahgra) ids) || member (fromEnum SunchamberGhosts) ids
+noVines _ ids = not (member (getItemMapKey SunchamberFlaahgra) ids) || member (getItemMapKey SunchamberGhosts) ids
 
 mainQuarryBarrierIce :: Map ItemName Int -> Set Int -> Bool
 mainQuarryBarrierIce inv _ = containsAll inv [MainQuarryBarrier, IceBeam]
@@ -389,14 +389,14 @@ mainPlazaSw diff inv ids =
 ruinedFountainItem :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 ruinedFountainItem diff inv ids =
     case diff of
-        Easy -> Data.Set.member (fromEnum SunchamberFlaahgra) ids && contains inv SpiderBall
-        Medium -> Data.Set.member (fromEnum SunchamberFlaahgra) ids && contains inv SpiderBall
-        Hard -> (Data.Set.member (fromEnum SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
-        VeryHard -> (Data.Set.member (fromEnum SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
-        Expert -> (Data.Set.member (fromEnum SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
+        Easy -> Data.Set.member (getItemMapKey SunchamberFlaahgra) ids && contains inv SpiderBall
+        Medium -> Data.Set.member (getItemMapKey SunchamberFlaahgra) ids && contains inv SpiderBall
+        Hard -> (Data.Set.member (getItemMapKey SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
+        VeryHard -> (Data.Set.member (getItemMapKey SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
+        Expert -> (Data.Set.member (getItemMapKey SunchamberFlaahgra) ids || sj inv ids) && contains inv SpiderBall
 
 leaveRuinedFountainItem :: Difficulty -> Map ItemName Int -> Set Int -> Bool
-leaveRuinedFountainItem _ inv ids = Data.Set.member (fromEnum RuinedFountain) ids && spider inv ids
+leaveRuinedFountainItem _ inv ids = Data.Set.member (getItemMapKey RuinedFountain) ids && spider inv ids
 
 towerChamber :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 towerChamber diff inv _ =
@@ -472,11 +472,11 @@ climbSunTower diff inv _ =
 -- This predicate requires the ability to hit the Sun Tower trigger and climb back. In rare cases, it is too strict.
 sunchamberghost :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 sunchamberghost diff inv ids = case diff of
-        Easy -> spider inv ids && Data.Set.member (fromEnum SunchamberFlaahgra) ids
-        Medium -> spider inv ids && Data.Set.member (fromEnum SunchamberFlaahgra) ids
-        Hard -> (bombs inv ids || spider inv ids) && Data.Set.member (fromEnum SunchamberFlaahgra) ids
-        VeryHard -> (bombs inv ids || spider inv ids) && Data.Set.member (fromEnum SunchamberFlaahgra) ids
-        Expert -> (bombs inv ids || spider inv ids) && Data.Set.member (fromEnum SunchamberFlaahgra) ids
+        Easy -> spider inv ids && Data.Set.member (getItemMapKey SunchamberFlaahgra) ids
+        Medium -> spider inv ids && Data.Set.member (getItemMapKey SunchamberFlaahgra) ids
+        Hard -> (bombs inv ids || spider inv ids) && Data.Set.member (getItemMapKey SunchamberFlaahgra) ids
+        VeryHard -> (bombs inv ids || spider inv ids) && Data.Set.member (getItemMapKey SunchamberFlaahgra) ids
+        Expert -> (bombs inv ids || spider inv ids) && Data.Set.member (getItemMapKey SunchamberFlaahgra) ids
 
 gatheringHallSw :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 gatheringHallSw diff inv ids =
@@ -1256,7 +1256,7 @@ ecaItem diff inv ids =
         Expert -> (morph inv ids && sj inv ids) || bombs inv ids
 
 eliteResearchPirate :: Difficulty -> Map ItemName Int -> Set Int -> Bool
-eliteResearchPirate _ inv ids = Data.Set.member (fromEnum CentralDynamo) ids && pb inv ids
+eliteResearchPirate _ inv ids = Data.Set.member (getItemMapKey CentralDynamo) ids && pb inv ids
 
 eliteResearchTopItem :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 eliteResearchTopItem diff inv ids =
@@ -1361,7 +1361,7 @@ eliteQuartersExit :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 eliteQuartersExit _ inv _ = containsAll inv [PlasmaBeam, OmegaPirateEntranceBarrier]
 
 eliteQuartersTop :: Difficulty -> Map ItemName Int -> Set Int -> Bool
-eliteQuartersTop _ inv ids = contains inv PlasmaBeam && Data.Set.member (fromEnum EliteQuarters) ids
+eliteQuartersTop _ inv ids = contains inv PlasmaBeam && Data.Set.member (getItemMapKey EliteQuarters) ids
 
 mqbBackClimb :: Difficulty -> Map ItemName Int -> Set Int -> Bool
 mqbBackClimb diff inv ids =

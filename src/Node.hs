@@ -4,10 +4,14 @@ import Data.Map (Map)
 import Data.Set (Set)
 
 data Room = Room {roomId :: Int, roomEdges :: [Edge], itemEdges :: [IEdge]} 
-        deriving (Show)
 
 data Item =  Item {itemId :: Int, itemName :: ItemName, warp :: Int}
-        deriving (Show)
+
+instance Show Room where
+    show (Room roomId roomEdges itemEdges) = "Room { " ++ show (getRoomIdFromKey roomId) ++ ", " ++ show roomEdges ++ ", " ++ show itemEdges ++ "}"
+
+instance Show Item where
+    show (Item itemId itemName warp) = "Item { " ++ show (getItemIdFromKey itemId) ++ ", " ++ show itemName ++ ", " ++ show (getRoomIdFromKey warp) ++ "}"
 
 instance Eq Item where
     Item id1 _ _ == Item id2 _ _ = id1 == id2
@@ -17,10 +21,10 @@ data Edge = Edge {predicate :: Map ItemName Int -> Set Int -> Bool, room :: Int}
 data IEdge = IEdge {itemPredicate :: Map ItemName Int -> Set Int -> Bool, item :: Int}
 
 instance Show Edge where 
-    show (Edge _ nodeId) = show nodeId
+    show (Edge _ roomId) = show (getRoomIdFromKey roomId)
 
 instance Show IEdge where 
-    show (IEdge _ nodeId) = show nodeId
+    show (IEdge _ itemId) = show (getItemIdFromKey itemId)
 
 data ItemName = MorphBall | MorphBallBomb | IceBeam | WaveBeam | PlasmaBeam | SpaceJumpBoots | PhazonSuit | GravitySuit 
                 | VariaSuit | SpiderBall | BoostBall  | GrappleBeam | PowerBomb | ChargeBeam | SuperMissile | XRayVisor
@@ -101,3 +105,16 @@ data Difficulty = Easy | Medium | Hard | VeryHard | Expert
                 deriving (Eq, Ord, Show, Enum)
 
 data DifficultyArg = Arg Difficulty | All
+
+getRoomMapKey :: RoomId -> Int
+getRoomMapKey = fromEnum
+
+getRoomIdFromKey :: Int -> RoomId
+getRoomIdFromKey = toEnum
+
+-- Make Item keys and Room keys mutually exclusive
+getItemMapKey :: ItemId -> Int
+getItemMapKey itemId = fromEnum itemId + fromEnum (maxBound :: RoomId) + 1
+
+getItemIdFromKey :: Int -> ItemId
+getItemIdFromKey key = toEnum (key - fromEnum (maxBound :: RoomId) - 1) :: ItemId

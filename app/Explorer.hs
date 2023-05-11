@@ -22,22 +22,14 @@ import System.Console.ANSI
 import System.IO
 import Util
 
-data GraphException
-    = MissingWarp !Id
-    | MissingNode
-    | InvalidArgument !String
-    deriving (Show)
-
 data Id = R Int | I Int 
 
 instance Show Id where
     show id = case id of 
-        R roomId -> show (toEnum roomId :: RoomId)
-        I itemId -> show (toEnum itemId :: ItemId)
+        R roomId -> show (getRoomIdFromKey roomId)
+        I itemId -> show (getItemIdFromKey itemId)
 
 data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set Int -> Bool, nodeId :: Id}
-
-instance Exception GraphException
 
 main :: IO ()
 main = do
@@ -45,7 +37,7 @@ main = do
     let roomMap = buildRoomMap $ buildNodes Expert
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
         itemMap = buildItemMap $ parse fileContents ++ pseudoItems
-    case IntMap.lookup (fromEnum OLandingSite) roomMap2 of
+    case IntMap.lookup (getRoomMapKey OLandingSite) roomMap2 of
         Just node -> explore roomMap2 itemMap Map.empty Set.empty node
         Nothing -> return ()
 
@@ -56,7 +48,7 @@ explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges) = do
         bools = eval2 predicates items colItems
         ids = map nodeId edges
     putStrLn "---------------------------------------"
-    putStrLn $ "Current Room: " ++ show (toEnum roomId :: RoomId)
+    putStrLn $ "Current Room: " ++ show (getRoomIdFromKey roomId)
     putStrLn $ "Items: " ++ show (Map.assocs items)
     printEdges ids bools
     command <- getLine

@@ -29,10 +29,10 @@ This is mostly useful for non-warp randomizer seeds.
 --}
 
 buildItemMap :: [Item] -> IntMap Item
-buildItemMap items = IntMap.fromList (map (\x -> (fromEnum (itemId x), x)) items)
+buildItemMap items = IntMap.fromList (map (\x -> (itemId x, x)) items)
 
 buildRoomMap :: [Room] -> IntMap Room
-buildRoomMap rooms = IntMap.fromList (map (\x -> (fromEnum (roomId x), x)) rooms)
+buildRoomMap rooms = IntMap.fromList (map (\x -> (roomId x, x)) rooms)
 
 replaceElevators :: IntMap Room -> [(Int, Int)] -> IntMap Room
 replaceElevators graph [] = graph
@@ -44,32 +44,32 @@ replaceElevators graph ((a, b):rest) =
 replaceEdgeRoom :: Room -> Int -> Int -> Room
 replaceEdgeRoom (Room rId edgeList itemEdges) original replacement =
     let newEdges = replaceEdges edgeList original replacement
-     in Room (fromEnum rId) newEdges itemEdges
+     in Room rId newEdges itemEdges
 
 replaceEdges :: [Edge] -> Int -> Int -> [Edge]
 replaceEdges [] _ _ = []
 replaceEdges ((Edge p roomId):rest) orig replace =
     if roomId `elem` elevatorRooms
-        then Edge p (fromEnum replace) : replaceEdges rest orig replace
-        else Edge p (fromEnum roomId) : replaceEdges rest orig replace
+        then Edge p replace : replaceEdges rest orig replace
+        else Edge p roomId : replaceEdges rest orig replace
 
 elevatorRooms :: [Int]
-elevatorRooms = map fromEnum [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
+elevatorRooms = map getRoomMapKey [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
     ,DTransporttoMagmoorCavernsWest ,DTransporttoMagmoorCavernsSouth ,OTransporttoChozoRuinsWest ,OTransporttoChozoRuinsEast ,OTransporttoMagmoorCavernsEast 
     ,OTransporttoChozoRuinsSouth ,OTransporttoPhazonMinesEast,MTransporttoTallonOverworldSouth ,MTransporttoMagmoorCavernsSouth ,CTransporttoChozoRuinsNorth
     ,CTransporttoPhendranaDriftsNorth ,CTransporttoTallonOverworldWest ,CTransporttoPhazonMinesWest ,CTransporttoPhendranaDriftsSouth]
 
 pseudoItems :: [Item]
-pseudoItems = [Item (fromEnum FrigatePowerDoorTrigger) FrigatePowerDoor (fromEnum OMainVentilationShaftSectionB)
-            ,Item (fromEnum MainQuarryBarrierTrigger) MainQuarryBarrier (fromEnum MMainQuarry)
-            ,Item (fromEnum MainQuarrySaveTrigger) MainQuarrySaveUnlocked (fromEnum MSaveStationMinesA)
-            ,Item (fromEnum ChozoIceTempleTrigger) ChozoIceTempleBarrier (fromEnum DChozoIceTemple)
-            ,Item (fromEnum StorageDepotATrigger) StorageDepotABarrier (fromEnum MMineSecurityStation)
-            ,Item (fromEnum ResearchLabHydraTrigger) ResearchLabHydraBarrier (fromEnum DResearchLabHydra)
-            ,Item (fromEnum EliteControlTrigger) EliteControlBarrier (fromEnum MEliteControl)
-            ,Item (fromEnum MetroidQuarantineATrigger) MetroidQuarantineABarrier (fromEnum MMetroidQuarantineA)
-            ,Item (fromEnum MetroidQuarantineBTrigger) MetroidQuarantineBBarrier (fromEnum MMetroidQuarantineB)
-            ,Item (fromEnum OmegaPirateEntranceTrigger) OmegaPirateEntranceBarrier (fromEnum MEliteQuartersAccess)]
+pseudoItems = [Item (getItemMapKey FrigatePowerDoorTrigger) FrigatePowerDoor (getRoomMapKey OMainVentilationShaftSectionB)
+            ,Item (getItemMapKey MainQuarryBarrierTrigger) MainQuarryBarrier (getRoomMapKey MMainQuarry)
+            ,Item (getItemMapKey MainQuarrySaveTrigger) MainQuarrySaveUnlocked (getRoomMapKey MSaveStationMinesA)
+            ,Item (getItemMapKey ChozoIceTempleTrigger) ChozoIceTempleBarrier (getRoomMapKey DChozoIceTemple)
+            ,Item (getItemMapKey StorageDepotATrigger) StorageDepotABarrier (getRoomMapKey MMineSecurityStation)
+            ,Item (getItemMapKey ResearchLabHydraTrigger) ResearchLabHydraBarrier (getRoomMapKey DResearchLabHydra)
+            ,Item (getItemMapKey EliteControlTrigger) EliteControlBarrier (getRoomMapKey MEliteControl)
+            ,Item (getItemMapKey MetroidQuarantineATrigger) MetroidQuarantineABarrier (getRoomMapKey MMetroidQuarantineA)
+            ,Item (getItemMapKey MetroidQuarantineBTrigger) MetroidQuarantineBBarrier (getRoomMapKey MMetroidQuarantineB)
+            ,Item (getItemMapKey OmegaPirateEntranceTrigger) OmegaPirateEntranceBarrier (getRoomMapKey MEliteQuartersAccess)]
 
 pseudoItemNames :: [ItemName]
 pseudoItemNames = map itemName pseudoItems
@@ -488,7 +488,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,room DPhendranaShorelines [edge (iceBarrier diff) DShorelineEntrance
                                     ,edge noReq DSaveStationB
                                     ,edge noReq DIceRuinsAccess
-                                    ,Edge (climbShorelines diff)  (fromEnum DPhendranaShorelinesUpper)
+                                    ,edge (climbShorelines diff) DPhendranaShorelinesUpper
                                     ,edge (climbShorelines diff) DTempleEntryway]
                                     [itemEdge plasma PhendranaShorelinesBehindIce
                                     ,itemEdge (shorelinesTower diff) PhendranaShorelinesSpiderTrack]
@@ -806,10 +806,10 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ]
         where 
             room :: RoomId -> [Edge] -> [IEdge] -> Room
-            room roomId = Room (fromEnum roomId)
+            room roomId = Room (getRoomMapKey roomId)
             
             edge :: (Map ItemName Int -> Set Int -> Bool) -> RoomId -> Edge
-            edge predicate roomId = Edge predicate (fromEnum roomId)
+            edge predicate roomId = Edge predicate (getRoomMapKey roomId)
 
             itemEdge :: (Map ItemName Int -> Set Int -> Bool) -> ItemId -> IEdge
-            itemEdge predicate itemId = IEdge predicate (fromEnum itemId)
+            itemEdge predicate itemId = IEdge predicate (getItemMapKey itemId)
