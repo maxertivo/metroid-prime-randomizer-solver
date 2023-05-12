@@ -6,7 +6,7 @@ import Data.List
 import Data.Map (Map)
 import Data.Set (Set)
 
-data State = State {inventory :: Map ItemName Int, currentNode :: RoomId, collectedItems :: Set ItemId}
+data State = State {inventory :: Map ItemName Int, currentNode :: Int, collectedItems :: Set Int}
             deriving (Show)
 data CandidateState = CandidateState{state :: State, depth :: Int, newItems :: [ItemName]}
             deriving (Show)

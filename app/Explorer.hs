@@ -6,10 +6,12 @@
 --}
 module Main where
 
-import Control.Exception
+import Data.Text.IO (readFile)
 import Control.Monad
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
 import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -20,37 +22,33 @@ import System.Console.ANSI
 import System.IO
 import Util
 
-data GraphException
-    = MissingWarp !Id
-    | MissingNode
-    | InvalidArgument !String
-    deriving (Show)
+data Id = R Int | I Int 
 
-data Id = R RoomId | I ItemId 
-    deriving (Show)
+instance Show Id where
+    show id = case id of 
+        R roomId -> show (getRoomIdFromKey roomId)
+        I itemId -> show (getItemIdFromKey itemId)
 
-data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set ItemId -> Bool, nodeId :: Id}
-
-instance Exception GraphException
+data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set Int -> Bool, nodeId :: Id}
 
 main :: IO ()
 main = do
-    fileContents <- readFile "resources/sample.txt"
+    fileContents <- Data.Text.IO.readFile "resources/sample.txt"
     let roomMap = buildRoomMap $ buildNodes Expert
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
         itemMap = buildItemMap $ parse fileContents ++ pseudoItems
-    case Map.lookup OLandingSite roomMap2 of
+    case IntMap.lookup (getRoomMapKey OLandingSite) roomMap2 of
         Just node -> explore roomMap2 itemMap Map.empty Set.empty node
         Nothing -> return ()
 
-explore :: Map RoomId Room -> Map ItemId Item -> Map ItemName Int -> Set ItemId -> Room -> IO ()
+explore :: IntMap Room -> IntMap Item -> Map ItemName Int -> Set Int -> Room -> IO ()
 explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges) = do
     let edges = convertEdges roomEdges itemEdges
         predicates = map genPredicate edges
         bools = eval2 predicates items colItems
         ids = map nodeId edges
     putStrLn "---------------------------------------"
-    putStrLn $ "Current Room: " ++ show roomId
+    putStrLn $ "Current Room: " ++ show (getRoomIdFromKey roomId)
     putStrLn $ "Items: " ++ show (Map.assocs items)
     printEdges ids bools
     command <- getLine
@@ -60,10 +58,10 @@ explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges) = do
     if allowed
         then case nodeId of
                  Nothing -> error "Missing id"
-                 Just (R roomId) -> explore roomMap itemMap items colItems (getVal (Map.lookup roomId roomMap) "Missing room")
-                 Just (I itemId) -> case Map.lookup itemId itemMap of
+                 Just (R roomId) -> explore roomMap itemMap items colItems (getVal (IntMap.lookup roomId roomMap) "Missing room")
+                 Just (I itemId) -> case IntMap.lookup itemId itemMap of
                                 Nothing -> error "Missing item"
-                                Just (Item id name warp) -> explore roomMap itemMap (addItem name items) (Set.insert id colItems) (getVal (Map.lookup warp roomMap) "Missing room")
+                                Just (Item id name warp) -> explore roomMap itemMap (addItem name items) (Set.insert id colItems) (getVal (IntMap.lookup warp roomMap) "Missing room")
         else explore roomMap itemMap items colItems (Room roomId roomEdges itemEdges)
 
 printEdges :: [Id] -> [Bool] -> IO ()
