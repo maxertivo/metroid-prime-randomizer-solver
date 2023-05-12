@@ -1,6 +1,5 @@
 module Parser (parse, parseElevators, parseArg, parseDifficulty) where
 
-import Data.Maybe (fromMaybe)
 import Data.List
 import Data.Text (Text, pack, unpack, isPrefixOf, filter, splitOn, empty, drop, lines, take, cons, stripPrefix)
 import Data.Char
@@ -67,19 +66,18 @@ shortenAreas :: [Text] -> [Text]
 shortenAreas = map shortenArea
 
 shortenArea :: Text -> Text
-shortenArea a = 
-    let x = Data.Maybe.fromMaybe a (Data.Text.stripPrefix (Data.Text.pack "Warpsto:") a)
-    in case Data.Text.stripPrefix (Data.Text.pack "PhendranaDrifts") x of 
-            Just y -> Data.Text.cons 'D' y
-            Nothing -> case Data.Text.stripPrefix (Data.Text.pack "ChozoRuins") x of
-                Just z -> Data.Text.cons 'R' z
-                Nothing -> case Data.Text.stripPrefix (Data.Text.pack "PhazonMines") x of
-                    Just w -> Data.Text.cons 'M' w
-                    Nothing -> case Data.Text.stripPrefix (Data.Text.pack "MagmoorCaverns") x of 
-                        Just v ->  Data.Text.cons 'C' v
-                        Nothing -> case Data.Text.stripPrefix  (Data.Text.pack "TallonOverworld") x of
-                            Just u -> Data.Text.cons 'O' u
-                            Nothing -> x
+shortenArea x = 
+    case Data.Text.stripPrefix (Data.Text.pack "PhendranaDrifts") x of 
+        Just y -> Data.Text.cons 'D' y
+        Nothing -> case Data.Text.stripPrefix (Data.Text.pack "ChozoRuins") x of
+            Just z -> Data.Text.cons 'R' z
+            Nothing -> case Data.Text.stripPrefix (Data.Text.pack "PhazonMines") x of
+                Just w -> Data.Text.cons 'M' w
+                Nothing -> case Data.Text.stripPrefix (Data.Text.pack "MagmoorCaverns") x of 
+                    Just v ->  Data.Text.cons 'C' v
+                    Nothing -> case Data.Text.stripPrefix  (Data.Text.pack "TallonOverworld") x of
+                        Just u -> Data.Text.cons 'O' u
+                        Nothing -> x
 
 tupleToString :: [(Text,Text,Text)] -> [(String, String, String)]
 tupleToString = map (\(a,b,c) -> (Data.Text.unpack a, Data.Text.unpack b ,Data.Text.unpack c))
@@ -87,7 +85,7 @@ tupleToString = map (\(a,b,c) -> (Data.Text.unpack a, Data.Text.unpack b ,Data.T
 createTuples :: [Text] -> [(Text, Text, Text)]
 createTuples
   = map
-      (\ x -> (Data.Text.take 38 (Data.Text.drop 12 x), Data.Text.take 24 (Data.Text.drop 51 x), Data.Text.drop 76 x))
+      (\ x -> (Data.Text.take 38 (Data.Text.drop 12 x), Data.Text.take 24 (Data.Text.drop 51 x), Data.Text.drop 86 x))
 
 createElevatorTuples :: [String] -> [(Int, Int)]
 createElevatorTuples (a:b:rest) = (readRoomId a, readRoomId b) : createElevatorTuples rest
