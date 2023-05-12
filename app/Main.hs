@@ -1,5 +1,7 @@
 module Main where
 
+import Data.Text (Text)
+import Data.Text.IO (readFile)
 import Data.List
 import Graph
 import Node
@@ -22,7 +24,7 @@ main = do
     let difficulty = parseDifficulty difficultyString
     if ".txt" `isSuffixOf` directory
         then do
-            fileContents <- readFile directory
+            fileContents <- Data.Text.IO.readFile directory
             putStrLn $ checkFile fileContents difficulty
         else do
             filePaths <- getDirectoryContents directory
@@ -33,22 +35,22 @@ checkAllFiles _ [] _ = return ()
 checkAllFiles directory ("..":rest) diff = checkAllFiles directory rest diff
 checkAllFiles directory (".":rest) diff = checkAllFiles directory rest diff
 checkAllFiles directory (fileName:rest) diff = do
-    fileContents <- readFile (directory ++ "/" ++ fileName)
+    fileContents <- Data.Text.IO.readFile (directory ++ "/" ++ fileName)
     putStr $ fileName ++ ": "
     putStrLn $ checkFile fileContents diff
     checkAllFiles directory rest diff
 
-checkFile :: String -> DifficultyArg -> String
+checkFile :: Text -> DifficultyArg -> String
 checkFile fileContents All = maybe "False" show (checkAllDifficulties fileContents)
 checkFile fileContents (Arg difficulty) = show $ isLogCompletable fileContents difficulty
 
-checkAllDifficulties :: String -> Maybe Difficulty
+checkAllDifficulties :: Text -> Maybe Difficulty
 checkAllDifficulties fileContents =
     if isLogCompletable fileContents Expert
         then checkAllDifficulties' fileContents (reverse [Easy .. Expert])
         else Nothing
   where
-    checkAllDifficulties' :: String -> [Difficulty] -> Maybe Difficulty
+    checkAllDifficulties' :: Text -> [Difficulty] -> Maybe Difficulty
     checkAllDifficulties' logContents [Easy] =
         if isLogCompletable logContents Easy
             then Just Easy
@@ -59,7 +61,7 @@ checkAllDifficulties fileContents =
             else Just diff1
     checkAllDifficulties' _ _ = Nothing
 
-isLogCompletable :: String -> Difficulty -> Bool
+isLogCompletable :: Text -> Difficulty -> Bool
 isLogCompletable fileContents diff =
     let roomMap = buildRoomMap $ buildNodes diff
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)

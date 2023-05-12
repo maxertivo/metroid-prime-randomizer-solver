@@ -6,7 +6,7 @@
 --}
 module Main where
 
-import Control.Exception
+import Data.Text.IO (readFile)
 import Control.Monad
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -33,7 +33,7 @@ data GenericEdge = GenericEdge {genPredicate :: Map ItemName Int -> Set Int -> B
 
 main :: IO ()
 main = do
-    fileContents <- readFile "resources/sample.txt"
+    fileContents <- Data.Text.IO.readFile "resources/sample.txt"
     let roomMap = buildRoomMap $ buildNodes Expert
         roomMap2 = replaceElevators roomMap (parseElevators fileContents)
         itemMap = buildItemMap $ parse fileContents ++ pseudoItems
