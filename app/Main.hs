@@ -41,29 +41,21 @@ checkAllFiles directory (fileName:rest) diff = do
     checkAllFiles directory rest diff
 
 checkFile :: Text -> DifficultyArg -> String
-checkFile fileContents All = maybe "False" show (checkAllDifficulties fileContents)
+checkFile fileContents All = maybe "False" show (checkAllDifficulties fileContents Expert)
 checkFile fileContents (Arg difficulty) = show $ isLogCompletable fileContents difficulty
 
-checkAllDifficulties :: Text -> Maybe Difficulty
-checkAllDifficulties fileContents =
-    if isLogCompletable fileContents Expert
-        then checkAllDifficulties' fileContents (reverse [Easy .. Expert])
-        else Nothing
-  where
-    checkAllDifficulties' :: Text -> [Difficulty] -> Maybe Difficulty
-    checkAllDifficulties' logContents [Easy] =
-        if isLogCompletable logContents Easy
-            then Just Easy
-            else Just Medium
-    checkAllDifficulties' logContents (diff1:diff2:xs) =
-        if isLogCompletable logContents diff2
-            then checkAllDifficulties' logContents (diff2 : xs)
-            else Just diff1
-    checkAllDifficulties' _ _ = Nothing
+checkAllDifficulties :: Text -> Difficulty -> Maybe Difficulty
+checkAllDifficulties fileContents diff =
+    case diff of 
+        Expert -> if isLogCompletable fileContents Expert then checkAllDifficulties fileContents VeryHard else Nothing
+        VeryHard -> if isLogCompletable fileContents VeryHard then checkAllDifficulties fileContents Hard else Just Expert
+        Hard -> if isLogCompletable fileContents Hard then checkAllDifficulties fileContents Medium else Just VeryHard
+        Medium -> if isLogCompletable fileContents Medium then checkAllDifficulties fileContents Easy else Just Hard
+        Easy -> if isLogCompletable fileContents Easy then Just Easy else Just Medium
 
 isLogCompletable :: Text -> Difficulty -> Bool
 isLogCompletable fileContents diff =
-    let roomMap = buildRoomMap $ buildNodes diff
-        roomMap2 = replaceElevators roomMap (parseElevators fileContents)
-        itemMap = buildItemMap $ parse fileContents ++ pseudoItems
+    let roomMap = buildRoomMap $! buildNodes diff
+        roomMap2 = replaceElevators roomMap $! parseElevators fileContents
+        itemMap = buildItemMap $! parse fileContents ++ pseudoItems
      in isCompletable roomMap2 itemMap
