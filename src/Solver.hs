@@ -121,14 +121,12 @@ isAccessibleHelper :: IntMap Room -> [Int] -> Int -> Map ItemName Int -> Set Int
 isAccessibleHelper _ [] _ _ _ = False
 isAccessibleHelper roomMap (roomId:rest) destination inventory itemIds =
     roomId == destination ||
-    case IntMap.lookup roomId roomMap of
-        Just (Room _ edges _) ->
-            let predicates = map predicate edges
-                roomIds = map room edges
-                bools = eval2 predicates inventory itemIds
-                reachableRoomIds = checkBools roomIds bools
-             in isAccessibleHelper (IntMap.delete roomId roomMap) (reachableRoomIds ++ rest) destination inventory itemIds
-        Nothing -> isAccessibleHelper roomMap rest destination inventory itemIds
+        case IntMap.lookup roomId roomMap of
+            Just (Room _ edges _)  -> 
+                let reachableNewEdges = filter (\x -> IntMap.member (room x) roomMap && predicate x inventory itemIds) edges
+                    reachableNewRoomIds = map room reachableNewEdges
+                    in isAccessibleHelper (IntMap.delete roomId roomMap) (reachableNewRoomIds ++ rest) destination inventory itemIds
+            Nothing -> isAccessibleHelper roomMap rest destination inventory itemIds
 
 getAccessibleItems :: IntMap Room -> IntMap Item -> State -> [Item]
 getAccessibleItems roomMap itemMap (State inventory roomId collectedItems) =

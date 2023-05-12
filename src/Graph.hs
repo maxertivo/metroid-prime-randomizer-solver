@@ -16,11 +16,11 @@ We calculate if a seed is completable by constructing the graph, and then callin
 This function does the following:
     1. Collects all "free" items. That is, items where we can handle the warp and the warp is not useful for later
     2. Checks if you can complete the game with current items. If so, we are done and can complete the game.
-    3. Tries to find a sequence of at most 5 warps that collects at least one progression item
+    3. Tries to find a sequence of warps that collects at least one progression item
     4. If no such sequences can be found, we are done and cannot complete the game. Otherwise, repeat steps 1-3.
 
 Graph Construction:
-Much of the graph construction is hard-coded. During construction, the difficulty is passed in to any edge that predicate requires it, 
+Much of the graph construction is hard-coded. During construction, the difficulty is passed in to any edge predicate that requires it, 
 thereby eliminating the need to pass in the difficulty when solving the graph.
 
 Non-Warping Items:
