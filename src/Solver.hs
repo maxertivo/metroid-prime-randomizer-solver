@@ -142,16 +142,14 @@ getAccessibleItemsHelper _ [] _ _ result = result
 getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
     case IntMap.lookup roomId roomMap of
         Just (Room _ edges itemEdges) ->
-            let predicates = map predicate edges
+            let reachableNewEdges = filter (\x -> IntMap.member (room x) roomMap && predicate x inventory collectedItems) edges
+                reachableNewRoomIds = map room reachableNewEdges
                 itemPredicates = map itemPredicate itemEdges
-                roomIds = map room edges
                 itemIds = map item itemEdges
-                bools = eval2 predicates inventory collectedItems
                 itemBools = eval2 itemPredicates inventory collectedItems
-                reachableRoomIds = checkBools roomIds bools
                 reachableItemIds = checkBools itemIds itemBools
                 uncollectedItemIds = removeSet reachableItemIds collectedItems
-             in getAccessibleItemsHelper (IntMap.delete roomId roomMap) (reachableRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
+             in getAccessibleItemsHelper (IntMap.delete roomId roomMap) (reachableNewRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
         Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result
 
 landingSite :: Int
