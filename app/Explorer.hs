@@ -86,3 +86,14 @@ convertEdges :: [Edge] -> [IEdge] -> [GenericEdge]
 convertEdges [] [] = []
 convertEdges [] (IEdge itemPredicate itemId:rest) = GenericEdge itemPredicate (I itemId) : convertEdges [] rest
 convertEdges (Edge predicate roomId : rest) iEdges = GenericEdge predicate (R roomId) : convertEdges rest iEdges
+
+checkBools :: [a] -> [Bool] -> [a]
+checkBools (i:rest1) (bool:rest2) =
+    if bool
+        then i : checkBools rest1 rest2
+        else checkBools rest1 rest2
+checkBools _ _ = []
+
+-- Apply all functions in a list to the same two args
+eval2 :: [a -> b -> c] -> a -> b -> [c]
+eval2 funcList arg1 arg2 = map (\x -> x arg1 arg2) funcList

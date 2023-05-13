@@ -14,10 +14,10 @@ data CandidateState = CandidateState{state :: State, depth :: Int, newItems :: [
 {-- Sorts from best to worst, so the better candidate is actually the "lesser" one --}
 instance Ord CandidateState where
     compare (CandidateState _ b c) (CandidateState _ e f)
-        | countOf c [WaveBeam, IceBeam, PlasmaBeam] > countOf f [WaveBeam, IceBeam, PlasmaBeam] = LT
-        | countOf c [WaveBeam, IceBeam, PlasmaBeam] < countOf f [WaveBeam, IceBeam, PlasmaBeam] = GT
-        | countOf c upgrades > countOf f upgrades = LT
-        | countOf c upgrades < countOf f upgrades = GT
+        | countOf [WaveBeam, IceBeam, PlasmaBeam] c > countOf [WaveBeam, IceBeam, PlasmaBeam] f = LT
+        | countOf [WaveBeam, IceBeam, PlasmaBeam] c < countOf [WaveBeam, IceBeam, PlasmaBeam] f = GT
+        | countOf upgrades c > countOf upgrades f = LT
+        | countOf upgrades c < countOf upgrades f = GT
         | b < e = LT
         | b > e = GT
         | otherwise = compare (Data.List.minimum c) (Data.List.minimum f)

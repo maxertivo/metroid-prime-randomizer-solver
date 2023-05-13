@@ -8,7 +8,7 @@ import Util
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.IntMap (IntMap)
+import Data.IntMap (IntMap, (!))
 import qualified Data.IntMap as IntMap
 import Data.Set (Set, empty)
 import qualified Data.Set as Set
@@ -29,7 +29,7 @@ isCompletableHelper roomMap itemMap currState =
 
 isComplete :: IntMap Room -> IntMap Item -> State -> Bool
 isComplete roomMap itemMap (State inventory roomId collectedItems) =
-    let artifactTempleItem = getVal (IntMap.lookup artifactTempleItemId itemMap) "Missing Item ArtifactTemple"
+    let artifactTempleItem = itemMap ! artifactTempleItemId
      in complete inventory collectedItems &&
         isAccessible roomMap roomId (getRoomMapKey OArtifactTemple) inventory collectedItems &&
         -- Either you collected Artifact Temple or you can collect it and return
@@ -144,12 +144,9 @@ getAccessibleItemsHelper roomMap (roomId:rest) inventory collectedItems result =
         Just (Room _ edges itemEdges) ->
             let reachableNewEdges = filter (\x -> IntMap.member (room x) roomMap && predicate x inventory collectedItems) edges
                 reachableNewRoomIds = map room reachableNewEdges
-                itemPredicates = map itemPredicate itemEdges
-                itemIds = map item itemEdges
-                itemBools = eval2 itemPredicates inventory collectedItems
-                reachableItemIds = checkBools itemIds itemBools
-                uncollectedItemIds = removeSet reachableItemIds collectedItems
-             in getAccessibleItemsHelper (IntMap.delete roomId roomMap) (reachableNewRoomIds ++ rest) inventory collectedItems (uncollectedItemIds ++ result)
+                reachableNewItemEdges = filter (\x -> Set.notMember (item x) collectedItems && itemPredicate x inventory collectedItems) itemEdges
+                reachableNewItemIds = map item reachableNewItemEdges
+             in getAccessibleItemsHelper (IntMap.delete roomId roomMap) (reachableNewRoomIds ++ rest) inventory collectedItems (reachableNewItemIds ++ result)
         Nothing -> getAccessibleItemsHelper roomMap rest inventory collectedItems result
 
 landingSite :: Int

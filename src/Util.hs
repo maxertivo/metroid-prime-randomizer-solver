@@ -8,19 +8,11 @@ import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
 
--- Apply all functions in a list to the same two args
-eval2 :: [a -> b -> c] -> a -> b -> [c]
-eval2 funcList arg1 arg2 = map (\x -> x arg1 arg2) funcList
-
 getVal :: Maybe a -> String -> a
 getVal m msg =
     case m of
         Nothing -> error msg
         Just a -> a
-
-nonEmpty :: [a] -> Bool
-nonEmpty [] = False
-nonEmpty _ = True
 
 countOf :: [ItemName] -> [ItemName] -> Int
 countOf mainList itemsToCount = countOf' mainList itemsToCount 0
@@ -28,7 +20,7 @@ countOf mainList itemsToCount = countOf' mainList itemsToCount 0
     countOf' :: [ItemName] -> [ItemName] -> Int -> Int
     countOf' items (check:rest) count =
         if check `elem` items
-            then countOf' items rest (count + 1)
+            then countOf' items rest $! count + 1
             else countOf' items rest count
     countOf' _ [] count = count
 
@@ -87,10 +79,3 @@ listContainsAny [] [] = False
 listContainsAny _ [] = False
 listContainsAny [] _ = False
 listContainsAny items (x:rest) = listContains items x || listContainsAny items rest
-
-checkBools :: [a] -> [Bool] -> [a]
-checkBools (i:rest1) (bool:rest2) =
-    if bool
-        then i : checkBools rest1 rest2
-        else checkBools rest1 rest2
-checkBools _ _ = []
