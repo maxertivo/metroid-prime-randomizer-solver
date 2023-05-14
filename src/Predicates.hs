@@ -52,9 +52,6 @@ boostBombs inv _ = containsAll inv [MorphBall, BoostBall, MorphBallBomb]
 morphMissile :: Map ItemName Int -> Set Int -> Bool
 morphMissile inv _ = containsAll inv [MorphBall, Missile]
 
-bombsPbs :: Map ItemName Int -> Set Int -> Bool
-bombsPbs inv _ = containsAll inv [MorphBall, MorphBallBomb, PowerBomb]
-
 wave :: Map ItemName Int -> Set Int -> Bool
 wave inv _ = contains inv WaveBeam
 

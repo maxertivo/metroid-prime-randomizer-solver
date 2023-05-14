@@ -490,7 +490,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
                                     ,edge DIceRuinsAccess noReq
                                     ,edge DPhendranaShorelinesUpper $! climbShorelines diff
                                     ,edge DTempleEntryway $! climbShorelines diff]
-                                    [itemEdge PhendranaShorelinesBehindIce plasma
+                                    [itemEdge PhendranaShorelinesBehindIce $! shorelinesItem diff
                                     ,itemEdge PhendranaShorelinesSpiderTrack $! shorelinesTower diff]
             ,room DPhendranaShorelinesUpper [edge DPlazaWalkway noReq
                                     ,edge DRuinsEntryway noReq
@@ -575,7 +575,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,room DResearchLabHydraBack [edge DResearchLabHydra researchLabHydraBarrier
                                     ,edge DObservatoryAccess wave]
                                     [itemEdge ResearchLabHydra supers]
-            ,room DObservatoryAccess [edge DResearchLabHydra wave
+            ,room DObservatoryAccess [edge DResearchLabHydraBack wave
                                     ,edge DObservatory wave] []
             ,room DObservatory [edge DObservatoryAccess wave
                                     ,edge DObservatoryTop $! observatoryClimb diff] []

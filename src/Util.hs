@@ -49,10 +49,7 @@ removeSet (x:rest) set =
 
 -- Helper functions for Predicates
 containsCount :: Int -> ItemName -> Map ItemName Int -> Bool
-containsCount num element graph
-    | num < 0 = False
-    | num == 0 = True
-    | otherwise = num <= fromMaybe 0 (Map.lookup element graph)
+containsCount num element graph = num <= fromMaybe 0 (Map.lookup element graph)
 
 contains :: Map ItemName Int -> ItemName -> Bool
 contains m x = Map.member x m
@@ -67,12 +64,6 @@ containsAny graph (x:rest) = contains graph x || containsAny graph rest
 
 listContains :: [ItemName] -> ItemName -> Bool
 listContains items item = item `Prelude.elem` items
-
-listContainsAll :: [ItemName] -> [ItemName] -> Bool
-listContainsAll [] [] = True
-listContainsAll _ [] = True
-listContainsAll [] _ = False
-listContainsAll items (x:rest) = listContains items x && listContainsAll items rest
 
 listContainsAny :: [ItemName] -> [ItemName] -> Bool
 listContainsAny [] [] = False
