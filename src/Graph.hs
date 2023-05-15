@@ -17,7 +17,7 @@ This function does the following:
     1. Collects all "free" items. That is, items where we can handle the warp and the warp is not useful for later
     2. Checks if you can complete the game with current items. If so, we are done and can complete the game.
     3. Tries to find a sequence of warps that collects at least one progression item
-    4. If no such sequences can be found, we are done and cannot complete the game. Otherwise, repeat steps 1-3.
+    4. If no such sequences can be found, we are done and cannot complete the game. Otherwise, collect the items for that warp sequence, then go back to step 1.
 
 Graph Construction:
 Much of the graph construction is hard-coded. During construction, the difficulty is passed in to any edge predicate that requires it, 

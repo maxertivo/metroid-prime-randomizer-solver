@@ -41,5 +41,6 @@ Test-Suite test-medley
                         test-framework-hunit,
                         HUnit,
                         containers,
+                        text,
                         metroid-prime-randomizer-solver
     default-language:   Haskell2010
