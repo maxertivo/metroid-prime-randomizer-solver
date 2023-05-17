@@ -16,7 +16,7 @@ Chozo - - -  Magma Pool - - - - - - - - - - - - - - Missile Expansion - - - Warp
 Chozo - - -  Tower of Light - - - - - - - - - - - - Missile Expansion - - - Warps to: Tallon Overworld | Main Ventilation Shaft Section C
 Chozo - - -  Tower Chamber - - - - - - - - - - - -  Missile Expansion - - - Warps to: Tallon Overworld | Main Ventilation Shaft Section C
 Chozo - - -  Ruined Gallery (Missile Wall) - - - -  Artifact of Truth - - - Warps to: Phendrana Drifts |Research Lab Aether
-Chozo - - -  Ruined Gallery (Tunnel) - - - - - - -  Power Bomb - - - - - - Warps to: Tallon Overworld | Reactor Core
+Chozo - - -  Ruined Gallery (Tunnel) - - - - - - -  Power Bomb  - - - - - - Warps to: Tallon Overworld | Reactor Core
 Chozo - - -  Transport Access North - - - - - - - - Missile Expansion - - - Warps to: Phazon Mines | Storage Depot B
 Chozo - - -  Gathering Hall - - - - - - - - - - - - Energy Tank - - - - - - Warps to: Chozo Ruins | Crossway Access West
 Chozo - - -  Hive Totem - - - - - - - - - - - - - - Missile Launcher

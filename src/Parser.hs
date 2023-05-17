@@ -1,46 +1,44 @@
 module Parser (parse, parseElevators, parseArg, parseDifficulty) where
 
 import Data.List
-import Data.Text (Text, pack, unpack, isPrefixOf, filter, splitOn, empty, drop, lines, take, cons, stripPrefix)
+import Data.Map (Map, fromList, (!))
+import Data.Text (Text, pack, isPrefixOf, filter, splitOn, empty, drop, lines, take, cons, stripPrefix)
 import Data.Char
 import Node
 import Data.Bifunctor (bimap)
 
 parse :: Text -> [Item]
-parse input = createItemNodes $ handleExpansions $ tupleToString $ shortenTupleAreas $ removePunc $ createTuples $ dropLines $ removeEmpty $ Data.Text.lines input
+parse = createItemNodes . handleExpansions . shortenTupleAreas . removePunc . createTuples . dropLines . removeEmpty . Data.Text.lines
 
 parseElevators :: Text -> [(Int, Int)]
-parseElevators input = createElevatorTuples $ map Data.Text.unpack $ shortenAreas $ splitElevators $ map filterPunc $ removeEmpty $ getElevatorLines $ Data.Text.lines input
+parseElevators = createElevatorTuples . shortenAreas . splitElevators . map filterPunc . removeEmpty . getElevatorLines . Data.Text.lines
 
-createItemNodes :: [(String, String, String)] -> [Item]
+createItemNodes :: [(Text, Text, Text)] -> [Item]
 createItemNodes ((a, b, c):rest) = Item (readItemId a) (readItemName b) (getWarp c a) : createItemNodes rest
 createItemNodes [] = []
 
-readItemName :: String -> ItemName
-readItemName str = readItemName' str [(minBound :: ItemName) .. (maxBound :: ItemName)]
-                where
-                readItemName' :: String -> [ItemName] -> ItemName
-                readItemName' s [] = error $ "Unable to read item name " ++ s
-                readItemName' s (name:rest) = if s == show name then name else readItemName' s rest
+readItemName :: Text -> ItemName
+readItemName text = itemNameMap ! text
 
-readItemId :: String -> Int
-readItemId str = readItemId' str [(minBound :: ItemId) .. (maxBound :: ItemId)]
-                where
-                readItemId' :: String -> [ItemId] -> Int
-                readItemId' s [] = error $ "Unable to read item ID " ++ s
-                readItemId' s (itemId:rest) = if s == show itemId then getItemMapKey itemId else readItemId' s rest
+readItemId :: Text -> Int
+readItemId text = itemIdMap ! text
 
-readRoomId :: String -> Int
-readRoomId str = readRoomId' str [(minBound :: RoomId) .. (maxBound :: RoomId)]
-                where
-                readRoomId' :: String -> [RoomId] -> Int
-                readRoomId' s [] = error $ "Unable to read room ID " ++ s
-                readRoomId' s (room:rest) = if s == show room then getRoomMapKey room else readRoomId' s rest
+readRoomId :: Text -> Int
+readRoomId text = roomIdMap ! text
 
-getWarp :: String -> String -> Int
+roomIdMap :: Map Text Int
+roomIdMap = Data.Map.fromList (map (\x -> (Data.Text.pack (show x), getRoomMapKey x)) [(minBound :: RoomId) .. (maxBound :: RoomId)])
+
+itemIdMap :: Map Text Int
+itemIdMap = Data.Map.fromList (map (\x -> (Data.Text.pack (show x), getItemMapKey x)) [(minBound :: ItemId) .. (maxBound :: ItemId)])
+
+itemNameMap :: Map Text ItemName
+itemNameMap = Data.Map.fromList (map (\x -> (Data.Text.pack (show x), x)) [(minBound :: ItemName) .. (maxBound :: ItemName)])
+
+getWarp :: Text -> Text -> Int
 getWarp warp item
-    | warp == "" = getDefaultWarp (readItemId item) defaultWarps
-    | warp == "OSavestation" = getRoomMapKey OSaveStation -- There is a typo in early versions of the randomizer
+    | warp == Data.Text.empty = getDefaultWarp (readItemId item) defaultWarps
+    | warp == Data.Text.pack "OSavestation" = getRoomMapKey OSaveStation -- There is a typo in early versions of the randomizer
     | otherwise = readRoomId warp
 
 getDefaultWarp :: Int -> [(Int, Int)] -> Int
@@ -50,14 +48,16 @@ getDefaultWarp itemId ((room, item):rest) =
         else getDefaultWarp itemId rest
 getDefaultWarp itemId [] = error $ "Couldn't find default warp for itemId: " ++ show itemId
 
-handleExpansions :: [(String, String, String)] -> [(String, String, String)]
-handleExpansions = map (\(a,b,c) ->
-    case b of
-        'M' : 'i' : 's' : _ -> (a,"Missile",c)
-        'P' : 'o' : 'w' : _ -> (a,"PowerBomb",c)
-        'E' : 'n' : 'e' : _ -> (a,"EnergyTank",c)
-        'A' : 'r' : 't' : _ -> (a,"Artifact",c)
-        _ -> (a,b,c))
+handleExpansions :: [(Text, Text, Text)] -> [(Text, Text, Text)]
+handleExpansions = map (\(a,b,c) -> (a, handleExpansion b (Data.Text.take 2 b), c))
+
+handleExpansion :: Text -> Text -> Text
+handleExpansion b first2 
+    | first2 == Data.Text.pack "Mi" = Data.Text.take 7 b  --Missile
+    | first2 == Data.Text.pack "Po" = Data.Text.take 9 b  --PowerBomb
+    | first2 == Data.Text.pack "En" = Data.Text.take 10 b --EnergyTank
+    | first2 == Data.Text.pack "Ar" = Data.Text.take 8 b  --Artifact
+    | otherwise = b
 
 shortenTupleAreas :: [(Text, Text, Text)] -> [(Text, Text, Text)]
 shortenTupleAreas = map (\(a,b,c) -> (a,b,shortenArea c))
@@ -66,28 +66,20 @@ shortenAreas :: [Text] -> [Text]
 shortenAreas = map shortenArea
 
 shortenArea :: Text -> Text
-shortenArea x = 
-    case Data.Text.stripPrefix (Data.Text.pack "PhendranaDrifts") x of 
-        Just y -> Data.Text.cons 'D' y
-        Nothing -> case Data.Text.stripPrefix (Data.Text.pack "ChozoRuins") x of
-            Just z -> Data.Text.cons 'R' z
-            Nothing -> case Data.Text.stripPrefix (Data.Text.pack "PhazonMines") x of
-                Just w -> Data.Text.cons 'M' w
-                Nothing -> case Data.Text.stripPrefix (Data.Text.pack "MagmoorCaverns") x of 
-                    Just v ->  Data.Text.cons 'C' v
-                    Nothing -> case Data.Text.stripPrefix  (Data.Text.pack "TallonOverworld") x of
-                        Just u -> Data.Text.cons 'O' u
-                        Nothing -> x
+shortenArea = replacePrefix "PhendranaDrifts" 'D' . replacePrefix "ChozoRuins" 'R' . replacePrefix "PhazonMines" 'M' 
+                . replacePrefix "MagmoorCaverns" 'C' . replacePrefix "TallonOverworld" 'O'
 
-tupleToString :: [(Text,Text,Text)] -> [(String, String, String)]
-tupleToString = map (\(a,b,c) -> (Data.Text.unpack a, Data.Text.unpack b ,Data.Text.unpack c))
+replacePrefix :: String -> Char -> Text -> Text
+replacePrefix prefix replacement x = case Data.Text.stripPrefix (Data.Text.pack prefix) x of
+                        Just y -> Data.Text.cons replacement y
+                        Nothing -> x
 
 createTuples :: [Text] -> [(Text, Text, Text)]
 createTuples
   = map
       (\ x -> (Data.Text.take 38 (Data.Text.drop 12 x), Data.Text.take 24 (Data.Text.drop 51 x), Data.Text.drop 86 x))
 
-createElevatorTuples :: [String] -> [(Int, Int)]
+createElevatorTuples :: [Text] -> [(Int, Int)]
 createElevatorTuples (a:b:rest) = (readRoomId a, readRoomId b) : createElevatorTuples rest
 createElevatorTuples [] = []
 createElevatorTuples _ = error "elevators should be in pairs"
