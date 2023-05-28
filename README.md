@@ -5,6 +5,8 @@ Claris's Randomizer is available [here](https://www.dropbox.com/s/s9nomgf5few8ky
 
 If you have not used the Randomizer before, Rekameohs's Script can help with the ISO extraction and removing the Frigate from the start of the game. Note that an older version of the Randomizer is included with the script, and the script may not work for newer versions of the Randomizer. The script and its included tools are available [here](https://www.dropbox.com/sh/66gciez2ql2enjw/AAAsH3tnA6FZiHs_8zeZpfKHa).
 
+You should be able to randomize using Rekameohs's script and its included version of the randomizer to skip the frigate. From then on, run the newer version of the randomizer (without using the script) to create a new seed. You can still use Rekameohs's script to create the ISO after randomization.
+
 ## Usage
 ```
 metroid-prime-randomizer-solver -d [Difficulty] -l [Log Directory]
