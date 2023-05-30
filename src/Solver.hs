@@ -52,19 +52,19 @@ getAllCandidates roomMap itemMap ((Item itemId itemName warp):rest) currState de
         newState = State newInventory warp newIds
         accessibleItems = getAccessibleItems roomMap itemMap newState
         accessibleItemsInaccessibleFromStart = filter (`notElem` getAccessibleItems roomMap itemMap (State newInventory landingSite newIds)) accessibleItems
-        numAccessibleItems = length accessibleItems
-        belowDepthLimit = numAccessibleItems <= 4 || depth <= 2
         recurseItemList = getAllCandidates roomMap itemMap rest currState depth newItems
         recurseDeeper = getAllCandidates roomMap itemMap accessibleItems newState (depth + 1) (itemName : newItems)
         recurseDeeperLimitSearch = getAllCandidates roomMap itemMap accessibleItemsInaccessibleFromStart newState (depth + 1) (itemName : newItems)
         candidate = CandidateState newState depth (itemName : newItems)
         warpCanAccessStart = isAccessible roomMap warp landingSite newInventory newIds
         startCanAccessWarp = isAccessible roomMap landingSite warp newInventory newIds
+        hasProgression = containsProgressionItem (itemName : newItems) newInventory
+        belowDepthLimit = depth <= 2 || length accessibleItems <= 4
      in if warpCanAccessStart && startCanAccessWarp
-            then if containsUpgrade (itemName : newItems) newInventory
+            then if hasProgression
                       then candidate : recurseItemList   -- We have a candidate and can end this warp chain
                       else recurseItemList               -- Not a valid candidate
-            else if warpCanAccessStart && containsUpgrade (itemName : newItems) newInventory
+            else if warpCanAccessStart && hasProgression
                      then if belowDepthLimit
                                -- We have a candidate, but we can't return here, so continue this warp chain while only checking items we can't reach from start
                                then candidate : (recurseItemList ++ recurseDeeperLimitSearch)
@@ -76,8 +76,8 @@ getAllCandidates roomMap itemMap ((Item itemId itemName warp):rest) currState de
                                -- Not a valid candidate, and the chain is too long, so end it here
                                else recurseItemList                             
 
-containsUpgrade :: [ItemName] -> Map ItemName Int -> Bool
-containsUpgrade newItems inventory =
+containsProgressionItem :: [ItemName] -> Map ItemName Int -> Bool
+containsProgressionItem newItems inventory =
     let previousInventory = removeAll inventory newItems
         emptySet = Data.Set.empty
     in  listContainsAny newItems [MorphBall,SpaceJumpBoots,GrappleBeam,WaveBeam,IceBeam,PlasmaBeam

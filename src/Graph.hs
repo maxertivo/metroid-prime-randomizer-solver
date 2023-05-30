@@ -35,23 +35,18 @@ buildRoomMap :: [Room] -> IntMap Room
 buildRoomMap rooms = IntMap.fromList (map (\x -> (roomId x, x)) rooms)
 
 replaceElevators :: IntMap Room -> [(Int, Int)] -> IntMap Room
-replaceElevators graph [] = graph
-replaceElevators graph ((a, b):rest) =
-    let oldNode = getVal (IntMap.lookup a graph) "Missing room"
-        newNode = replaceEdgeRoom oldNode a b
-     in replaceElevators (IntMap.insert a newNode graph) rest
+replaceElevators roomMap [] = roomMap
+replaceElevators roomMap ((a, b):rest) =
+    let Room roomId roomEdges itemEdges = getVal (IntMap.lookup a roomMap) "Missing room"
+        newRoom = Room roomId (replaceElevatorEdge roomEdges b) itemEdges
+     in replaceElevators (IntMap.insert a newRoom roomMap) rest
 
-replaceEdgeRoom :: Room -> Int -> Int -> Room
-replaceEdgeRoom (Room rId edgeList itemEdges) original replacement =
-    let newEdges = replaceEdges edgeList original replacement
-     in Room rId newEdges itemEdges
-
-replaceEdges :: [Edge] -> Int -> Int -> [Edge]
-replaceEdges [] _ _ = []
-replaceEdges ((Edge p roomId):rest) orig replace =
+replaceElevatorEdge :: [Edge] -> Int -> [Edge]
+replaceElevatorEdge [] _ = []
+replaceElevatorEdge ((Edge p roomId):rest) newElevator =
     if roomId `elem` elevatorRooms
-        then Edge p replace : replaceEdges rest orig replace
-        else Edge p roomId : replaceEdges rest orig replace
+        then Edge p newElevator : rest
+        else Edge p roomId : replaceElevatorEdge rest newElevator
 
 elevatorRooms :: [Int]
 elevatorRooms = map getRoomMapKey [RTransporttoTallonOverworldNorth ,RTransporttoMagmoorCavernsNorth ,RTransporttoTallonOverworldEast ,RTransporttoTallonOverworldSouth
