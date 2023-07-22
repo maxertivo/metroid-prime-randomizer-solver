@@ -44,3 +44,7 @@
 ## 1.6.0 -- 2023-05-06
 
 * Another significant performance improvement.
+
+## 1.7.0 --2023-07-21
+
+* Fixed labs barrier logic. More performance improvements.
