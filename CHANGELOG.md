@@ -48,3 +48,7 @@
 ## 1.7.0 -- 2023-07-21
 
 * Fixed labs barrier logic. More performance improvements.
+
+## 1.7.1 -- 2023-07-21
+
+* Added ice beam requirement when going from Life Grove Tunnel to Great Tree Hall.
