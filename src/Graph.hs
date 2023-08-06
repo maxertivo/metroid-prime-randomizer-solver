@@ -169,7 +169,7 @@ buildNodes diff = [ -- Tallon Overworld Rooms
             ,room OGreatTreeChamber [edge OGreatTreeHallTop noReq
                                     ,edge OTallonBackSw $! gtcSw diff]
                                     [itemEdge GreatTreeChamber noReq]
-            ,room OLifeGroveTunnel [edge OGreatTreeHallTop noReq
+            ,room OLifeGroveTunnel [edge OGreatTreeHallTop ice
                                     ,edge OLifeGrove $! lifeGroveTunnel diff]
                                     [itemEdge LifeGroveTunnel $! lifeGroveTunnelItem diff]
             ,room OLifeGrove [edge OLifeGroveTunnel morph]
