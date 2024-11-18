@@ -31,7 +31,7 @@ The application can also be run without providing any arguments, and it will pro
 ## Limitations
 In some cases, the solver won't be able to find a solution even though a solution exists. This is usually due to it "using up" a warp that it needs later. However, the solver should (hopefully) never say a seed is completable when it is not.
 
-Some seeds are techically completable, but can become impossible if the warps are used in the wrong order. The solver will still say such seeds are completable.
+Some seeds are technically completable, but can become impossible if the warps are used in the wrong order. The solver will still say such seeds are completable.
 
 Boss difficulty is not considered at all.
 
